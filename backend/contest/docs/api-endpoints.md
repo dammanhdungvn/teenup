@@ -67,7 +67,18 @@ curl http://localhost:8080/api/parents/1
   "updatedAt": null
 }
 ```
-
+### 1.2 Parents — danh sách
+**GET** `/api/parents/list`
+```bash
+curl "http://localhost:8081/api/parents/list"
+```
+**200 OK**
+```JSON
+[
+  { "id": 1, "name": "Nguyen Van A" },
+  { "id": 2, "name": "Tran Thi B" }
+]
+```
 ---
 
 ## 2) Students
@@ -104,6 +115,20 @@ curl -X POST http://localhost:8080/api/students \
     "email": "a@example.com"
   }
 }
+```
+
+### 2.2 Students — danh 
+
+```BASH
+GET /api/students/list
+```
+**200 OK**
+```JSON
+[
+  { "id": 1, "name": "Minh",  "currentGrade": "Grade 7" },
+  { "id": 2, "name": "Lan",   "currentGrade": "Grade 8" },
+  { "id": 3, "name": "Hoang", "currentGrade": "Grade 6" }
+]
 ```
 
 ### 2.2 Xem chi tiết học sinh (kèm thông tin phụ huynh)

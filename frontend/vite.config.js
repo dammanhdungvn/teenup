@@ -13,15 +13,16 @@ export default defineConfig(({ command, mode }) => {
           target: 'http://localhost:8081',
           changeOrigin: true,
           secure: false,
+          timeout: 10000,
           configure: (proxy, options) => {
             proxy.on('error', (err, req, res) => {
-              console.log('proxy error', err);
+              console.log('Vite Proxy Error:', err);
             });
             proxy.on('proxyReq', (proxyReq, req, res) => {
-              console.log('Sending Request to the Target:', req.method, req.url);
+              console.log('Vite Proxy Request:', req.method, req.url, '→', 'http://localhost:8081' + req.url);
             });
             proxy.on('proxyRes', (proxyRes, req, res) => {
-              console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+              console.log('Vite Proxy Response:', proxyRes.statusCode, req.url);
             });
           },
         }

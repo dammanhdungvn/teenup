@@ -67,6 +67,11 @@ export const DAY_OF_WEEK_MAP = {
   7: 'Chủ Nhật',
 };
 
+// Helper function to get day label
+export const getDayOfWeekLabel = (dayOfWeek) => {
+  return DAY_OF_WEEK_MAP[dayOfWeek] || `Thứ ${dayOfWeek}`;
+};
+
 // Error message mapping
 export const ERROR_MESSAGE_MAP = {
   ALREADY_REGISTERED: 'Học sinh đã đăng ký lớp này',

@@ -20,7 +20,7 @@ import {
   TeamOutlined,
   BookOutlined
 } from '@ant-design/icons';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { studentsApi } from '../../services/students.api.js';
 import { GENDER_OPTIONS, GRADE_OPTIONS, formatDate } from '../../utils/validation.js';
 
@@ -29,9 +29,12 @@ const { Title, Text } = Typography;
 const StudentDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { message } = App.useApp();
   const [student, setStudent] = useState(null);
+  const [studentClasses, setStudentClasses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [classesLoading, setClassesLoading] = useState(false);
 
   useEffect(() => {
     fetchStudentDetail();
@@ -42,11 +45,27 @@ const StudentDetailPage = () => {
       setLoading(true);
       const response = await studentsApi.getStudentById(id);
       setStudent(response.data);
+      
+      // Fetch student classes
+      await fetchStudentClasses(id);
     } catch (error) {
       message.error('Không thể tải thông tin học sinh');
       console.error('Error fetching student:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStudentClasses = async (studentId) => {
+    try {
+      setClassesLoading(true);
+      const response = await studentsApi.getStudentClasses(studentId);
+      setStudentClasses(response.data || []);
+    } catch (error) {
+      console.error('Error fetching student classes:', error);
+      // Không hiển thị error message vì không phải lỗi nghiêm trọng
+    } finally {
+      setClassesLoading(false);
     }
   };
 
@@ -69,8 +88,31 @@ const StudentDetailPage = () => {
     return gradeOption ? gradeOption.label : grade;
   };
 
+  const getDayOfWeekLabel = (dayOfWeek) => {
+    const dayLabels = {
+      1: 'Thứ Hai',
+      2: 'Thứ Ba', 
+      3: 'Thứ Tư',
+      4: 'Thứ Năm',
+      5: 'Thứ Sáu',
+      6: 'Thứ Bảy',
+      7: 'Chủ Nhật'
+    };
+    return dayLabels[dayOfWeek] || `Thứ ${dayOfWeek}`;
+  };
+
+  const formatTimeSlot = (timeSlot) => {
+    if (!timeSlot) return 'N/A';
+    return timeSlot.replace('-', ' - ');
+  };
+
   const handleBack = () => {
-    navigate('/students/list');
+    // Kiểm tra xem có phải đến từ trang classes không
+    if (location.state?.from === 'classes') {
+      navigate('/classes');
+    } else {
+      navigate('/students/list');
+    }
   };
 
   const handleEdit = () => {
@@ -91,7 +133,7 @@ const StudentDetailPage = () => {
       <div style={{ textAlign: 'center', padding: '50px' }}>
         <div style={{ color: '#ff4d4f', fontSize: '18px' }}>Không tìm thấy học sinh</div>
         <Button onClick={handleBack} style={{ marginTop: '16px' }}>
-          Quay lại danh sách
+          {location.state?.from === 'classes' ? 'Quay lại lịch lớp' : 'Quay lại danh sách'}
         </Button>
       </div>
     );
@@ -119,7 +161,13 @@ const StudentDetailPage = () => {
                   onClick={handleBack}
                   type="text"
                   size="large"
-                />
+                  style={{ 
+                    color: '#1890ff',
+                    fontWeight: 500
+                  }}
+                >
+                  {location.state?.from === 'classes' ? 'Quay lại lịch lớp' : 'Quay lại danh sách'}
+                </Button>
                 <div>
                   <Title level={2} style={{ margin: 0, color: '#1f2937' }}>
                     <UserOutlined style={{ marginRight: '12px', color: '#1890ff', fontSize: '28px' }} />
@@ -289,6 +337,117 @@ const StudentDetailPage = () => {
                       </Descriptions.Item>
                     )}
                   </Descriptions>
+                </Card>
+              </Col>
+            </Row>
+
+            <Divider />
+
+            {/* Student Classes Section */}
+            <Row>
+              <Col span={24}>
+                <Card 
+                  size="small" 
+                  title={
+                    <Space>
+                      <BookOutlined style={{ color: '#722ed1' }} />
+                      <span>Lớp học đã đăng ký</span>
+                      <Tag color="blue" style={{ marginLeft: '8px' }}>
+                        {studentClasses.length} lớp
+                      </Tag>
+                    </Space>
+                  }
+                  style={{ border: '1px solid #e5e7eb' }}
+                  extra={
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={() => navigate('/classes')}
+                      style={{
+                        background: '#1890ff',
+                        border: 'none',
+                        borderRadius: '6px'
+                      }}
+                    >
+                      Đăng ký lớp mới
+                    </Button>
+                  }
+                >
+                  {classesLoading ? (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                      <Spin size="small" />
+                      <div style={{ marginTop: '8px', color: '#6b7280' }}>
+                        Đang tải danh sách lớp...
+                      </div>
+                    </div>
+                  ) : studentClasses.length > 0 ? (
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                      gap: '16px',
+                      padding: '16px 0'
+                    }}>
+                      {studentClasses.map((classItem) => (
+                        <Card
+                          key={classItem.id}
+                          size="small"
+                          style={{
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                            background: '#fafafa'
+                          }}
+                          styles={{ body: { padding: '12px' } }}
+                        >
+                          <div style={{ marginBottom: '8px' }}>
+                            <Text strong style={{ fontSize: '16px', color: '#1f2937' }}>
+                              {classItem.className}
+                            </Text>
+                          </div>
+                          <div style={{ marginBottom: '4px' }}>
+                            <Text type="secondary" style={{ fontSize: '13px' }}>
+                              <CalendarOutlined style={{ marginRight: '4px' }} />
+                              {getDayOfWeekLabel(classItem.dayOfWeek)}
+                            </Text>
+                          </div>
+                          <div style={{ marginBottom: '4px' }}>
+                            <Text type="secondary" style={{ fontSize: '13px' }}>
+                              <TeamOutlined style={{ marginRight: '4px' }} />
+                              {formatTimeSlot(classItem.timeSlot)}
+                            </Text>
+                          </div>
+                          <div>
+                            <Text type="secondary" style={{ fontSize: '13px' }}>
+                              <UserOutlined style={{ marginRight: '4px' }} />
+                              GV: {classItem.teacherName}
+                            </Text>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ 
+                      textAlign: 'center', 
+                      padding: '40px 20px',
+                      color: '#6b7280'
+                    }}>
+                      <BookOutlined style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }} />
+                      <div style={{ marginBottom: '16px' }}>
+                        Học sinh chưa đăng ký lớp nào
+                      </div>
+                      <Button
+                        type="primary"
+                        size="small"
+                        onClick={() => navigate('/classes')}
+                        style={{
+                          background: '#1890ff',
+                          border: 'none',
+                          borderRadius: '6px'
+                        }}
+                      >
+                        Đăng ký lớp ngay
+                      </Button>
+                    </div>
+                  )}
                 </Card>
               </Col>
             </Row>

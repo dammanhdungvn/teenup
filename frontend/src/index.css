@@ -58,14 +58,17 @@ body {
 /* Schedule table styling */
 .schedule-table {
   width: 100% !important;
+  overflow: visible;
 }
 
 .schedule-table .ant-table-container {
   width: 100% !important;
+  overflow: visible;
 }
 
 .schedule-table .ant-table {
   width: 100% !important;
+  overflow: visible;
 }
 
 .schedule-table .ant-table-thead > tr > th {
@@ -79,9 +82,12 @@ body {
 .schedule-table .ant-table-tbody > tr > td {
   border-right: 1px solid #f0f0f0;
   border-bottom: 1px solid #f0f0f0;
-  padding: 16px 8px;
+  padding: 8px 4px;
+  height: 60px;
   vertical-align: top;
   white-space: nowrap;
+  position: relative;
+  overflow: visible; /* Allow class blocks to overflow */
 }
 
 .schedule-table .ant-table-tbody > tr > td:last-child {
@@ -95,6 +101,29 @@ body {
 /* Subtle grid lines between cells */
 .schedule-table .ant-table-cell {
   position: relative;
+}
+
+/* Class blocks in schedule */
+.schedule-table .class-block {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  right: 4px;
+  z-index: 100;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border: 2px solid #2196f3;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  /* Đảm bảo class block có thể span qua nhiều rows */
+  pointer-events: auto;
+}
+
+.schedule-table .class-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
 }
 
 .schedule-table .ant-table-cell::after {

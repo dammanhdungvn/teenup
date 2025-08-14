@@ -51,6 +51,16 @@ const AppLayout = ({ children }) => {
       key: '/subscriptions',
       icon: <GiftOutlined />,
       label: 'Gói học',
+      children: [
+        {
+          key: '/subscriptions/list',
+          label: 'Danh sách gói học',
+        },
+        {
+          key: '/subscriptions/new',
+          label: 'Tạo gói học',
+        },
+      ],
     },
   ];
 

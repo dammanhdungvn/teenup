@@ -67,7 +67,7 @@ const HomePage = () => {
         </div>
 
         {/* Quick Stats */}
-        <Row gutter={[24, 24]}>
+        <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={6}>
             <Card>
               <Statistic

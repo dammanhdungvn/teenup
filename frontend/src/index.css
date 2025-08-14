@@ -55,6 +55,68 @@ body {
   background: #a8a8a8;
 }
 
+/* Schedule table styling */
+.schedule-table {
+  width: 100% !important;
+}
+
+.schedule-table .ant-table-container {
+  width: 100% !important;
+}
+
+.schedule-table .ant-table {
+  width: 100% !important;
+}
+
+.schedule-table .ant-table-thead > tr > th {
+  background: #fafafa;
+  border-bottom: 2px solid #e5e7eb;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.schedule-table .ant-table-tbody > tr > td {
+  border-right: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 8px;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.schedule-table .ant-table-tbody > tr > td:last-child {
+  border-right: none;
+}
+
+.schedule-table .ant-table-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+
+/* Subtle grid lines between cells */
+.schedule-table .ant-table-cell {
+  position: relative;
+}
+
+.schedule-table .ant-table-cell::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.06), transparent);
+}
+
+.schedule-table .ant-table-cell::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.06), transparent);
+}
+
 /* Ant Design customizations */
 .ant-layout-header {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);

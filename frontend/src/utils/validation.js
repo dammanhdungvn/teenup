@@ -28,6 +28,7 @@ export const formatDate = (date) => {
 
 export const formatTimeSlot = (timeSlot) => {
   if (!timeSlot) return '';
+  // Format: "14:00-15:30" → "14:00 - 15:30"
   return timeSlot.replace('-', ' - ');
 };
 

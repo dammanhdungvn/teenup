@@ -106,8 +106,8 @@ const CreateStudentPage = () => {
             }}
             requiredMark={false}
           >
-            <Row gutter={24}>
-              <Col xs={24} md={12}>
+            <Row gutter={[24, 16]}>
+              <Col xs={24} sm={24} md={12}>
                 <Form.Item
                   label="Họ và tên"
                   name="name"
@@ -125,7 +125,7 @@ const CreateStudentPage = () => {
                 </Form.Item>
               </Col>
 
-              <Col xs={24} md={12}>
+              <Col xs={24} sm={24} md={12}>
                 <Form.Item
                   label="Ngày sinh"
                   name="dob"
@@ -146,8 +146,8 @@ const CreateStudentPage = () => {
               </Col>
             </Row>
 
-            <Row gutter={24}>
-              <Col xs={24} md={12}>
+            <Row gutter={[24, 16]}>
+              <Col xs={24} sm={24} md={12}>
                 <Form.Item
                   label="Giới tính"
                   name="gender"
@@ -161,7 +161,7 @@ const CreateStudentPage = () => {
                 </Form.Item>
               </Col>
 
-              <Col xs={24} md={12}>
+              <Col xs={24} sm={24} md={12}>
                 <Form.Item
                   label="Lớp hiện tại"
                   name="currentGrade"
@@ -180,8 +180,8 @@ const CreateStudentPage = () => {
               </Col>
             </Row>
 
-            <Row gutter={24}>
-              <Col xs={24} md={12}>
+            <Row gutter={[24, 16]}>
+              <Col xs={24} sm={24} md={12}>
                 <Form.Item
                   label="Phụ huynh"
                   name="parentId"

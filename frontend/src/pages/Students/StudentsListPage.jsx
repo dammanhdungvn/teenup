@@ -73,6 +73,7 @@ const StudentsListPage = () => {
       width: 100,
       align: 'center',
       fixed: 'left',
+      responsive: ['md'],
       render: (id) => (
         <Tag 
           color="blue" 
@@ -110,8 +111,12 @@ const StudentsListPage = () => {
             <UserOutlined />
           </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#1f2937', fontSize: '16px' }}>{name}</div>
-            <div style={{ color: '#6b7280', fontSize: '13px', marginTop: '2px' }}>Học sinh</div>
+            <div style={{ fontWeight: 700, color: '#1f2937', fontSize: '16px' }}>
+              {name}
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '13px', marginTop: '2px' }}>
+              Học sinh
+            </div>
           </div>
         </Space>
       ),
@@ -120,17 +125,18 @@ const StudentsListPage = () => {
       title: 'Lớp hiện tại',
       dataIndex: 'currentGrade',
       key: 'currentGrade',
-      width: 200,
+      width: { xs: 120, sm: 150, md: 200 },
       align: 'center',
+      responsive: ['md'],
       render: (grade) => (
         <Tag 
           color="green" 
           style={{ 
             fontWeight: 600,
-            padding: '8px 16px',
+            padding: { xs: '6px 12px', sm: '7px 14px', md: '8px 16px' },
             borderRadius: '10px',
-            fontSize: '14px',
-            minWidth: '80px'
+            fontSize: { xs: '12px', sm: '13px', md: '14px' },
+            minWidth: { xs: '60px', sm: '70px', md: '80px' }
           }}
         >
           {getGradeLabel(grade)}
@@ -141,17 +147,18 @@ const StudentsListPage = () => {
       title: 'Giới tính',
       dataIndex: 'gender',
       key: 'gender',
-      width: 150,
+      width: { xs: 100, sm: 120, md: 150 },
       align: 'center',
+      responsive: ['sm'],
       render: (gender) => (
         <Tag 
           color={getGenderColor(gender)}
           style={{ 
             fontWeight: 600,
-            padding: '8px 16px',
+            padding: { xs: '6px 12px', sm: '7px 14px', md: '8px 16px' },
             borderRadius: '10px',
-            fontSize: '14px',
-            minWidth: '80px'
+            fontSize: { xs: '12px', sm: '13px', md: '14px' },
+            minWidth: { xs: '60px', sm: '70px', md: '80px' }
           }}
         >
           {getGenderLabel(gender)}
@@ -161,27 +168,28 @@ const StudentsListPage = () => {
     {
       title: 'Thao tác',
       key: 'actions',
-      width: 250,
+      width: { xs: 180, sm: 200, md: 250 },
       align: 'center',
-      fixed: 'right',
+      fixed: { xs: false, sm: false, md: 'right' },
       render: (_, record) => (
-        <Space size="middle">
+        <Space size={{ xs: 'small', sm: 'middle' }} direction={{ xs: 'vertical', sm: 'horizontal' }}>
           <Tooltip title="Xem chi tiết">
             <Button
               type="primary"
               icon={<EyeOutlined />}
               onClick={() => navigate(`/students/${record.id}`)}
-              size="middle"
+              size={{ xs: 'small', sm: 'middle' }}
               style={{
                 background: '#1890ff',
                 border: 'none',
                 borderRadius: '8px',
-                padding: '8px 16px',
+                padding: { xs: '6px 12px', sm: '8px 16px' },
                 fontWeight: 600,
-                boxShadow: '0 2px 8px rgba(24, 144, 255, 0.2)'
+                boxShadow: '0 2px 8px rgba(24, 144, 255, 0.2)',
+                width: { xs: '100%', sm: 'auto' }
               }}
             >
-              Xem
+              {window.innerWidth < 768 ? 'Xem' : 'Xem'}
             </Button>
           </Tooltip>
           <Tooltip title="Chỉnh sửa">
@@ -189,17 +197,18 @@ const StudentsListPage = () => {
               type="default"
               icon={<EditOutlined />}
               onClick={() => navigate(`/students/${record.id}/edit`)}
-              size="middle"
+              size={{ xs: 'small', sm: 'middle' }}
               style={{
                 border: '2px solid #52c41a',
                 color: '#52c41a',
                 borderRadius: '8px',
-                padding: '8px 16px',
+                padding: { xs: '6px 12px', sm: '8px 16px' },
                 fontWeight: 600,
-                background: 'transparent'
+                background: 'transparent',
+                width: { xs: '100%', sm: 'auto' }
               }}
             >
-              Sửa
+              {window.innerWidth < 768 ? 'Sửa' : 'Sửa'}
             </Button>
           </Tooltip>
         </Space>
@@ -294,6 +303,7 @@ const StudentsListPage = () => {
               }}
               size="large"
               scroll={{ x: 1000 }}
+              responsive={true}
             />
           </Card>
 

@@ -203,8 +203,8 @@ const StudentDetailPage = () => {
 
             <Divider />
 
-            <Row gutter={[32, 24]}>
-              <Col xs={24} md={12}>
+            <Row gutter={[24, 24]}>
+              <Col xs={24} sm={24} md={12}>
                 <Card 
                   size="small" 
                   title={
@@ -234,7 +234,7 @@ const StudentDetailPage = () => {
                 </Card>
               </Col>
 
-              <Col xs={24} md={12}>
+              <Col xs={24} sm={24} md={12}>
                 <Card 
                   size="small" 
                   title={
@@ -243,7 +243,7 @@ const StudentDetailPage = () => {
                       <span>Thông tin phụ huynh</span>
                     </Space>
                   }
-                  style={{ border: '1px solid #e5e7eb' }}
+                  style={{ border: '1px', borderColor: '#e5e7eb' }}
                 >
                   {student.parent && (
                     <Descriptions column={1} size="small">

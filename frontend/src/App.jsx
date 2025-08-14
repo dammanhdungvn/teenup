@@ -6,6 +6,7 @@ import HomePage from './pages/Home/HomePage';
 import StudentsListPage from './pages/Students/StudentsListPage';
 import CreateStudentPage from './pages/Students/CreateStudentPage';
 import StudentDetailPage from './pages/Students/StudentDetailPage';
+import ClassesSchedulePage from './pages/Classes/ClassesSchedulePage';
 
 // Ant Design theme configuration
 const theme = {
@@ -67,6 +68,7 @@ function App() {
               <Route path="/students/list" element={<StudentsListPage />} />
               <Route path="/students/new" element={<CreateStudentPage />} />
               <Route path="/students/:id" element={<StudentDetailPage />} />
+              <Route path="/classes" element={<ClassesSchedulePage />} />
               
               {/* Redirect unknown routes to home */}
               <Route path="*" element={<Navigate to="/" replace />} />

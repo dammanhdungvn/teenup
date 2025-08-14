@@ -127,7 +127,7 @@ const HomePage = () => {
                     border: `2px solid ${action.color}`,
                     transition: 'all 0.3s ease'
                   }}
-                  bodyStyle={{ padding: '24px 16px' }}
+                  styles={{ body: { padding: '24px 16px' } }}
                 >
                   <div style={{ marginBottom: '16px' }}>
                     {action.icon}

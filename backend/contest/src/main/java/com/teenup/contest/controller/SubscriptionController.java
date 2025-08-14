@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +35,13 @@ public class SubscriptionController {
     @GetMapping("/{id}")
     public SubscriptionResponse get(@PathVariable Long id) {
         return service.get(id);
+    }
+
+    @GetMapping
+    public List<SubscriptionResponse> list(
+            @RequestParam(name = "studentId", required = false) Long studentId
+    ) {
+        return service.list(studentId); // service.list đã map entity -> DTO
     }
 }
 

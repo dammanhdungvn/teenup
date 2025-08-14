@@ -1,10 +1,9 @@
 import axios from 'axios';
+import { API_BASE_URL, USE_PROXY } from '../config/api.config.js';
 
-const API_BASE_URL = '/api';
-
-// Tạo axios instance với config mặc định
+// Tạo axios instance với config linh hoạt
 const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: USE_PROXY ? '/api' : API_BASE_URL + '/api',
   headers: {
     'Content-Type': 'application/json',
   },

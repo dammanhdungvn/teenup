@@ -72,6 +72,11 @@ const ClassesSchedulePage = () => {
   const [registerLoading, setRegisterLoading] = useState(false);
   const [form] = Form.useForm();
 
+  // State cho modal xem danh sách học sinh
+  const [studentsModalVisible, setStudentsModalVisible] = useState(false);
+  const [classStudents, setClassStudents] = useState([]);
+  const [classStudentsLoading, setClassStudentsLoading] = useState(false);
+
   const fetchClasses = async (params = {}) => {
     try {
       setLoading(true);
@@ -100,7 +105,8 @@ const ClassesSchedulePage = () => {
   };
 
   useEffect(() => {
-    fetchClasses({});
+    // Lấy danh sách lớp kèm thông tin học sinh đã đăng ký
+    fetchClasses({ expand: 'registrations' });
   }, []);
 
   const timeRows = useMemo(() => {
@@ -220,23 +226,37 @@ const ClassesSchedulePage = () => {
                       <Tag color="green" size="small">{c.subject}</Tag>
                       <Tag color="purple" size="small">Max {c.maxStudents}</Tag>
                     </Space>
-                    <div style={{ textAlign: 'center', marginTop: '4px' }}>
-                                             <Tooltip title="Đăng ký học sinh">
-                         <Button
-                           type="primary"
-                           size="small"
-                           icon={<UserAddOutlined />}
-                           onClick={() => handleOpenRegister(c)}
-                           style={{
-                             background: '#52c41a',
-                             border: 'none',
-                             borderRadius: '6px'
-                           }}
-                         >
-                           Đăng ký
-                         </Button>
-                       </Tooltip>
-                    </div>
+                                         <div style={{ textAlign: 'center', marginTop: '4px' }}>
+                       <Space size="small">
+                         <Tooltip title="Xem danh sách học sinh">
+                           <Button
+                             size="small"
+                             onClick={() => handleViewStudents(c)}
+                             style={{
+                               border: '1px solid #d9d9d9',
+                               borderRadius: '6px'
+                             }}
+                           >
+                             Xem ({c.students?.length || 0})
+                           </Button>
+                         </Tooltip>
+                         <Tooltip title="Đăng ký học sinh">
+                           <Button
+                             type="primary"
+                             size="small"
+                             icon={<UserAddOutlined />}
+                             onClick={() => handleOpenRegister(c)}
+                             style={{
+                               background: '#52c41a',
+                               border: 'none',
+                               borderRadius: '6px'
+                             }}
+                           >
+                             Đăng ký
+                           </Button>
+                         </Tooltip>
+                       </Space>
+                     </div>
                   </Space>
                 </Card>
               ))}
@@ -251,9 +271,9 @@ const ClassesSchedulePage = () => {
 
   const handleRefresh = () => {
     if (dayFilter && dayFilter !== 'all') {
-      fetchClasses({ day: dayFilter });
+      fetchClasses({ day: dayFilter, expand: 'registrations' });
     } else {
-      fetchClasses({});
+      fetchClasses({ expand: 'registrations' });
     }
   };
 
@@ -298,9 +318,9 @@ const ClassesSchedulePage = () => {
       
       // Refresh danh sách lớp
       if (dayFilter && dayFilter !== 'all') {
-        fetchClasses({ day: dayFilter });
+        fetchClasses({ day: dayFilter, expand: 'registrations' });
       } else {
-        fetchClasses({});
+        fetchClasses({ expand: 'registrations' });
       }
     } catch (err) {
       console.error('Error registering student:', err);
@@ -316,6 +336,31 @@ const ClassesSchedulePage = () => {
     } finally {
       setRegisterLoading(false);
     }
+  };
+
+  // Mở modal xem danh sách học sinh
+  const handleViewStudents = async (classData) => {
+    setSelectedClass(classData);
+    setStudentsModalVisible(true);
+    setClassStudentsLoading(true);
+    
+    try {
+      // Lấy danh sách học sinh đã đăng ký lớp này
+      const resp = await classesApi.getRegistrations(classData.id);
+      setClassStudents(resp.data || []);
+    } catch (err) {
+      message.error('Không thể tải danh sách học sinh');
+      console.error('Error fetching class students:', err);
+    } finally {
+      setClassStudentsLoading(false);
+    }
+  };
+
+  // Đóng modal xem danh sách học sinh
+  const handleCloseStudents = () => {
+    setStudentsModalVisible(false);
+    setSelectedClass(null);
+    setClassStudents([]);
   };
 
   const dayOptions = [
@@ -362,12 +407,11 @@ const ClassesSchedulePage = () => {
                    value={dayFilter}
                    style={{ width: 180 }}
                    onChange={(v) => {
-                    
                      setDayFilter(v);
                      if (v && v !== 'all') {
-                       fetchClasses({ day: v });
+                       fetchClasses({ day: v, expand: 'registrations' });
                      } else {
-                       fetchClasses({});
+                       fetchClasses({ expand: 'registrations' });
                      }
                    }}
                  />
@@ -510,6 +554,100 @@ const ClassesSchedulePage = () => {
              </Space>
            </Form.Item>
          </Form>
+       </Modal>
+
+       {/* Modal xem danh sách học sinh */}
+       <Modal
+         title={
+           <div style={{ textAlign: 'center' }}>
+             <UserAddOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
+             Danh sách học sinh đã đăng ký
+           </div>
+         }
+         open={studentsModalVisible}
+         onCancel={handleCloseStudents}
+         footer={null}
+         width={600}
+         centered
+       >
+         {selectedClass && (
+           <div style={{ marginBottom: '24px' }}>
+             <Card size="small" style={{ background: '#f8fafc' }}>
+               <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                 <div style={{ fontWeight: 600, fontSize: '16px', color: '#1f2937' }}>
+                   {selectedClass.name}
+                 </div>
+                 <div style={{ color: '#6b7280' }}>
+                   {DAY_OF_WEEK_MAP[selectedClass.dayOfWeek]} • {formatTimeSlot(selectedClass.timeSlot)}
+                 </div>
+                 <div style={{ color: '#6b7280' }}>
+                   Giáo viên: {selectedClass.teacherName} • Môn: {selectedClass.subject}
+                 </div>
+                 <div style={{ color: '#6b7280' }}>
+                   Số học sinh: {classStudents.length}/{selectedClass.maxStudents}
+                 </div>
+               </Space>
+             </Card>
+           </div>
+         )}
+
+         {classStudentsLoading ? (
+           <div style={{ textAlign: 'center', padding: '40px' }}>
+             <Spin size="large" />
+             <div style={{ marginTop: '16px', color: '#6b7280' }}>
+               Đang tải danh sách học sinh...
+             </div>
+           </div>
+         ) : classStudents.length === 0 ? (
+           <div style={{ textAlign: 'center', padding: '40px' }}>
+             <UserAddOutlined style={{ fontSize: '48px', color: '#d1d5db', marginBottom: '16px' }} />
+             <div style={{ color: '#6b7280' }}>Chưa có học sinh nào đăng ký</div>
+           </div>
+         ) : (
+           <div>
+             <div style={{ marginBottom: '16px', fontWeight: 600, color: '#1f2937' }}>
+               Danh sách học sinh ({classStudents.length}):
+             </div>
+             <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+               {classStudents.map((student, index) => (
+                 <Card
+                   key={student.id}
+                   size="small"
+                   style={{ 
+                     marginBottom: '8px',
+                     border: '1px solid #e5e7eb',
+                     borderRadius: '8px'
+                   }}
+                 >
+                   <Space>
+                     <div style={{ 
+                       width: '32px', 
+                       height: '32px', 
+                       borderRadius: '50%', 
+                       background: '#1890ff',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       color: 'white',
+                       fontWeight: 600,
+                       fontSize: '14px'
+                     }}>
+                       {index + 1}
+                     </div>
+                     <div>
+                       <div style={{ fontWeight: 600, color: '#1f2937' }}>
+                         {student.name}
+                       </div>
+                       <div style={{ color: '#6b7280', fontSize: '12px' }}>
+                         {student.currentGrade}
+                       </div>
+                     </div>
+                   </Space>
+                 </Card>
+               ))}
+             </div>
+           </div>
+         )}
        </Modal>
      </div>
    );

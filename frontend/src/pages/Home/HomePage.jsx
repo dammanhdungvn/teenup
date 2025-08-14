@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Typography, 
   Row, 
@@ -6,21 +6,69 @@ import {
   Card, 
   Statistic, 
   Space,
-  Button 
+  Button,
+  Spin,
+  App
 } from 'antd';
 import { 
   UserOutlined, 
   TeamOutlined, 
   BookOutlined, 
   GiftOutlined,
-  PlusOutlined 
+  PlusOutlined,
+  ReloadOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { dashboardApi } from '../../services/dashboard.api.js';
 
 const { Title, Paragraph } = Typography;
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { message } = App.useApp();
+  
+  // State cho dashboard stats
+  const [stats, setStats] = useState({
+    studentsCount: 0,
+    parentsCount: 0,
+    classesCount: 0,
+    activeSubscriptionsCount: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Fetch dashboard data
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch từng API riêng biệt để đảm bảo hoạt động
+      const [studentsResp, parentsResp, classesResp, subscriptionsResp] = await Promise.allSettled([
+        dashboardApi.getStudentsList(),
+        dashboardApi.getParentsList(),
+        dashboardApi.getClassesList(),
+        dashboardApi.getSubscriptionsList()
+      ]);
+
+      // Cập nhật stats với dữ liệu thực từ API (đếm length của array)
+      setStats({
+        studentsCount: studentsResp.status === 'fulfilled' ? (studentsResp.value.data?.length || 0) : 0,
+        parentsCount: parentsResp.status === 'fulfilled' ? (parentsResp.value.data?.length || 0) : 0,
+        classesCount: classesResp.status === 'fulfilled' ? (classesResp.value.data?.length || 0) : 0,
+        activeSubscriptionsCount: subscriptionsResp.status === 'fulfilled' ? (subscriptionsResp.value.data?.length || 0) : 0
+      });
+
+    } catch (err) {
+      message.error('Không thể tải dữ liệu dashboard');
+      console.error('Error fetching dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data khi component mount
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   const quickActions = [
     {
@@ -67,48 +115,78 @@ const HomePage = () => {
         </div>
 
         {/* Quick Stats */}
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Tổng học sinh"
-                value={0}
-                prefix={<UserOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Tổng phụ huynh"
-                value={0}
-                prefix={<TeamOutlined />}
-                valueStyle={{ color: '#52c41a' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Tổng lớp học"
-                value={0}
-                prefix={<BookOutlined />}
-                valueStyle={{ color: '#fa8c16' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card>
-              <Statistic
-                title="Gói học đang hoạt động"
-                value={0}
-                prefix={<GiftOutlined />}
-                valueStyle={{ color: '#722ed1' }}
-              />
-            </Card>
-          </Col>
-        </Row>
+        <div style={{ position: 'relative' }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            marginBottom: '16px' 
+          }}>
+            <Title level={3} style={{ margin: 0 }}>Thống kê tổng quan</Title>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={fetchDashboardData}
+              loading={loading}
+              type="primary"
+              size="small"
+            >
+              Làm mới
+            </Button>
+          </div>
+          
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '40px' }}>
+              <Spin size="large" />
+              <div style={{ marginTop: '16px', color: '#6b7280' }}>
+                Đang tải dữ liệu dashboard...
+              </div>
+            </div>
+          ) : (
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={12} md={6}>
+                <Card hoverable>
+                  <Statistic
+                    title="Tổng học sinh"
+                    value={stats.studentsCount}
+                    prefix={<UserOutlined />}
+                    valueStyle={{ color: '#1890ff' }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Card hoverable>
+                  <Statistic
+                    title="Tổng phụ huynh"
+                    value={stats.parentsCount}
+                    prefix={<TeamOutlined />}
+                    valueStyle={{ color: '#52c41a' }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Card hoverable>
+                  <Statistic
+                    title="Tổng lớp học"
+                    value={stats.classesCount}
+                    prefix={<BookOutlined />}
+                    valueStyle={{ color: '#fa8c16' }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Card hoverable>
+                  <Statistic
+                    title="Gói học đang hoạt động"
+                    value={stats.activeSubscriptionsCount}
+                    prefix={<GiftOutlined />}
+                    valueStyle={{ color: '#722ed1' }}
+
+                  />
+                </Card>
+              </Col>
+            </Row>
+          )}
+        </div>
 
         {/* Quick Actions */}
         <div>
@@ -208,6 +286,8 @@ const HomePage = () => {
             </Col>
           </Row>
         </div>
+
+
       </Space>
     </div>
   );

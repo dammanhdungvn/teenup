@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -61,5 +62,13 @@ public class SubscriptionService {
         SubscriptionsEntity s = repo.findById(id)
                 .orElseThrow(() -> new SubscriptionNotFoundException(id));
         return mapper.toResponse(s);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SubscriptionResponse> list(Long studentId) {
+        List<SubscriptionsEntity> list = (studentId == null)
+                ? repo.findAll()
+                : repo.findByStudent_Id(studentId);
+        return list.stream().map(mapper::toResponse).toList();
     }
 }

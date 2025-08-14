@@ -117,7 +117,7 @@ curl -X POST http://localhost:8080/api/students \
 }
 ```
 
-### 2.2 Students — danh 
+### 2.2 Students — danh sách
 
 ```BASH
 GET /api/students/list
@@ -131,7 +131,7 @@ GET /api/students/list
 ]
 ```
 
-### 2.2 Xem chi tiết học sinh (kèm thông tin phụ huynh)
+### 2.3 Xem chi tiết học sinh (kèm thông tin phụ huynh)
 
 **GET** `/api/students/{id}`
 
@@ -453,5 +453,35 @@ curl http://localhost:8080/api/subscriptions/10
 }
 ```
 
+### 5.4 Lấy tất cả subscriptions
+
+```bash
+GET /api/subscriptions
+```
+**200 OK**
+```JSON
+[
+  {
+    "id": 1,
+    "studentId": 2,
+    "packageName": "Math Premium",
+    "startDate": "2025-08-01",
+    "endDate": "2025-10-01",
+    "totalSessions": 20,
+    "usedSessions": 5,
+    "remainingSessions": 15
+  },
+  {
+    "id": 2,
+    "studentId": 3,
+    "packageName": "English Basic",
+    "startDate": "2025-08-05",
+    "endDate": "2025-09-05",
+    "totalSessions": 10,
+    "usedSessions": 3,
+    "remainingSessions": 7
+  }
+]
+```
 ---
 

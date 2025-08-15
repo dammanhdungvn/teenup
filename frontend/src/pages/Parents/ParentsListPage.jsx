@@ -10,7 +10,9 @@ import {
   Tooltip,
   App,
   Select,
-  Modal
+  Modal,
+  Form,
+  Input
 } from 'antd';
 import { 
   TeamOutlined, 
@@ -31,6 +33,9 @@ const ParentsListPage = () => {
   const [loading, setLoading] = useState(true);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [parentToDelete, setParentToDelete] = useState(null);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingParent, setEditingParent] = useState(null);
+  const [editForm] = Form.useForm();
   const navigate = useNavigate();
   const { message } = App.useApp();
 
@@ -84,6 +89,48 @@ const ParentsListPage = () => {
   const handleCancelDelete = () => {
     setDeleteModalVisible(false);
     setParentToDelete(null);
+  };
+
+  // Xử lý edit parent
+  const handleEdit = (parent) => {
+    setEditingParent(parent);
+    editForm.setFieldsValue({
+      name: parent.name,
+      phone: parent.phone,
+      email: parent.email
+    });
+    setEditModalVisible(true);
+  };
+
+  // Xác nhận edit
+  const confirmEdit = async () => {
+    try {
+      const values = await editForm.validateFields();
+      await parentsApi.updateParent(editingParent.id, values);
+      message.success('Cập nhật phụ huynh thành công!');
+      setEditModalVisible(false);
+      setEditingParent(null);
+      editForm.resetFields();
+      fetchParents(); // Refresh data
+    } catch (err) {
+      if (err.errorFields) {
+        // Form validation error
+        return;
+      }
+      const backendMessage = err?.response?.data?.message;
+      if (backendMessage) {
+        message.error(backendMessage);
+      } else {
+        message.error('Không thể cập nhật phụ huynh');
+      }
+    }
+  };
+
+  // Hủy edit
+  const cancelEdit = () => {
+    setEditModalVisible(false);
+    setEditingParent(null);
+    editForm.resetFields();
   };
 
   const columns = [
@@ -219,7 +266,7 @@ const ParentsListPage = () => {
             <Button
               type="default"
               icon={<EditOutlined />}
-              onClick={() => navigate(`/parents/${record.id}/edit`)}
+              onClick={() => handleEdit(record)}
               size={{ xs: 'small', sm: 'middle' }}
               style={{
                 border: '2px solid #52c41a',
@@ -319,29 +366,31 @@ const ParentsListPage = () => {
             padding: '0',
             overflow: 'auto'
           }}>
-            <Table
-              columns={columns}
-              dataSource={parents}
-              rowKey="id"
-              pagination={false}
-              loading={loading}
-              locale={{
-                emptyText: (
-                  <div style={{ textAlign: 'center', padding: '60px' }}>
-                    <TeamOutlined style={{ fontSize: '64px', color: '#d1d5db', marginBottom: '24px' }} />
-                    <div style={{ color: '#6b7280', fontSize: '16px' }}>Chưa có phụ huynh nào</div>
-                  </div>
-                ),
-              }}
-              style={{
-                borderRadius: '12px',
-                overflow: 'hidden',
-                width: '100%'
-              }}
-              size="large"
-              scroll={{ x: { xs: 800, sm: 1000, md: 'max-content' } }}
-              responsive={true}
-            />
+            <div style={{ overflowX: 'auto', width: '100%' }}>
+              <Table
+                columns={columns}
+                dataSource={parents}
+                rowKey="id"
+                pagination={false}
+                loading={loading}
+                locale={{
+                  emptyText: (
+                    <div style={{ textAlign: 'center', padding: '60px' }}>
+                      <TeamOutlined style={{ fontSize: '64px', color: '#d1d5db', marginBottom: '24px' }} />
+                      <div style={{ color: '#6b7280', fontSize: '16px' }}>Chưa có phụ huynh nào</div>
+                    </div>
+                  ),
+                }}
+                style={{
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  minWidth: '900px'
+                }}
+                size="middle"
+                scroll={false}
+                responsive={false}
+              />
+            </div>
           </Card>
 
           {/* Pagination - Tách riêng ở cuối */}
@@ -376,6 +425,64 @@ const ParentsListPage = () => {
             </div>
           </Card>
         </Space>
+
+        {/* Edit Parent Modal */}
+        <Modal
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <EditOutlined style={{ color: '#52c41a', fontSize: '20px' }} />
+              <span>Chỉnh sửa phụ huynh</span>
+            </div>
+          }
+          open={editModalVisible}
+          onOk={confirmEdit}
+          onCancel={cancelEdit}
+          okText="Cập nhật"
+          cancelText="Hủy"
+          width={600}
+          centered
+        >
+          {editingParent && (
+            <Form
+              form={editForm}
+              layout="vertical"
+              style={{ marginTop: '16px' }}
+            >
+              <Form.Item
+                name="name"
+                label="Họ và tên"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập họ và tên!' },
+                  { min: 2, message: 'Tên phải có ít nhất 2 ký tự!' }
+                ]}
+              >
+                <Input placeholder="Nhập họ và tên phụ huynh" />
+              </Form.Item>
+
+              <Form.Item
+                name="phone"
+                label="Số điện thoại"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập số điện thoại!' },
+                  { pattern: /^[0-9]{10,11}$/, message: 'Số điện thoại không hợp lệ!' }
+                ]}
+              >
+                <Input placeholder="Nhập số điện thoại" />
+              </Form.Item>
+
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập email!' },
+                  { type: 'email', message: 'Email không hợp lệ!' }
+                ]}
+              >
+                <Input placeholder="Nhập email" />
+              </Form.Item>
+            </Form>
+          )}
+        </Modal>
 
         {/* Delete Confirmation Modal */}
         <Modal

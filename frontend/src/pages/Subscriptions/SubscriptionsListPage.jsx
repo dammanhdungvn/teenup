@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import './SubscriptionsListPage.css';
 import { 
   Card, 
   Table, 
@@ -8,7 +9,6 @@ import {
   Input, 
   Select, 
   DatePicker, 
-  message, 
   Spin,
   Tooltip,
   Modal,
@@ -26,7 +26,9 @@ import {
   UserOutlined,
   GiftOutlined,
   EditOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  ReloadOutlined as ResetOutlined,
+  PlusOutlined as ExtendOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { App } from 'antd';
@@ -60,8 +62,15 @@ const SubscriptionsListPage = () => {
   const [deletingSubscription, setDeletingSubscription] = useState(null);
   const [editForm] = Form.useForm();
 
+  // State cho admin functions
+  const [resetModalVisible, setResetModalVisible] = useState(false);
+  const [extendModalVisible, setExtendModalVisible] = useState(false);
+  const [adminSubscription, setAdminSubscription] = useState(null);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [extendForm] = Form.useForm();
+
   // Fetch subscriptions
-  const fetchSubscriptions = async (params = {}) => {
+  const fetchSubscriptions = useCallback(async () => {
     try {
       setLoading(true);
       const resp = await subscriptionsApi.getSubscriptionsList();
@@ -77,7 +86,7 @@ const SubscriptionsListPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [messageApi]);
 
   // Fetch students để hiển thị tên
   const fetchStudents = async () => {
@@ -94,7 +103,7 @@ const SubscriptionsListPage = () => {
   useEffect(() => {
     fetchSubscriptions();
     fetchStudents();
-  }, []);
+  }, [fetchSubscriptions]);
 
   // Xử lý tìm kiếm và lọc
   const handleSearch = (value) => {
@@ -249,6 +258,92 @@ const SubscriptionsListPage = () => {
     editForm.resetFields();
   };
 
+  // Admin functions
+  const handleResetUsed = (subscription) => {
+    setAdminSubscription(subscription);
+    setResetModalVisible(true);
+  };
+
+  const handleExtend = (subscription) => {
+    setAdminSubscription(subscription);
+    setExtendModalVisible(true);
+    extendForm.setFieldsValue({
+      additionalSessions: 10,
+      extendDays: 30
+    });
+  };
+
+  const confirmResetUsed = async () => {
+    if (!adminSubscription) return;
+    
+    try {
+      setAdminLoading(true);
+      await subscriptionsApi.resetUsedSessions(adminSubscription.id);
+      messageApi.success('Đã reset số buổi đã sử dụng thành công!');
+      setResetModalVisible(false);
+      setAdminSubscription(null);
+      fetchSubscriptions(); // Refresh data
+    } catch (err) {
+      const backendMessage = err?.response?.data?.message;
+      if (backendMessage) {
+        messageApi.error(backendMessage);
+      } else {
+        messageApi.error('Không thể reset số buổi đã sử dụng');
+      }
+    } finally {
+      setAdminLoading(false);
+    }
+  };
+
+  const confirmExtend = async () => {
+    if (!adminSubscription) return;
+    
+    try {
+      setAdminLoading(true);
+      const values = await extendForm.validateFields();
+      
+      // Calculate new end date based on extendDays
+      const currentEndDate = dayjs(adminSubscription.endDate);
+      const newEndDate = currentEndDate.add(parseInt(values.extendDays), 'day');
+      
+      const formData = {
+        addSessions: parseInt(values.additionalSessions),
+        endDate: newEndDate.format('YYYY-MM-DD')
+      };
+      
+      await subscriptionsApi.extendSubscription(adminSubscription.id, formData);
+      messageApi.success('Đã gia hạn gói học thành công!');
+      setExtendModalVisible(false);
+      setAdminSubscription(null);
+      extendForm.resetFields();
+      fetchSubscriptions(); // Refresh data
+    } catch (err) {
+      if (err.errorFields) {
+        // Form validation error
+        return;
+      }
+      const backendMessage = err?.response?.data?.message;
+      if (backendMessage) {
+        messageApi.error(backendMessage);
+      } else {
+        messageApi.error('Không thể gia hạn gói học');
+      }
+    } finally {
+      setAdminLoading(false);
+    }
+  };
+
+  const cancelReset = () => {
+    setResetModalVisible(false);
+    setAdminSubscription(null);
+  };
+
+  const cancelExtend = () => {
+    setExtendModalVisible(false);
+    setAdminSubscription(null);
+    extendForm.resetFields();
+  };
+
   // Sử dụng 1 buổi học
   const handleUseSession = async (subscriptionId) => {
     try {
@@ -397,20 +492,16 @@ const SubscriptionsListPage = () => {
       width: 90,
       align: 'center',
       render: (_, record) => {
-        let status = 'active';
         let color = 'success';
         let text = 'Hoạt động';
         
         if (record.remainingSessions <= 0) {
-          status = 'completed';
           color = 'default';
           text = 'Đã hết';
         } else if (record.endDate && dayjs(record.endDate).isBefore(dayjs(), 'day')) {
-          status = 'expired';
           color = 'error';
           text = 'Hết hạn';
         } else if (record.startDate && dayjs(record.startDate).isAfter(dayjs(), 'day')) {
-          status = 'upcoming';
           color = 'processing';
           text = 'Sắp tới';
         }
@@ -498,26 +589,50 @@ const SubscriptionsListPage = () => {
               </Button>
             </Tooltip>
           )}
+
+          {/* Admin Actions */}
+          <Tooltip title="Reset số buổi đã sử dụng (Admin)">
+            <Button
+              type="text"
+              icon={<ResetOutlined />}
+              onClick={() => handleResetUsed(record)}
+              className="admin-button"
+              style={{ 
+                color: '#722ed1',
+                borderRadius: '6px',
+                height: '32px',
+                width: '32px'
+              }}
+            />
+          </Tooltip>
+
+          <Tooltip title="Gia hạn gói học (Admin)">
+            <Button
+              type="text"
+              icon={<ExtendOutlined />}
+              onClick={() => handleExtend(record)}
+              className="admin-button"
+              style={{ 
+                color: '#13c2c2',
+                borderRadius: '6px',
+                height: '32px',
+                width: '32px'
+              }}
+            />
+          </Tooltip>
         </Space>
       )
     }
   ];
 
     return (
-    <div style={{ 
-      background: '#f8fafc', 
-      minHeight: '100vh', 
-      padding: '32px 24px',
+    <div className="subscriptions-page" style={{
       backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(147, 51, 234, 0.05) 0%, transparent 50%)'
     }}>
       <div style={{ maxWidth: '100%', margin: '0 auto', padding: '0 16px' }}>
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           {/* Header */}
-          <Card style={{ 
-            background: '#ffffff',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
-          }}>
+          <Card className="subscriptions-header">
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
@@ -551,11 +666,7 @@ const SubscriptionsListPage = () => {
           </Card>
 
           {/* Filters */}
-          <Card style={{ 
-            background: '#ffffff',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
-          }}>
+          <Card className="subscriptions-table">
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
               <Search
                 placeholder="Tìm kiếm theo tên gói hoặc học sinh..."
@@ -888,6 +999,209 @@ const SubscriptionsListPage = () => {
             )}
           </div>
         )}
+      </Modal>
+
+      {/* Reset Used Sessions Modal */}
+      <Modal
+        className="admin-modal reset-modal"
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ResetOutlined style={{ color: '#722ed1', fontSize: '20px' }} />
+            <span>Reset số buổi đã sử dụng</span>
+          </div>
+        }
+        open={resetModalVisible}
+        onOk={confirmResetUsed}
+        onCancel={cancelReset}
+        okText="Reset"
+        cancelText="Hủy"
+        confirmLoading={adminLoading}
+        okButtonProps={{
+          style: {
+            background: '#722ed1',
+            border: 'none',
+            borderRadius: '8px',
+            height: '40px',
+            padding: '0 20px'
+          }
+        }}
+        cancelButtonProps={{
+          style: {
+            border: '1px solid #d9d9d9',
+            borderRadius: '8px',
+            height: '40px',
+            padding: '0 20px'
+          }
+        }}
+        centered
+      >
+        <div style={{ padding: '16px 0' }}>
+          <p style={{ marginBottom: '16px', fontSize: '16px', color: '#1f2937' }}>
+            Bạn có chắc chắn muốn reset số buổi đã sử dụng về 0?
+          </p>
+          {adminSubscription && (
+            <div style={{ 
+              background: '#f8f9fa', 
+              padding: '16px', 
+              borderRadius: '8px',
+              border: '1px solid #e9ecef'
+            }}>
+              <div style={{ fontWeight: 600, color: '#1f2937', marginBottom: '8px' }}>
+                Thông tin gói học:
+              </div>
+              <div style={{ color: '#6b7280' }}>
+                <div><strong>ID:</strong> {adminSubscription.id}</div>
+                <div><strong>Gói học:</strong> {adminSubscription.packageName}</div>
+                <div><strong>Học sinh:</strong> {students.find(s => s.id === adminSubscription.studentId)?.name || `ID: ${adminSubscription.studentId}`}</div>
+                <div><strong>Số buổi đã sử dụng:</strong> <Tag color="red">{adminSubscription.usedSessions}</Tag></div>
+                <div><strong>Số buổi còn lại:</strong> <Tag color="green">{adminSubscription.remainingSessions}</Tag></div>
+              </div>
+            </div>
+          )}
+          <div style={{ 
+            marginTop: '16px', 
+            padding: '12px 16px', 
+            background: '#fff2e8', 
+            border: '1px solid #ffd591',
+            borderRadius: '6px',
+            color: '#d46b08'
+          }}>
+            <strong>⚠️ Lưu ý:</strong> Hành động này sẽ reset số buổi đã sử dụng về 0, 
+            cho phép học sinh sử dụng lại toàn bộ số buổi học trong gói.
+          </div>
+        </div>
+      </Modal>
+
+      {/* Extend Subscription Modal */}
+      <Modal
+        className="admin-modal extend-modal"
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ExtendOutlined style={{ color: '#13c2c2', fontSize: '20px' }} />
+            <span>Gia hạn gói học</span>
+          </div>
+        }
+        open={extendModalVisible}
+        onOk={confirmExtend}
+        onCancel={cancelExtend}
+        okText="Gia hạn"
+        cancelText="Hủy"
+        confirmLoading={adminLoading}
+        okButtonProps={{
+          style: {
+            background: '#13c2c2',
+            border: 'none',
+            borderRadius: '8px',
+            height: '40px',
+            padding: '0 20px'
+          }
+        }}
+        cancelButtonProps={{
+          style: {
+            border: '1px solid #d9d9d9',
+            borderRadius: '8px',
+            height: '40px',
+            padding: '0 20px'
+          }
+        }}
+        width={500}
+        centered
+      >
+        <div style={{ padding: '16px 0' }}>
+          {adminSubscription && (
+            <div style={{ 
+              background: '#f8f9fa', 
+              padding: '16px', 
+              borderRadius: '8px',
+              border: '1px solid #e9ecef',
+              marginBottom: '16px'
+            }}>
+              <div style={{ fontWeight: 600, color: '#1f2937', marginBottom: '8px' }}>
+                Thông tin gói học hiện tại:
+              </div>
+              <div style={{ color: '#6b7280' }}>
+                <div><strong>ID:</strong> {adminSubscription.id}</div>
+                <div><strong>Gói học:</strong> {adminSubscription.packageName}</div>
+                <div><strong>Học sinh:</strong> {students.find(s => s.id === adminSubscription.studentId)?.name || `ID: ${adminSubscription.studentId}`}</div>
+                <div><strong>Ngày kết thúc:</strong> {dayjs(adminSubscription.endDate).format('DD/MM/YYYY')}</div>
+                <div><strong>Số buổi còn lại:</strong> <Tag color="green">{adminSubscription.remainingSessions}</Tag></div>
+              </div>
+            </div>
+          )}
+
+          <Form
+            form={extendForm}
+            layout="vertical"
+            style={{ marginTop: '16px' }}
+          >
+            <Form.Item
+              name="additionalSessions"
+              label="Thêm số buổi học"
+              rules={[
+                { required: true, message: 'Vui lòng nhập số buổi học!' },
+                {
+                  validator: (_, value) => {
+                    const num = parseInt(value);
+                    if (isNaN(num) || num <= 0) {
+                      return Promise.reject(new Error('Số buổi học phải lớn hơn 0!'));
+                    }
+                    if (num > 100) {
+                      return Promise.reject(new Error('Số buổi học không được vượt quá 100!'));
+                    }
+                    return Promise.resolve();
+                  }
+                }
+              ]}
+            >
+              <Input 
+                type="number" 
+                placeholder="Nhập số buổi học muốn thêm" 
+                min="1" 
+                max="100"
+                addonAfter="buổi"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="extendDays"
+              label="Gia hạn thêm số ngày"
+              rules={[
+                { required: true, message: 'Vui lòng nhập số ngày gia hạn!' },
+                {
+                  validator: (_, value) => {
+                    const num = parseInt(value);
+                    if (isNaN(num) || num <= 0) {
+                      return Promise.reject(new Error('Số ngày phải lớn hơn 0!'));
+                    }
+                    if (num > 365) {
+                      return Promise.reject(new Error('Số ngày không được vượt quá 365!'));
+                    }
+                    return Promise.resolve();
+                  }
+                }
+              ]}
+            >
+              <Input 
+                type="number" 
+                placeholder="Nhập số ngày muốn gia hạn" 
+                min="1" 
+                max="365"
+                addonAfter="ngày"
+              />
+            </Form.Item>
+          </Form>
+
+          <div style={{ 
+            marginTop: '16px', 
+            padding: '12px 16px', 
+            background: '#e6f7ff', 
+            border: '1px solid #91d5ff',
+            borderRadius: '6px',
+            color: '#1890ff'
+          }}>
+            <strong>ℹ️ Thông tin:</strong> Hành động này sẽ thêm số buổi học và gia hạn thời gian sử dụng gói học.
+          </div>
+        </div>
       </Modal>
     </div>
   );

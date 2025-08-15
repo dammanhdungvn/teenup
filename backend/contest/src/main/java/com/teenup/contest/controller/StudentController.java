@@ -46,7 +46,7 @@ public class StudentController {
     }
 
     // Đang bị lõi
-    
+
 //    // danh sách lớp mà student đang học
 //    @GetMapping("/{studentId}/classes")
 //    public List<StudentClassItem> listClasses(@PathVariable Long studentId) {

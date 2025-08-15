@@ -2,10 +2,10 @@ package com.teenup.contest.mapper;
 
 
 import com.teenup.contest.dto.request.CreateSubscriptionRequest;
+import com.teenup.contest.dto.request.UpdateSubscriptionRequest;
 import com.teenup.contest.dto.response.SubscriptionResponse;
 import com.teenup.contest.entity.SubscriptionsEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface SubscriptionMapper {
@@ -23,4 +23,7 @@ public interface SubscriptionMapper {
     @Mapping(target = "studentId", source = "student.id")
     @Mapping(target = "remainingSessions", expression = "java(e.getTotalSessions() - e.getUsedSessions())")
     SubscriptionResponse toResponse(SubscriptionsEntity e);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(UpdateSubscriptionRequest req, @MappingTarget SubscriptionsEntity entity);
 }

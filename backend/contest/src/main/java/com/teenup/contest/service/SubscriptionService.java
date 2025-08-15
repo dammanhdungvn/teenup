@@ -1,6 +1,7 @@
 package com.teenup.contest.service;
 
 import com.teenup.contest.dto.request.CreateSubscriptionRequest;
+import com.teenup.contest.dto.request.UpdateSubscriptionRequest;
 import com.teenup.contest.dto.response.SubscriptionResponse;
 import com.teenup.contest.entity.StudentsEntity;
 import com.teenup.contest.entity.SubscriptionsEntity;
@@ -70,5 +71,41 @@ public class SubscriptionService {
                 ? repo.findAll()
                 : repo.findByStudent_Id(studentId);
         return list.stream().map(mapper::toResponse).toList();
+    }
+
+    @Transactional
+    public SubscriptionResponse update(Long id, UpdateSubscriptionRequest req) {
+        SubscriptionsEntity s = repo.findById(id)
+                .orElseThrow(() -> new SubscriptionNotFoundException(id));
+
+        // validate trước khi map
+        LocalDate start = req.startDate() != null ? req.startDate() : s.getStartDate();
+        LocalDate end   = req.endDate()   != null ? req.endDate()   : s.getEndDate();
+        if (start != null && end != null && end.isBefore(start)) {
+            throw new BaseException(ErrorCode.SUBSCRIPTION_INVALID_DATES, "endDate phải >= startDate");
+        }
+
+        Integer total = req.totalSessions() != null ? req.totalSessions() : s.getTotalSessions();
+        if (total != null && total < s.getUsedSessions()) {
+            throw new BaseException(ErrorCode.SUBSCRIPTION_TOTAL_LT_USED,
+                    "totalSessions (" + total + ") < usedSessions hiện tại (" + s.getUsedSessions() + ")");
+        }
+
+        // map các field != null
+        mapper.updateEntityFromDto(req, s);
+
+        return mapper.toResponse(s); // dirty checking
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        SubscriptionsEntity s = repo.findById(id)
+                .orElseThrow(() -> new SubscriptionNotFoundException(id));
+
+        if (s.getUsedSessions() != null && s.getUsedSessions() > 0) {
+            throw new BaseException(ErrorCode.SUBSCRIPTION_IN_USE,
+                    "Gói id=" + id + " đã dùng " + s.getUsedSessions() + " buổi");
+        }
+        repo.delete(s);
     }
 }

@@ -609,5 +609,42 @@ GET /api/subscriptions
   }
 ]
 ```
+
+### 5.5 Cập nhật gói học (partial)
+**PATCH** `/api/subscriptions/{id}`
+```bash
+curl -X PATCH "http://localhost:8081/api/subscriptions/1" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "packageName": "Basic-16",
+        "startDate": "2025-08-01",
+        "endDate": "2025-12-31",
+        "totalSessions": 16
+      }'
+```
+**200 OK**
+
+```JSON
+{
+  "id": 1,
+  "studentId": 2,
+  "packageName": "Basic-16",
+  "startDate": "2025-08-01",
+  "endDate": "2025-12-31",
+  "totalSessions": 16,
+  "usedSessions": 5,
+  "remainingSessions": 11
+}
+```
+
+### 5.6 Xoá gói học
+**DELETE** `/api/subscriptions/{id}`
+
+```bash
+curl -i -X DELETE "http://localhost:8081/api/subscriptions/1"
+```
+
+**204 No Content**
+
 ---
 

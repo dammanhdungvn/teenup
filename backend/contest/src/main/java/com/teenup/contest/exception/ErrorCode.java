@@ -28,6 +28,10 @@ public enum ErrorCode {
     REGISTRATION_NOT_FOUND   ("REGISTRATION_NOT_FOUND",   HttpStatus.NOT_FOUND,  "Không tìm thấy đăng ký lớp"),
     SAME_CLASS_TARGET        ("SAME_CLASS_TARGET",        HttpStatus.CONFLICT,   "Lớp đích trùng với lớp hiện tại"),
 
+    SUBSCRIPTION_IN_USE           ("SUBSCRIPTION_IN_USE",          HttpStatus.CONFLICT, "Gói đã phát sinh buổi, không thể xóa"),
+    SUBSCRIPTION_INVALID_DATES    ("SUBSCRIPTION_INVALID_DATES",   HttpStatus.UNPROCESSABLE_ENTITY, "endDate phải >= startDate"),
+    SUBSCRIPTION_TOTAL_LT_USED    ("SUBSCRIPTION_TOTAL_LT_USED",   HttpStatus.CONFLICT, "totalSessions < usedSessions hiện tại"),
+
     SUBSCRIPTION_NOT_FOUND ("SUBSCRIPTION_NOT_FOUND", HttpStatus.NOT_FOUND, "Không tìm thấy gói học"),
     SUBSCRIPTION_INACTIVE  ("SUBSCRIPTION_INACTIVE",  HttpStatus.CONFLICT, "Gói học chưa hiệu lực hoặc đã hết hạn"),
     NO_REMAINING_SESSIONS  ("NO_REMAINING_SESSIONS",  HttpStatus.CONFLICT, "Gói học đã dùng hết số buổi");

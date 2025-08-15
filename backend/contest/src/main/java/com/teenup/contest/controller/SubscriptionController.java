@@ -1,6 +1,7 @@
 package com.teenup.contest.controller;
 
 import com.teenup.contest.dto.request.CreateSubscriptionRequest;
+import com.teenup.contest.dto.request.UpdateSubscriptionRequest;
 import com.teenup.contest.dto.response.SubscriptionResponse;
 import com.teenup.contest.service.SubscriptionService;
 import jakarta.validation.Valid;
@@ -42,6 +43,19 @@ public class SubscriptionController {
             @RequestParam(name = "studentId", required = false) Long studentId
     ) {
         return service.list(studentId); // service.list đã map entity -> DTO
+    }
+
+    // ✅ BỔ SUNG: cập nhật partial
+    @PatchMapping("/{id}")
+    public SubscriptionResponse update(@PathVariable Long id, @Valid @RequestBody UpdateSubscriptionRequest req) {
+        return service.update(id, req);
+    }
+
+    // ✅ BỔ SUNG: xóa gói
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

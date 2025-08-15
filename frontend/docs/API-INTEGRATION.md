@@ -15,36 +15,36 @@ graph TD
     subgraph "API Endpoints Structure"
         subgraph "Student Management"
             S1[GET /api/students/list]
-            S2[GET /api/students/{id}]
+            S2[GET /api/students/&#123;id&#125;]
             S3[POST /api/students]
-            S4[PUT /api/students/{id}]
-            S5[DELETE /api/students/{id}]
+            S4[PUT /api/students/&#123;id&#125;]
+            S5[DELETE /api/students/&#123;id&#125;]
         end
         
         subgraph "Parent Management"
             P1[GET /api/parents/list]
-            P2[GET /api/parents/{id}]
+            P2[GET /api/parents/&#123;id&#125;]
             P3[POST /api/parents]
-            P4[PUT /api/parents/{id}]
-            P5[DELETE /api/parents/{id}]
+            P4[PUT /api/parents/&#123;id&#125;]
+            P5[DELETE /api/parents/&#123;id&#125;]
         end
         
         subgraph "Class Management"
             C1[GET /api/classes]
-            C2[GET /api/classes/{id}]
+            C2[GET /api/classes/&#123;id&#125;]
             C3[POST /api/classes]
-            C4[PUT /api/classes/{id}]
-            C5[DELETE /api/classes/{id}]
-            C6[POST /api/classes/{id}/register]
+            C4[PUT /api/classes/&#123;id&#125;]
+            C5[DELETE /api/classes/&#123;id&#125;]
+            C6[POST /api/classes/&#123;id&#125;/register]
         end
         
         subgraph "Subscription Management"
             SU1[GET /api/subscriptions]
-            SU2[GET /api/subscriptions/{id}]
+            SU2[GET /api/subscriptions/&#123;id&#125;]
             SU3[POST /api/subscriptions]
-            SU4[PUT /api/subscriptions/{id}]
-            SU5[DELETE /api/subscriptions/{id}]
-            SU6[POST /api/subscriptions/{id}/use-session]
+            SU4[PUT /api/subscriptions/&#123;id&#125;]
+            SU5[DELETE /api/subscriptions/&#123;id&#125;]
+            SU6[POST /api/subscriptions/&#123;id&#125;/use-session]
         end
         
         subgraph "Dashboard"
@@ -197,7 +197,7 @@ sequenceDiagram
     Note over U,D: Fetch Students List Flow
     U->>C: Click "Load Students"
     C->>S: studentsApi.getStudentsList()
-    S->>A: GET /api/students/list
+    S->>A: GET api/students/list
     A->>B: HTTP Request
     B->>D: SELECT * FROM students
     D-->>B: Students Data
@@ -209,7 +209,7 @@ sequenceDiagram
     Note over U,D: Create Student Flow
     U->>C: Fill Form & Submit
     C->>S: studentsApi.createStudent(data)
-    S->>A: POST /api/students
+    S->>A: POST api/students
     A->>B: HTTP Request + JSON Body
     B->>D: INSERT INTO students
     D-->>B: Success Response
@@ -351,7 +351,7 @@ graph TD
         OU1[User Action]
         OU2[Update UI Immediately]
         OU3[Send API Request]
-        OU4{Success?}
+        OU4[Success?]
         OU5[Keep Changes]
         OU6[Revert Changes]
         
@@ -486,10 +486,10 @@ graph TD
     end
     
     subgraph "Testing Tools"
-        TT1[Postman/Insomnia<br/>API Testing]
+        TT1[Postman Insomnia<br/>API Testing]
         TT2[cURL<br/>Command Line]
-        TT3[Jest/Testing Library<br/>Unit Tests]
-        TT4[Cypress/Playwright<br/>E2E Tests]
+        TT3[Jest Testing Library<br/>Unit Tests]
+        TT4[Cypress Playwright<br/>E2E Tests]
     end
     
     subgraph "Test Data"

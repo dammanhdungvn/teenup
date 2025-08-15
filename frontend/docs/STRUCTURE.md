@@ -7,21 +7,21 @@ Cấu trúc thư mục và files của **React Frontend** TeenUp Contest Managem
 ```mermaid
 graph TD
     subgraph "Frontend Project Structure"
-        subgraph "📁 src/ - Source Code"
-            subgraph "📁 components/"
-                C1[Layout/]
+        subgraph "📁 src - Source Code"
+            subgraph "📁 components"
+                C1[Layout]
                 C2[index.js]
             end
             
-            subgraph "📁 pages/"
-                P1[Dashboard/]
-                P2[Students/]
-                P3[Parents/]
-                P4[Classes/]
-                P5[Subscriptions/]
+            subgraph "📁 pages"
+                P1[Dashboard]
+                P2[Students]
+                P3[Parents]
+                P4[Classes]
+                P5[Subscriptions]
             end
             
-            subgraph "📁 services/"
+            subgraph "📁 services"
                 S1[api.js]
                 S2[students.api.js]
                 S3[parents.api.js]
@@ -30,16 +30,16 @@ graph TD
                 S6[dashboard.api.js]
             end
             
-            subgraph "📁 utils/"
+            subgraph "📁 utils"
                 U1[validation.js]
                 U2[constants.js]
             end
             
-            subgraph "📁 config/"
+            subgraph "📁 config"
                 CF1[api.config.js]
             end
             
-            subgraph "📁 styles/"
+            subgraph "📁 styles"
                 ST1[index.css]
             end
             
@@ -48,12 +48,12 @@ graph TD
             M3[index.html]
         end
         
-        subgraph "📁 public/ - Static Assets"
+        subgraph "📁 public - Static Assets"
             PA1[favicon.ico]
             PA2[vite.svg]
         end
         
-        subgraph "📁 docs/ - Documentation"
+        subgraph "📁 docs - Documentation"
             D1[README.md]
             D2[SETUP.md]
             D3[STRUCTURE.md]
@@ -67,8 +67,8 @@ graph TD
         end
         
         subgraph "📁 Build & Config"
-            BC1[dist/]
-            BC2[node_modules/]
+            BC1[dist]
+            BC2[node_modules]
             BC3[package.json]
             BC4[vite.config.js]
             BC5[nginx.conf]
@@ -145,27 +145,27 @@ graph TD
 ```mermaid
 graph TD
     subgraph "Component Structure"
-        subgraph "📁 Layout/"
+        subgraph "📁 Layout"
             L1[AppLayout.jsx]
             L2[Navigation]
             L3[Sidebar]
         end
         
-        subgraph "📁 Common/"
+        subgraph "📁 Common"
             C1[Buttons]
             C2[Modals]
             C3[Loading]
             C4[ErrorBoundary]
         end
         
-        subgraph "📁 Forms/"
+        subgraph "📁 Forms"
             F1[Input Fields]
             F2[Select Dropdowns]
             F3[Date Pickers]
             F4[Validation]
         end
         
-        subgraph "📁 Tables/"
+        subgraph "📁 Tables"
             T1[Data Tables]
             T2[Pagination]
             T3[Sorting]
@@ -194,31 +194,31 @@ graph TD
 ```mermaid
 graph TD
     subgraph "Page Structure"
-        subgraph "📁 Dashboard/"
+        subgraph "📁 Dashboard"
             D1[DashboardPage.jsx]
             D2[Statistics]
             D3[Charts]
         end
         
-        subgraph "📁 Students/"
+        subgraph "📁 Students"
             S1[StudentsListPage.jsx]
             S2[CreateStudentPage.jsx]
             S3[StudentDetailPage.jsx]
         end
         
-        subgraph "📁 Parents/"
+        subgraph "📁 Parents"
             P1[ParentsListPage.jsx]
             P2[CreateParentPage.jsx]
             P3[ParentDetailPage.jsx]
         end
         
-        subgraph "📁 Classes/"
+        subgraph "📁 Classes"
             CL1[ClassesSchedulePage.jsx]
             CL2[CreateClassPage.jsx]
             CL3[ClassDetailPage.jsx]
         end
         
-        subgraph "📁 Subscriptions/"
+        subgraph "📁 Subscriptions"
             SU1[SubscriptionsListPage.jsx]
             SU2[CreateSubscriptionPage.jsx]
         end
@@ -244,7 +244,7 @@ graph TD
 ```mermaid
 graph TD
     subgraph "Service Architecture"
-        subgraph "📁 services/"
+        subgraph "📁 services"
             API[api.js<br/>Base Axios Client]
             
             subgraph "Entity APIs"
@@ -332,13 +332,13 @@ flowchart LR
 ```mermaid
 graph TD
     subgraph "CSS Architecture"
-        subgraph "📁 styles/"
+        subgraph "📁 styles"
             G[index.css<br/>Global Styles]
             
             subgraph "Component Styles"
-                CS[components/<br/>Component-specific]
-                LS[layouts/<br/>Layout Styles]
-                TS[themes/<br/>Theme Variations]
+                CS[components<br/>Component-specific]
+                LS[layouts<br/>Layout Styles]
+                TS[themes<br/>Theme Variations]
             end
         end
         

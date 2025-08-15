@@ -1,6 +1,7 @@
 package com.teenup.contest.controller;
 
 import com.teenup.contest.dto.request.CreateSubscriptionRequest;
+import com.teenup.contest.dto.request.ExtendSubscriptionRequest;
 import com.teenup.contest.dto.request.UpdateSubscriptionRequest;
 import com.teenup.contest.dto.response.SubscriptionResponse;
 import com.teenup.contest.service.SubscriptionService;
@@ -56,6 +57,19 @@ public class SubscriptionController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ✅ Reset usedSessions về 0
+    @PatchMapping("/{id}/reset-used")
+    public SubscriptionResponse resetUsed(@PathVariable Long id) {
+        return service.resetUsed(id);
+    }
+
+    // ✅ Extend: cộng thêm buổi và/hoặc gia hạn endDate
+    @PatchMapping("/{id}/extend")
+    public SubscriptionResponse extend(@PathVariable Long id,
+                                       @Valid @RequestBody ExtendSubscriptionRequest req) {
+        return service.extend(id, req);
     }
 }
 

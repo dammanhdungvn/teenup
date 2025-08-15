@@ -1,8 +1,10 @@
 package com.teenup.contest.controller;
 
 import com.teenup.contest.dto.request.CreateParentRequest;
+import com.teenup.contest.dto.request.ReassignStudentsRequest;
 import com.teenup.contest.dto.request.UpdateParentRequest;
 import com.teenup.contest.dto.response.ParentResponse;
+import com.teenup.contest.dto.response.ReassignResultResponse;
 import com.teenup.contest.service.ParentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,5 +47,14 @@ public class ParentsCotroller {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // PATCH /api/parents/{sourceParentId}/reassign
+    @PatchMapping("/{sourceParentId}/reassign")
+    public ReassignResultResponse reassign(
+            @PathVariable Long sourceParentId,
+            @Valid @RequestBody ReassignStudentsRequest req
+    ) {
+        return service.reassign(sourceParentId, req);
     }
 }

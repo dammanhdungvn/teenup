@@ -4,10 +4,8 @@ import com.teenup.contest.dto.request.CreateClassRequest;
 import com.teenup.contest.dto.request.UpdateClassRequest;
 import com.teenup.contest.dto.response.ClassResponse;
 import com.teenup.contest.entity.ClassesEntity;
-import com.teenup.contest.exception.ClassCapacityTooSmallException;
-import com.teenup.contest.exception.ClassHasRegistrationsException;
+import com.teenup.contest.exception.*;
 import com.teenup.contest.exception.ClassNotFoundException;
-import com.teenup.contest.exception.InvalidDayException;
 import com.teenup.contest.mapper.ClassMapper;
 import com.teenup.contest.repository.ClassRegistrationsRepository;
 import com.teenup.contest.repository.ClassesRepository;
@@ -46,22 +44,22 @@ public class ClassService {
         return classesRepo.findAllWithStudentsByDay(day);
     }
 
-    @Transactional
-    public ClassResponse update(Long id, UpdateClassRequest req) {
-        ClassesEntity entity = classesRepo.findById(id)
-                .orElseThrow(() -> new com.teenup.contest.exception.ClassNotFoundException(id));
-
-        // Nếu giảm maxStudents, phải >= số đăng ký hiện tại
-        if (req.maxStudents() != null) {
-            long currentRegs = regsRepo.countByClassId(id);
-            if (req.maxStudents() < currentRegs) {
-                throw new ClassCapacityTooSmallException(req.maxStudents(), currentRegs);
-            }
-        }
-
-        mapper.updateEntityFromDto(req, entity);
-        return mapper.toResponse(entity);
-    }
+//    @Transactional
+//    public ClassResponse update(Long id, UpdateClassRequest req) {
+//        ClassesEntity entity = classesRepo.findById(id)
+//                .orElseThrow(() -> new com.teenup.contest.exception.ClassNotFoundException(id));
+//
+//        // Nếu giảm maxStudents, phải >= số đăng ký hiện tại
+//        if (req.maxStudents() != null) {
+//            long currentRegs = regsRepo.countByClassId(id);
+//            if (req.maxStudents() < currentRegs) {
+//                throw new ClassCapacityTooSmallException(req.maxStudents(), currentRegs);
+//            }
+//        }
+//
+//        mapper.updateEntityFromDto(req, entity);
+//        return mapper.toResponse(entity);
+//    }
 
     @Transactional
     public void delete(Long id) {
@@ -74,5 +72,49 @@ public class ClassService {
         }
 
         classesRepo.delete(entity);
+    }
+
+
+    @Transactional
+    public ClassResponse update(Long id, UpdateClassRequest req) {
+        ClassesEntity entity = classesRepo.findById(id)
+                .orElseThrow(() -> new ClassNotFoundException(id));
+
+        // 1) Nếu giảm maxStudents → không < số đăng ký hiện tại
+        if (req.maxStudents() != null) {
+            long currentRegs = regsRepo.countByClassId(id);
+            if (req.maxStudents() < currentRegs) {
+                throw new ClassCapacityTooSmallException(req.maxStudents(), currentRegs);
+            }
+        }
+
+        // 2) Nếu đổi dayOfWeek/timeSlot → kiểm tra conflict với lịch hiện có của học sinh
+        Integer targetDay = (req.dayOfWeek() != null) ? req.dayOfWeek() : entity.getDayOfWeek();
+        String  targetTS  = (req.timeSlot()  != null) ? req.timeSlot()  : entity.getTimeSlot();
+
+        // Chỉ check nếu có thay đổi (hoặc bạn muốn luôn check cũng được)
+        boolean changedDay   = (req.dayOfWeek() != null && !req.dayOfWeek().equals(entity.getDayOfWeek()));
+        boolean changedSlot  = (req.timeSlot()  != null && !req.timeSlot().equals(entity.getTimeSlot()));
+        if (changedDay || changedSlot) {
+            String[] parts = targetTS.split("-");
+            if (parts.length != 2) {
+                throw new BaseException(ErrorCode.VALIDATION_FAILED, "timeSlot phải dạng HH:mm-HH:mm");
+            }
+            String start = parts[0].trim();
+            String end   = parts[1].trim();
+
+            boolean conflict = regsRepo.existsConflictWhenReschedule(id, targetDay, start, end);
+            if (conflict) {
+                throw new BaseException(
+                        ErrorCode.SCHEDULE_CONFLICT,
+                        "Đổi lịch gây trùng với lịch hiện có của học sinh (day=" + targetDay + ", time=" + targetTS + ")"
+                );
+            }
+        }
+
+        // 3) Map các field != null
+        mapper.updateEntityFromDto(req, entity);
+
+        return mapper.toResponse(entity);
     }
 }

@@ -49,4 +49,23 @@ public interface ClassRegistrationsRepository extends JpaRepository<ClassRegistr
         WHERE r.clazz.id = :classId AND r.student.id = :studentId
     """)
     boolean existsByClassIdAndStudentId(Long classId, Long studentId);
+
+
+    @Query(value = """
+        SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
+        FROM class_registrations r_src
+        JOIN class_registrations r_other
+             ON r_other.student_id = r_src.student_id
+            AND r_other.class_id  <> :classId
+        JOIN classes c_other ON c_other.id = r_other.class_id
+        WHERE r_src.class_id = :classId
+          AND c_other.day_of_week = :dayOfWeek
+          AND STR_TO_DATE(SUBSTRING_INDEX(c_other.time_slot, '-', 1), '%H:%i')
+                < STR_TO_DATE(:end,  '%H:%i')
+          AND STR_TO_DATE(:start, '%H:%i')
+                < STR_TO_DATE(SUBSTRING_INDEX(c_other.time_slot, '-', -1), '%H:%i')
+        """, nativeQuery = true)
+
+    boolean existsConflictWhenReschedule(Long classId, Integer dayOfWeek, String start, String end);
+
 }

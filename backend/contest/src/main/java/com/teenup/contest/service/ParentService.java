@@ -1,11 +1,15 @@
 package com.teenup.contest.service;
 
 import com.teenup.contest.dto.request.CreateParentRequest;
+import com.teenup.contest.dto.request.ReassignStudentsRequest;
 import com.teenup.contest.dto.request.UpdateParentRequest;
 import com.teenup.contest.dto.response.ParentResponse;
+import com.teenup.contest.dto.response.ReassignResultResponse;
 import com.teenup.contest.entity.ParentsEntity;
 import com.teenup.contest.exception.ParentHasStudentsException;
 import com.teenup.contest.exception.ParentNotFoundException;
+import com.teenup.contest.exception.SameParentTargetException;
+import com.teenup.contest.exception.StudentNotBelongToParentException;
 import com.teenup.contest.mapper.ParentMapper;
 import com.teenup.contest.repository.ParentsRepository;
 import com.teenup.contest.repository.StudentsRepository;
@@ -69,4 +73,34 @@ public class ParentService {
 
         parentsRepo.delete(entity);
     }
+
+    @Transactional
+    public ReassignResultResponse reassign(Long sourceParentId, ReassignStudentsRequest req) {
+        ParentsEntity source = parentsRepo.findById(sourceParentId)
+                .orElseThrow(() -> new ParentNotFoundException(sourceParentId));
+
+        Long targetParentId = req.targetParentId();
+        if (sourceParentId.equals(targetParentId)) {
+            throw new SameParentTargetException(targetParentId);
+        }
+        ParentsEntity target = parentsRepo.findById(targetParentId)
+                .orElseThrow(() -> new ParentNotFoundException(targetParentId));
+
+        int moved;
+        if (req.studentIds() == null || req.studentIds().isEmpty()) {
+            // chuyển TẤT CẢ
+            moved = studentsRepo.reassignAll(source, target);
+        } else {
+            // xác thực mọi id đều thuộc parent nguồn
+            List<Long> invalid = studentsRepo.findIdsNotBelongToParent(req.studentIds(), sourceParentId);
+            if (!invalid.isEmpty()) {
+                throw new StudentNotBelongToParentException(sourceParentId, invalid);
+            }
+            moved = studentsRepo.reassignSome(req.studentIds(), source, target);
+        }
+
+        long remaining = studentsRepo.countByParentId(sourceParentId);
+        return new ReassignResultResponse(sourceParentId, targetParentId, moved, remaining);
+    }
+
 }

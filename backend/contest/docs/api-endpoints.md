@@ -233,6 +233,41 @@ curl -X PATCH "http://localhost:8081/api/students/3" \
 }
 ```
 
+### 2.6 Chuyển TẤT CẢ học sinh từ parent nguồn sang parent đích
+**PATCH** `/api/parents/{sourceParentId}/reassign`
+```bash
+curl -X PATCH "http://localhost:8081/api/parents/1/reassign" \
+  -H "Content-Type: application/json" \
+  -d '{ "targetParentId": 2 }'
+```
+**200 OK**
+```JSON
+{
+  "sourceParentId": 1,
+  "targetParentId": 2,
+  "movedCount": 2,
+  "remainingAtSource": 0
+}
+```
+
+### 2.7 Chuyển MỘT PHẦN học sinh (chỉ định danh sách)
+**PATCH** `/api/parents/{sourceParentId}/reassign`
+```bash
+curl -X PATCH "http://localhost:8081/api/parents/1/reassign" \
+  -H "Content-Type: application/json" \
+  -d '{ "targetParentId": 2, "studentIds": [3,4] }'
+```
+**200 OK**
+```JSON
+{
+  "sourceParentId": 1,
+  "targetParentId": 2,
+  "movedCount": 1,
+  "remainingAtSource": 1
+}
+
+```
+
 ---
 
 ## 3) Classes
@@ -485,6 +520,52 @@ curl -i -X PATCH "http://localhost:8081/api/classes/1/registrations/3" \
   -d '{ "targetClassId": 2 }'
 ```
 **204 No Content**
+
+
+### 4.6 Reset used sessions (admin)
+**PATCH** `/api/subscriptions/{id}/reset-used`
+```bash
+curl -X PATCH "http://localhost:8081/api/subscriptions/1/reset-used"
+```
+
+**200 OK**
+```JSON
+{
+  "id": 1,
+  "studentId": 2,
+  "packageName": "Basic-12",
+  "startDate": "2025-08-01",
+  "endDate": "2025-12-31",
+  "totalSessions": 12,
+  "usedSessions": 0,
+  "remainingSessions": 12
+}
+```
+
+### 4.7 Extend gói học (tăng buổi và/hoặc gia hạn)
+
+**PATCH** `/api/subscriptions/{id}/extend`
+
+```bash
+curl -X PATCH "http://localhost:8081/api/subscriptions/1/extend" \
+  -H "Content-Type: application/json" \
+  -d '{ "addSessions": 4, "endDate": "2026-01-31" }'
+```
+
+**200 OK**
+```JSON
+{
+  "id": 1,
+  "studentId": 2,
+  "packageName": "Basic-12",
+  "startDate": "2025-08-01",
+  "endDate": "2026-01-31",
+  "totalSessions": 16,
+  "usedSessions": 5,
+  "remainingSessions": 11
+}
+```
+
 
 ---
 

@@ -11,6 +11,9 @@ public enum ErrorCode {
     INTERNAL_ERROR     ("INTERNAL_ERROR",      HttpStatus.INTERNAL_SERVER_ERROR,"Lỗi hệ thống không mong muốn"),
     PARENT_HAS_STUDENTS    ("PARENT_HAS_STUDENTS",    HttpStatus.CONFLICT,   "Phụ huynh đang có học sinh, không thể xoá"),
 
+    SAME_PARENT_TARGET               ("SAME_PARENT_TARGET",               HttpStatus.CONFLICT,           "Parent đích trùng với parent nguồn"),
+    STUDENT_NOT_BELONG_TO_PARENT     ("STUDENT_NOT_BELONG_TO_PARENT",     HttpStatus.UNPROCESSABLE_ENTITY, "Một số học sinh không thuộc parent nguồn"),
+
     STUDENT_NOT_FOUND  ("STUDENT_NOT_FOUND",   HttpStatus.NOT_FOUND,            "Không tìm thấy học sinh"),
     STUDENT_HAS_REGISTRATIONS ("STUDENT_HAS_REGISTRATIONS", HttpStatus.CONFLICT, "Học sinh đang có đăng ký lớp, không thể xóa"),
     STUDENT_HAS_ACTIVE_SUBS  ("STUDENT_HAS_ACTIVE_SUBS",  HttpStatus.CONFLICT, "Học sinh đang có gói học còn hiệu lực/ còn buổi, không thể xóa"),
@@ -27,6 +30,8 @@ public enum ErrorCode {
 
     REGISTRATION_NOT_FOUND   ("REGISTRATION_NOT_FOUND",   HttpStatus.NOT_FOUND,  "Không tìm thấy đăng ký lớp"),
     SAME_CLASS_TARGET        ("SAME_CLASS_TARGET",        HttpStatus.CONFLICT,   "Lớp đích trùng với lớp hiện tại"),
+
+    SUBSCRIPTION_EXTEND_NO_PARAM ("SUBSCRIPTION_EXTEND_NO_PARAM", HttpStatus.UNPROCESSABLE_ENTITY, "Cần cung cấp addSessions hoặc endDate"),
 
     SUBSCRIPTION_IN_USE           ("SUBSCRIPTION_IN_USE",          HttpStatus.CONFLICT, "Gói đã phát sinh buổi, không thể xóa"),
     SUBSCRIPTION_INVALID_DATES    ("SUBSCRIPTION_INVALID_DATES",   HttpStatus.UNPROCESSABLE_ENTITY, "endDate phải >= startDate"),

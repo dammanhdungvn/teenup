@@ -15,7 +15,8 @@ import {
   UserOutlined, 
   PlusOutlined, 
   EyeOutlined,
-  EditOutlined 
+  EditOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { studentsApi } from '../../services/students.api.js';
@@ -70,10 +71,9 @@ const StudentsListPage = () => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 100,
+      width: 120,
       align: 'center',
       fixed: 'left',
-      responsive: ['md'],
       render: (id) => (
         <Tag 
           color="blue" 
@@ -93,7 +93,7 @@ const StudentsListPage = () => {
       title: 'Họ và tên',
       dataIndex: 'name',
       key: 'name',
-      width: 300,
+      width: 350,
       render: (name) => (
         <Space size="middle">
           <div style={{
@@ -125,18 +125,17 @@ const StudentsListPage = () => {
       title: 'Lớp hiện tại',
       dataIndex: 'currentGrade',
       key: 'currentGrade',
-      width: { xs: 120, sm: 150, md: 200 },
+      width: 200,
       align: 'center',
-      responsive: ['md'],
       render: (grade) => (
         <Tag 
           color="green" 
           style={{ 
             fontWeight: 600,
-            padding: { xs: '6px 12px', sm: '7px 14px', md: '8px 16px' },
+            padding: '8px 16px',
             borderRadius: '10px',
-            fontSize: { xs: '12px', sm: '13px', md: '14px' },
-            minWidth: { xs: '60px', sm: '70px', md: '80px' }
+            fontSize: '14px',
+            minWidth: '80px'
           }}
         >
           {getGradeLabel(grade)}
@@ -147,18 +146,17 @@ const StudentsListPage = () => {
       title: 'Giới tính',
       dataIndex: 'gender',
       key: 'gender',
-      width: { xs: 100, sm: 120, md: 150 },
+      width: 150,
       align: 'center',
-      responsive: ['sm'],
       render: (gender) => (
         <Tag 
           color={getGenderColor(gender)}
           style={{ 
             fontWeight: 600,
-            padding: { xs: '6px 12px', sm: '7px 14px', md: '8px 16px' },
+            padding: '8px 16px',
             borderRadius: '10px',
-            fontSize: { xs: '12px', sm: '13px', md: '14px' },
-            minWidth: { xs: '60px', sm: '70px', md: '80px' }
+            fontSize: '14px',
+            minWidth: '80px'
           }}
         >
           {getGenderLabel(gender)}
@@ -166,30 +164,47 @@ const StudentsListPage = () => {
       ),
     },
     {
+      title: 'Phụ huynh',
+      dataIndex: 'parent',
+      key: 'parent',
+      width: 250,
+      align: 'left',
+      render: (parent) => (
+        <div>
+          <div style={{ fontWeight: 600, color: '#1f2937', fontSize: '14px' }}>
+            {parent?.name || 'N/A'}
+          </div>
+          <div style={{ color: '#6b7280', fontSize: '12px', marginTop: '2px' }}>
+            {parent?.phone || 'N/A'}
+          </div>
+        </div>
+      ),
+    },
+    {
       title: 'Thao tác',
       key: 'actions',
-      width: { xs: 180, sm: 200, md: 250 },
+      width: 300,
       align: 'center',
-      fixed: { xs: false, sm: false, md: 'right' },
+      fixed: 'right',
       render: (_, record) => (
-        <Space size={{ xs: 'small', sm: 'middle' }} direction={{ xs: 'vertical', sm: 'horizontal' }}>
+        <Space size="middle" direction="horizontal">
           <Tooltip title="Xem chi tiết">
             <Button
               type="primary"
               icon={<EyeOutlined />}
               onClick={() => navigate(`/students/${record.id}`)}
-              size={{ xs: 'small', sm: 'middle' }}
+              size="middle"
               style={{
                 background: '#1890ff',
                 border: 'none',
                 borderRadius: '8px',
-                padding: { xs: '6px 12px', sm: '8px 16px' },
+                padding: '8px 16px',
                 fontWeight: 600,
                 boxShadow: '0 2px 8px rgba(24, 144, 255, 0.2)',
-                width: { xs: '100%', sm: 'auto' }
+                width: 'auto'
               }}
             >
-              {window.innerWidth < 768 ? 'Xem' : 'Xem'}
+              Xem
             </Button>
           </Tooltip>
           <Tooltip title="Chỉnh sửa">
@@ -197,18 +212,42 @@ const StudentsListPage = () => {
               type="default"
               icon={<EditOutlined />}
               onClick={() => navigate(`/students/${record.id}/edit`)}
-              size={{ xs: 'small', sm: 'middle' }}
+              size="middle"
               style={{
                 border: '2px solid #52c41a',
                 color: '#52c41a',
                 borderRadius: '8px',
-                padding: { xs: '6px 12px', sm: '8px 16px' },
+                padding: '8px 16px',
                 fontWeight: 600,
                 background: 'transparent',
-                width: { xs: '100%', sm: 'auto' }
+                width: 'auto'
               }}
             >
-              {window.innerWidth < 768 ? 'Sửa' : 'Sửa'}
+              Sửa
+            </Button>
+          </Tooltip>
+          <Tooltip title="Xóa học sinh">
+            <Button
+              type="default"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => {
+                if (window.confirm('Bạn có chắc chắn muốn xóa học sinh này?')) {
+                  handleDelete(record.id);
+                }
+              }}
+              size="middle"
+              style={{
+                border: '2px solid #ff4d4f',
+                color: '#ff4d4f',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontWeight: 600,
+                background: 'transparent',
+                width: 'auto'
+              }}
+            >
+              Xóa
             </Button>
           </Tooltip>
         </Space>
@@ -224,6 +263,17 @@ const StudentsListPage = () => {
     navigate('/students/list');
   };
 
+  const handleDelete = async (studentId) => {
+    try {
+      await studentsApi.deleteStudent(studentId);
+      message.success('Xóa học sinh thành công');
+      fetchStudents(); // Refresh danh sách
+    } catch (error) {
+      message.error('Không thể xóa học sinh');
+      console.error('Error deleting student:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '50px' }}>
@@ -237,10 +287,10 @@ const StudentsListPage = () => {
     <div style={{ 
       background: '#f8fafc', 
       minHeight: '100vh', 
-      padding: '32px 24px',
+      padding: '24px',
       backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(147, 51, 234, 0.05) 0%, transparent 50%)'
     }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ width: '100%' }}>
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           {/* Header */}
           <Card style={{ 
@@ -299,11 +349,12 @@ const StudentsListPage = () => {
               }}
               style={{
                 borderRadius: '12px',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                width: '100%'
               }}
               size="large"
-              scroll={{ x: 1000 }}
-              responsive={true}
+              scroll={{ x: 1200 }}
+              responsive={false}
             />
           </Card>
 

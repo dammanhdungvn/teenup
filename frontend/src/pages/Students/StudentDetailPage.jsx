@@ -143,10 +143,10 @@ const StudentDetailPage = () => {
     <div style={{ 
       background: '#f8fafc', 
       minHeight: '100vh', 
-      padding: '32px 24px',
+      padding: '24px',
       backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(147, 51, 234, 0.05) 0%, transparent 50%)'
     }}>
-      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <div style={{ width: '100%' }}>
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           {/* Header */}
           <Card style={{ 

@@ -20,4 +20,14 @@ export const studentsApi = {
   getStudentClasses: (studentId) => {
     return apiClient.get(`/students/${studentId}/classes`);
   },
+
+  // Cập nhật thông tin học sinh (partial update)
+  updateStudent: (id, studentData) => {
+    return apiClient.patch(`/students/${id}`, studentData);
+  },
+
+  // Xóa học sinh
+  deleteStudent: (id) => {
+    return apiClient.delete(`/students/${id}`);
+  },
 };

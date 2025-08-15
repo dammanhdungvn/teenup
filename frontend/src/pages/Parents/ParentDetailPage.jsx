@@ -59,7 +59,7 @@ const ParentDetailPage = () => {
       <div style={{ 
         background: '#f8fafc', 
         minHeight: '100vh', 
-        padding: '32px 24px',
+        padding: '24px',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center'
@@ -79,7 +79,7 @@ const ParentDetailPage = () => {
       <div style={{ 
         background: '#f8fafc', 
         minHeight: '100vh', 
-        padding: '32px 24px' 
+        padding: '24px' 
       }}>
         <Card>
           <div style={{ textAlign: 'center', padding: '40px' }}>
@@ -100,10 +100,10 @@ const ParentDetailPage = () => {
     <div style={{ 
       background: '#f8fafc', 
       minHeight: '100vh', 
-      padding: '32px 24px',
+      padding: '24px',
       backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(147, 51, 234, 0.05) 0%, transparent 50%)'
     }}>
-      <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+      <div style={{ width: '100%' }}>
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           {/* Header */}
           <Card style={{ 
@@ -125,13 +125,16 @@ const ParentDetailPage = () => {
                   Thông tin chi tiết phụ huynh ID: {parent.id}
                 </div>
               </div>
-              <Space>
+              <Space size="middle">
                 <Button
                   icon={<ArrowLeftOutlined />}
                   onClick={() => navigate('/parents')}
+                  size="large"
                   style={{
                     border: '1px solid #d9d9d9',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    height: '40px',
+                    padding: '0 20px'
                   }}
                 >
                   Quay lại
@@ -140,10 +143,13 @@ const ParentDetailPage = () => {
                   type="primary"
                   icon={<EditOutlined />}
                   onClick={() => navigate(`/parents/${id}/edit`)}
+                  size="large"
                   style={{
                     background: '#1890ff',
                     border: 'none',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    height: '40px',
+                    padding: '0 20px'
                   }}
                 >
                   Chỉnh sửa

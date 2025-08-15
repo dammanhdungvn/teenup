@@ -6,6 +6,7 @@ import HomePage from './pages/Home/HomePage';
 import StudentsListPage from './pages/Students/StudentsListPage';
 import CreateStudentPage from './pages/Students/CreateStudentPage';
 import StudentDetailPage from './pages/Students/StudentDetailPage';
+import EditStudentPage from './pages/Students/EditStudentPage';
 import ClassesSchedulePage from './pages/Classes/ClassesSchedulePage';
 import CreateClassPage from './pages/Classes/CreateClassPage';
 import ClassDetailPage from './pages/Classes/ClassDetailPage';
@@ -71,10 +72,11 @@ function App() {
           <AppLayout>
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/students" element={<StudentsListPage />} />
-              <Route path="/students/list" element={<StudentsListPage />} />
-              <Route path="/students/new" element={<CreateStudentPage />} />
-              <Route path="/students/:id" element={<StudentDetailPage />} />
+                      <Route path="/students" element={<StudentsListPage />} />
+        <Route path="/students/list" element={<StudentsListPage />} />
+        <Route path="/students/new" element={<CreateStudentPage />} />
+        <Route path="/students/:id" element={<StudentDetailPage />} />
+        <Route path="/students/:id/edit" element={<EditStudentPage />} />
               <Route path="/classes" element={<ClassesSchedulePage />} />
               <Route path="/classes/new" element={<CreateClassPage />} />
               <Route path="/classes/:id" element={<ClassDetailPage />} />

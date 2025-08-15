@@ -58,6 +58,7 @@ const SubscriptionsListPage = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [editingSubscription, setEditingSubscription] = useState(null);
   const [deletingSubscription, setDeletingSubscription] = useState(null);
+  const [editForm] = Form.useForm();
 
   // Fetch subscriptions
   const fetchSubscriptions = async (params = {}) => {
@@ -166,6 +167,13 @@ const SubscriptionsListPage = () => {
   // Xử lý edit subscription
   const handleEdit = (subscription) => {
     setEditingSubscription(subscription);
+    editForm.setFieldsValue({
+      packageName: subscription.packageName,
+      totalSessions: subscription.totalSessions,
+      startDate: subscription.startDate ? dayjs(subscription.startDate) : null,
+      endDate: subscription.endDate ? dayjs(subscription.endDate) : null,
+      description: subscription.description
+    });
     setEditModalVisible(true);
   };
 
@@ -201,6 +209,46 @@ const SubscriptionsListPage = () => {
     setDeletingSubscription(null);
   };
 
+  // Xác nhận edit
+  const confirmEdit = async () => {
+    try {
+      const values = await editForm.validateFields();
+      
+      // Convert dates to string format
+      const formData = {
+        ...values,
+        startDate: values.startDate ? values.startDate.format('YYYY-MM-DD') : null,
+        endDate: values.endDate ? values.endDate.format('YYYY-MM-DD') : null,
+        totalSessions: parseInt(values.totalSessions)
+      };
+      
+      await subscriptionsApi.updateSubscription(editingSubscription.id, formData);
+      messageApi.success('Cập nhật gói học thành công!');
+      setEditModalVisible(false);
+      setEditingSubscription(null);
+      editForm.resetFields();
+      fetchSubscriptions(); // Refresh data
+    } catch (err) {
+      if (err.errorFields) {
+        // Form validation error
+        return;
+      }
+      const backendMessage = err?.response?.data?.message;
+      if (backendMessage) {
+        messageApi.error(backendMessage);
+      } else {
+        messageApi.error('Không thể cập nhật gói học');
+      }
+    }
+  };
+
+  // Hủy edit
+  const cancelEdit = () => {
+    setEditModalVisible(false);
+    setEditingSubscription(null);
+    editForm.resetFields();
+  };
+
   // Sử dụng 1 buổi học
   const handleUseSession = async (subscriptionId) => {
     try {
@@ -232,7 +280,7 @@ const SubscriptionsListPage = () => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 60,
+      width: 50,
       align: 'center',
       fixed: 'left',
       render: (id) => (
@@ -254,7 +302,7 @@ const SubscriptionsListPage = () => {
       title: 'Tên gói',
       dataIndex: 'packageName',
       key: 'packageName',
-      width: 180,
+      width: 160,
       render: (name) => (
         <Space size="middle">
           <div style={{
@@ -282,7 +330,7 @@ const SubscriptionsListPage = () => {
       title: 'Học sinh',
       dataIndex: 'studentId',
       key: 'studentId',
-      width: 180,
+      width: 160,
       render: (studentId) => {
         const student = students.find(s => s.id === studentId);
         return (
@@ -312,7 +360,7 @@ const SubscriptionsListPage = () => {
     {
       title: 'Thời gian',
       key: 'dateRange',
-      width: 160,
+      width: 140,
       render: (_, record) => (
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '14px', color: '#374151', marginBottom: '4px', fontWeight: 500 }}>
@@ -330,7 +378,7 @@ const SubscriptionsListPage = () => {
     {
       title: 'Số buổi học',
       key: 'sessions',
-      width: 120,
+      width: 100,
       align: 'center',
       render: (_, record) => (
         <div style={{ textAlign: 'center' }}>
@@ -346,7 +394,7 @@ const SubscriptionsListPage = () => {
     {
       title: 'Trạng thái',
       key: 'status',
-      width: 100,
+      width: 90,
       align: 'center',
       render: (_, record) => {
         let status = 'active';
@@ -385,7 +433,7 @@ const SubscriptionsListPage = () => {
     {
       title: 'Thao tác',
       key: 'actions',
-      width: 180,
+      width: 160,
       fixed: 'right',
       align: 'center',
       render: (_, record) => (
@@ -578,7 +626,7 @@ const SubscriptionsListPage = () => {
                 style={{
                   borderRadius: '12px',
                   overflow: 'hidden',
-                  minWidth: '980px'
+                  minWidth: '900px'
                 }}
                 size="middle"
                 scroll={false}
@@ -630,25 +678,106 @@ const SubscriptionsListPage = () => {
           </div>
         }
         open={editModalVisible}
-        onCancel={() => setEditModalVisible(false)}
-        footer={null}
-        width={600}
+        onOk={confirmEdit}
+        onCancel={cancelEdit}
+        okText="Cập nhật"
+        cancelText="Hủy"
+        width={700}
         centered
       >
         {editingSubscription && (
           <div style={{ padding: '16px 0' }}>
-            <p style={{ marginBottom: '16px', color: '#6b7280' }}>
-              Gói học: <strong>{editingSubscription.packageName}</strong><br/>
-              Học sinh: <strong>{students.find(s => s.id === editingSubscription.studentId)?.name}</strong>
-            </p>
-            <p style={{ color: '#fa8c16', fontSize: '14px' }}>
-              ⚠️ Chức năng chỉnh sửa gói học sẽ được implement trong Task 8
-            </p>
-            <div style={{ textAlign: 'center', marginTop: '24px' }}>
-              <Button onClick={() => setEditModalVisible(false)}>
-                Đóng
-              </Button>
+            <div style={{ 
+              background: '#f8f9fa', 
+              padding: '12px', 
+              borderRadius: '6px',
+              marginBottom: '16px',
+              border: '1px solid #e9ecef'
+            }}>
+              <div style={{ color: '#6b7280', fontSize: '14px' }}>
+                <strong>Học sinh:</strong> {students.find(s => s.id === editingSubscription.studentId)?.name}
+              </div>
             </div>
+            
+            <Form
+              form={editForm}
+              layout="vertical"
+              style={{ marginTop: '16px' }}
+            >
+              <Form.Item
+                name="packageName"
+                label="Tên gói học"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập tên gói học!' },
+                  { min: 2, message: 'Tên gói phải có ít nhất 2 ký tự!' }
+                ]}
+              >
+                <Input placeholder="Nhập tên gói học" />
+              </Form.Item>
+
+              <Form.Item
+                name="totalSessions"
+                label="Tổng số buổi học"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập tổng số buổi học!' },
+                  { 
+                    validator: (_, value) => {
+                      const num = parseInt(value);
+                      if (isNaN(num)) {
+                        return Promise.reject(new Error('Vui lòng nhập số hợp lệ!'));
+                      }
+                      if (num < 1 || num > 100) {
+                        return Promise.reject(new Error('Số buổi học phải từ 1-100!'));
+                      }
+                      if (num < editingSubscription.usedSessions) {
+                        return Promise.reject(new Error(`Số buổi học không được ít hơn số buổi đã sử dụng (${editingSubscription.usedSessions})!`));
+                      }
+                      return Promise.resolve();
+                    }
+                  }
+                ]}
+              >
+                <Input type="number" placeholder="Nhập tổng số buổi học" min="1" max="100" />
+              </Form.Item>
+
+              <Form.Item
+                name="startDate"
+                label="Ngày bắt đầu"
+                rules={[
+                  { required: true, message: 'Vui lòng chọn ngày bắt đầu!' }
+                ]}
+              >
+                <DatePicker 
+                  placeholder="Chọn ngày bắt đầu" 
+                  style={{ width: '100%' }}
+                  format="DD/MM/YYYY"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="endDate"
+                label="Ngày kết thúc"
+                rules={[
+                  { required: true, message: 'Vui lòng chọn ngày kết thúc!' }
+                ]}
+              >
+                <DatePicker 
+                  placeholder="Chọn ngày kết thúc" 
+                  style={{ width: '100%' }}
+                  format="DD/MM/YYYY"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="description"
+                label="Mô tả"
+              >
+                <Input.TextArea 
+                  placeholder="Nhập mô tả gói học (không bắt buộc)" 
+                  rows={3}
+                />
+              </Form.Item>
+            </Form>
           </div>
         )}
       </Modal>

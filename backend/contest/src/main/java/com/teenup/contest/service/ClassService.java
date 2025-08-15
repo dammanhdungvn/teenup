@@ -97,7 +97,7 @@ public class ClassService {
         boolean changedSlot  = (req.timeSlot()  != null && !req.timeSlot().equals(entity.getTimeSlot()));
         if (changedDay || changedSlot) {
             String[] parts = targetTS.split("-");
-            if (parts.length != 2) {
+            if (parts.length !trong modal này có "Danh sách lớp học" mà = 2) {
                 throw new BaseException(ErrorCode.VALIDATION_FAILED, "timeSlot phải dạng HH:mm-HH:mm");
             }
             String start = parts[0].trim();

@@ -135,6 +135,24 @@ curl -i -X DELETE "http://localhost:8081/api/parents/1/students/3"
 ```
 **204 No Content**
 
+### 1.4 Parents — Reassign Students
+**PATCH** `/api/parents/{id}/reassign-students`
+```bash
+curl -X PATCH "http://localhost:8081/api/parents/1/reassign-students" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "targetParentId": 2,
+        "studentIds": [1, 2, 3]
+      }'
+```
+
+**200 OK**
+```json
+{
+  "message": "Reassigned 3 students successfully"
+}
+```
+
 ---
 
 ## 2) Students
@@ -607,6 +625,38 @@ curl -X PATCH "http://localhost:8081/api/subscriptions/1/extend" \
 }
 ```
 
+### 4.4 Subscriptions — Admin Functions
+
+#### Reset Used Sessions
+**PATCH** `/api/subscriptions/{id}/reset-used-sessions`
+```bash
+curl -X PATCH "http://localhost:8081/api/subscriptions/1/reset-used-sessions"
+```
+
+**200 OK**
+```json
+{
+  "message": "Reset used sessions successfully"
+}
+```
+
+#### Extend Subscription
+**PATCH** `/api/subscriptions/{id}/extend`
+```bash
+curl -X PATCH "http://localhost:8081/api/subscriptions/1/extend" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "addSessions": 10,
+        "endDate": "2025-12-31"
+      }'
+```
+
+**200 OK**
+```json
+{
+  "message": "Extended subscription successfully"
+}
+```
 
 ---
 

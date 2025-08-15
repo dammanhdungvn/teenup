@@ -109,6 +109,8 @@ graph TB
 
 ## **📁 Tài liệu chi tiết**
 
+📚 **[Xem tất cả tài liệu theo chủ đề →](INDEX.md)**
+
 ### **🏗️ [Architecture](ARCHITECTURE.md)**
 - Tổng quan kiến trúc hệ thống
 - Package structure và dependencies
@@ -126,12 +128,6 @@ graph TB
 - Request/response examples
 - Error codes và messages
 - Authentication & authorization
-
-### **🗄️ [Database Schema](database-schema.md)**
-- Database table structures
-- Entity relationships
-- Indexes và constraints
-- Data types và validation
 
 ### **🚀 [Development Guide](DEVELOPMENT.md)**
 - Setup development environment

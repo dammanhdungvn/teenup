@@ -443,7 +443,9 @@ module.exports = {
 
 ## **🔗 Related Documentation**
 
+📚 **[Xem tất cả tài liệu →](INDEX.md)**
+
 - 📖 **[Setup Guide](SETUP.md)** - Cài đặt và chạy
 - 🏗️ **[Project Structure](STRUCTURE.md)** - Cấu trúc code
 - 🔌 **[API Integration](API-INTEGRATION.md)** - Kết nối backend
-- 🎨 **[Design System](DESIGN-SYSTEM.md)** - UI/UX guidelines
+- 🐳 **[Docker Guide](DOCKER.md)** - Containerization

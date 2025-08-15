@@ -200,10 +200,12 @@ curl http://localhost:8081/actuator/health
 
 Sau khi setup thành công:
 
+📚 **[Xem tất cả tài liệu →](INDEX.md)**
+
 1. **📖 Đọc [Development Guide](DEVELOPMENT.md)** - Hướng dẫn phát triển
 2. **🏗️ Xem [Project Structure](STRUCTURE.md)** - Hiểu cấu trúc code
 3. **🔌 Kiểm tra [API Integration](API-INTEGRATION.md)** - Kết nối backend
-4. **🎨 Khám phá [Design System](DESIGN-SYSTEM.md)** - UI/UX guidelines
+4. **🐳 Khám phá [Docker Guide](DOCKER.md)** - Containerization
 
 ---
 

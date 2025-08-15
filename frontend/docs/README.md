@@ -4,26 +4,20 @@ Tài liệu chi tiết cho **React Frontend** của hệ thống TeenUp Contest 
 
 ## 📚 **Mục lục**
 
+📚 **[Xem tất cả tài liệu theo chủ đề →](INDEX.md)**
+
 ### **🚀 Getting Started**
 - **[Setup & Installation](SETUP.md)** - Hướng dẫn cài đặt và chạy frontend
 - **[Development Guide](DEVELOPMENT.md)** - Hướng dẫn phát triển
 
 ### **🏗️ Architecture & Components**
 - **[Project Structure](STRUCTURE.md)** - Cấu trúc thư mục và files
-- **[Component Library](COMPONENTS.md)** - Thư viện components và cách sử dụng
-- **[State Management](STATE.md)** - Quản lý state và data flow
 
 ### **🔌 Integration**
 - **[API Integration](API-INTEGRATION.md)** - Cách frontend kết nối với backend
-- **[Configuration](CONFIGURATION.md)** - Cấu hình môi trường và API
-
-### **🎨 UI/UX**
-- **[Design System](DESIGN-SYSTEM.md)** - Hệ thống thiết kế và Ant Design
-- **[Styling Guide](STYLING.md)** - Hướng dẫn CSS và styling
 
 ### **🐳 Docker & Deployment**
 - **[Docker Guide](DOCKER.md)** - Hướng dẫn Docker cho frontend
-- **[Deployment](DEPLOYMENT.md)** - Triển khai production
 
 ---
 
@@ -32,6 +26,7 @@ Tài liệu chi tiết cho **React Frontend** của hệ thống TeenUp Contest 
 - 📖 **[Backend Documentation](../backend/contest/docs/)** - API và database schema
 - 🎯 **[Main README](../../README.md)** - Tổng quan toàn bộ hệ thống
 - 🐳 **[Docker Setup](../../docker-compose.yml)** - Cấu hình Docker
+- 📚 **[Backend Docs Index](../backend/contest/docs/INDEX.md)** - Tất cả backend docs
 
 ---
 

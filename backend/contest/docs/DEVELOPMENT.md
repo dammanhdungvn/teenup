@@ -533,7 +533,8 @@ export SPRING_DATASOURCE_PASSWORD=prod_password
 
 ## **🔗 Related Documentation**
 
+📚 **[Xem tất cả tài liệu →](INDEX.md)**
+
 - 🏗️ **[Architecture](ARCHITECTURE.md)** - System architecture overview
 - 📖 **[API Endpoints](api-endpoints.md)** - REST API documentation
-- 🗄️ **[Database Schema](database-schema.md)** - Database structure
 - 🎯 **[Business Logic](BUSINESS-LOGIC.md)** - Business rules and validation

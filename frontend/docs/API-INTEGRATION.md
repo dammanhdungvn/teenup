@@ -638,6 +638,8 @@ const debouncedSearch = debounce(async (query) => {
 
 ## **🔗 Related Documentation**
 
+📚 **[Xem tất cả tài liệu →](INDEX.md)**
+
 - 📖 **[Setup Guide](SETUP.md)** - Cài đặt và kết nối
 - 🏗️ **[Project Structure](STRUCTURE.md)** - Cấu trúc code
 - 🔧 **[Configuration](CONFIGURATION.md)** - Cấu hình API

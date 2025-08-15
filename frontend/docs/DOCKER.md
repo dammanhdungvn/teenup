@@ -397,7 +397,8 @@ server {
 
 ## **🔗 Related Documentation**
 
+📚 **[Xem tất cả tài liệu →](INDEX.md)**
+
 - 📖 **[Setup Guide](SETUP.md)** - Cài đặt và chạy
 - 🏗️ **[Project Structure](STRUCTURE.md)** - Cấu trúc code
 - 🐳 **[Main Docker Setup](../../docker-compose.yml)** - Complete system
-- 🚀 **[Deployment Guide](DEPLOYMENT.md)** - Production deployment

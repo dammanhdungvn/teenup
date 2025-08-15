@@ -4,8 +4,8 @@ Hệ thống quản lý cuộc thi với **Spring Boot Backend** + **React Front
 
 ## 📚 **Documentation**
 
-- 🌐 **[Frontend Documentation](frontend/docs/)** - React app setup, development, API integration
-- 🔧 **[Backend Documentation](backend/contest/docs/)** - API endpoints, database schema, Spring Boot
+- 🌐 **[Frontend Documentation](frontend/docs/INDEX.md)** - React app documentation index
+- 🔧 **[Backend Documentation](backend/contest/docs/INDEX.md)** - Spring Boot API documentation index
 - 🐳 **[Docker Setup](docker-compose.yml)** - Complete system deployment
 - 🚀 **[Docker Installation Guide](DOCKER-SETUP.md)** - Cài đặt Docker cho từng hệ điều hành
 
@@ -173,7 +173,7 @@ graph TB
 - **Classes:** `dayOfWeek` (1-7), `timeSlot` (HH:mm-HH:mm)
 - **Subscriptions:** `totalSessions`, `usedSessions`
 
-> 📖 **Xem chi tiết:** [Backend Database Schema](backend/contest/docs/database-schema.md)
+> 📖 **Xem chi tiết:** [Backend Documentation](backend/contest/docs/INDEX.md)
 
 ---
 

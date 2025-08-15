@@ -447,6 +447,7 @@ public enum ErrorCode {
 
 ## **🔗 Related Documentation**
 
+📚 **[Xem tất cả tài liệu →](INDEX.md)**
+
 - 🏗️ **[Architecture](ARCHITECTURE.md)** - System architecture overview
 - 📖 **[API Endpoints](api-endpoints.md)** - REST API documentation
-- 🗄️ **[Database Schema](database-schema.md)** - Database structure

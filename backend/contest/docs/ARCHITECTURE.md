@@ -180,32 +180,7 @@ com.teenup.contest/
 
 ## **🔄 Data Flow**
 
-### **1. Request Flow:**
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant CT as Controller
-    participant S as Service
-    participant M as Mapper
-    participant R as Repository
-    participant E as Entity
-    participant DB as Database
-    
-    C->>CT: HTTP Request
-    CT->>S: Call Service Method
-    S->>M: Transform Request DTO
-    S->>R: Call Repository
-    R->>E: JPA Operations
-    E->>DB: SQL Query
-    DB-->>E: Result Set
-    E-->>R: Entity Object
-    R-->>S: Repository Result
-    S->>M: Transform to Response DTO
-    S-->>CT: Service Result
-    CT-->>C: HTTP Response
-```
-
-### **2. Entity Relationships:**
+### **1. Entity Relationships:**
 ```mermaid
 erDiagram
     PARENTS ||--o{ STUDENTS : "1:N"
@@ -271,6 +246,37 @@ erDiagram
     }
 ```
 
+### **2. Request Flow:**
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant CT as Controller
+    participant S as Service
+    participant M as Mapper
+    participant R as Repository
+    participant E as Entity
+    participant DB as Database
+    
+    C->>CT: HTTP Request
+    CT->>S: Call Service Method
+    S->>M: Transform Request DTO
+    S->>R: Call Repository
+    R->>E: JPA Operations
+    E->>DB: SQL Query
+    DB-->>E: Result Set
+    E-->>R: Entity Object
+    R-->>S: Repository Result
+    S->>M: Transform to Response DTO
+    S-->>CT: Service Result
+    CT-->>C: HTTP Response
+```
+
+
+### **Environment-specific Config:**
+- **Development:** Local MySQL, detailed logging, data seeding
+- **Production:** Production database, minimal logging, no seeding
+- **Docker:** Containerized database, optimized settings
+
 ## **🛡️ Security & Validation**
 
 ### **Input Validation:**
@@ -322,11 +328,6 @@ spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
 spring.profiles.active=dev
 ```
 
-### **Environment-specific Config:**
-- **Development:** Local MySQL, detailed logging, data seeding
-- **Production:** Production database, minimal logging, no seeding
-- **Docker:** Containerized database, optimized settings
-
 ## **📊 Monitoring & Logging**
 
 ### **Logging Strategy:**
@@ -343,6 +344,8 @@ spring.profiles.active=dev
 
 ## **🔗 Related Documentation**
 
+📚 **[Xem tất cả tài liệu →](INDEX.md)**
+
 - 📖 **[API Endpoints](api-endpoints.md)** - REST API documentation
-- 🗄️ **[Database Schema](database-schema.md)** - Database structure
-- 🚀 **[Development Guide](../README.md)** - Setup and development
+- 🎯 **[Business Logic](BUSINESS-LOGIC.md)** - Business rules and validation
+- 🚀 **[Development Guide](DEVELOPMENT.md)** - Setup and development

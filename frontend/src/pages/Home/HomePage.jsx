@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import './HomePage.css';
 import { 
   Typography, 
   Row, 
@@ -33,12 +34,15 @@ const HomePage = () => {
     studentsCount: 0,
     parentsCount: 0,
     classesCount: 0,
-    activeSubscriptionsCount: 0
+    activeSubscriptionsCount: 0,
+    totalSessions: 0,
+    usedSessions: 0,
+    upcomingClasses: 0
   });
   const [loading, setLoading] = useState(true);
 
   // Fetch dashboard data
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -50,12 +54,32 @@ const HomePage = () => {
         dashboardApi.getSubscriptionsList()
       ]);
 
-      // Cập nhật stats với dữ liệu thực từ API (đếm length của array)
+      // Tính toán thống kê chi tiết
+      const students = studentsResp.status === 'fulfilled' ? (studentsResp.value.data || []) : [];
+      const parents = parentsResp.status === 'fulfilled' ? (parentsResp.value.data || []) : [];
+      const classes = classesResp.status === 'fulfilled' ? (classesResp.value.data || []) : [];
+      const subscriptions = subscriptionsResp.status === 'fulfilled' ? (subscriptionsResp.value.data || []) : [];
+
+      // Tính tổng số buổi học và số buổi đã sử dụng
+      const totalSessions = subscriptions.reduce((sum, sub) => sum + (sub.totalSessions || 0), 0);
+      const usedSessions = subscriptions.reduce((sum, sub) => sum + (sub.usedSessions || 0), 0);
+
+      // Tính số lớp học sắp tới (trong tuần này)
+      const today = new Date();
+      const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const upcomingClasses = classes.filter(cls => {
+        const classDate = new Date(cls.startDate || cls.createdAt);
+        return classDate >= today && classDate <= nextWeek;
+      }).length;
+
       setStats({
-        studentsCount: studentsResp.status === 'fulfilled' ? (studentsResp.value.data?.length || 0) : 0,
-        parentsCount: parentsResp.status === 'fulfilled' ? (parentsResp.value.data?.length || 0) : 0,
-        classesCount: classesResp.status === 'fulfilled' ? (classesResp.value.data?.length || 0) : 0,
-        activeSubscriptionsCount: subscriptionsResp.status === 'fulfilled' ? (subscriptionsResp.value.data?.length || 0) : 0
+        studentsCount: students.length,
+        parentsCount: parents.length,
+        classesCount: classes.length,
+        activeSubscriptionsCount: subscriptions.length,
+        totalSessions,
+        usedSessions,
+        upcomingClasses
       });
 
     } catch (err) {
@@ -63,12 +87,12 @@ const HomePage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [message]);
 
   // Fetch data khi component mount
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [fetchDashboardData]);
 
   const quickActions = [
     {
@@ -142,49 +166,126 @@ const HomePage = () => {
               </div>
             </div>
           ) : (
-            <Row gutter={[16, 16]}>
-              <Col xs={24} sm={12} md={6}>
-                <Card hoverable>
+            <>
+              <Row gutter={[16, 16]}>
+                <Col xs={24} sm={12} lg={6}>
+                  <Card 
+                    hoverable 
+                    className="stats-card"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)',
+                      border: '1px solid #bbdefb'
+                    }}
+                  >
+                    <Statistic
+                      title="Tổng học sinh"
+                      value={stats.studentsCount}
+                      prefix={<UserOutlined />}
+                      valueStyle={{ color: '#1890ff', fontSize: '28px' }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                  <Card 
+                    hoverable 
+                    className="stats-card"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%)',
+                      border: '1px solid #c8e6c9'
+                    }}
+                  >
+                    <Statistic
+                      title="Tổng phụ huynh"
+                      value={stats.parentsCount}
+                      prefix={<TeamOutlined />}
+                      valueStyle={{ color: '#52c41a', fontSize: '28px' }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                  <Card 
+                    hoverable 
+                    className="stats-card"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #fff3e0 0%, #fef7e0 100%)',
+                      border: '1px solid #ffcc80'
+                    }}
+                  >
+                    <Statistic
+                      title="Tổng lớp học"
+                      value={stats.classesCount}
+                      prefix={<BookOutlined />}
+                      valueStyle={{ color: '#fa8c16', fontSize: '28px' }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                  <Card 
+                    hoverable 
+                    className="stats-card"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #f3e5f5 0%, #f8f0f8 100%)',
+                      border: '1px solid #e1bee7'
+                    }}
+                  >
+                    <Statistic
+                      title="Gói học đang hoạt động"
+                      value={stats.activeSubscriptionsCount}
+                      prefix={<GiftOutlined />}
+                      valueStyle={{ color: '#722ed1', fontSize: '28px' }}
+                    />
+                  </Card>
+                </Col>
+              </Row>
+              
+              <Row gutter={[16, 16]} style={{ marginTop: '16px' }}>
+              <Col xs={24} sm={12} lg={8}>
+                <Card 
+                  hoverable 
+                  style={{ 
+                    background: 'linear-gradient(135deg, #e0f2f1 0%, #f0f8f8 100%)',
+                    border: '1px solid #b2dfdb'
+                  }}
+                >
                   <Statistic
-                    title="Tổng học sinh"
-                    value={stats.studentsCount}
-                    prefix={<UserOutlined />}
-                    valueStyle={{ color: '#1890ff' }}
+                    title="Tổng số buổi học"
+                    value={stats.totalSessions}
+                    valueStyle={{ color: '#009688', fontSize: '24px' }}
                   />
                 </Card>
               </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Card hoverable>
+              <Col xs={24} sm={12} lg={8}>
+                <Card 
+                  hoverable 
+                  style={{ 
+                    background: 'linear-gradient(135deg, #fff8e1 0%, #fef9e7 100%)',
+                    border: '1px solid #ffecb3'
+                  }}
+                >
                   <Statistic
-                    title="Tổng phụ huynh"
-                    value={stats.parentsCount}
-                    prefix={<TeamOutlined />}
-                    valueStyle={{ color: '#52c41a' }}
+                    title="Số buổi đã sử dụng"
+                    value={stats.usedSessions}
+                    valueStyle={{ color: '#ff9800', fontSize: '24px' }}
                   />
                 </Card>
               </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Card hoverable>
+              <Col xs={24} sm={12} lg={8}>
+                <Card 
+                  hoverable 
+                  style={{ 
+                    background: 'linear-gradient(135deg, #fce4ec 0%, #fef0f3 100%)',
+                    border: '1px solid #f8bbd9'
+                  }}
+                >
                   <Statistic
-                    title="Tổng lớp học"
-                    value={stats.classesCount}
-                    prefix={<BookOutlined />}
-                    valueStyle={{ color: '#fa8c16' }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Card hoverable>
-                  <Statistic
-                    title="Gói học đang hoạt động"
-                    value={stats.activeSubscriptionsCount}
-                    prefix={<GiftOutlined />}
-                    valueStyle={{ color: '#722ed1' }}
-
+                    title="Lớp học sắp tới (tuần này)"
+                    value={stats.upcomingClasses}
+                    valueStyle={{ color: '#e91e63', fontSize: '24px' }}
                   />
                 </Card>
               </Col>
             </Row>
+            </>
           )}
         </div>
 
@@ -193,11 +294,12 @@ const HomePage = () => {
           <Title level={3} style={{ marginBottom: '24px' }}>
             Thao tác nhanh
           </Title>
-          <Row gutter={[24, 24]}>
+          <Row gutter={[16, 16]}>
             {quickActions.map((action, index) => (
-              <Col xs={24} sm={12} md={6} key={index}>
+              <Col xs={24} sm={12} lg={6} key={index}>
                 <Card
                   hoverable
+                  className="dashboard-card"
                   onClick={action.action}
                   style={{ 
                     textAlign: 'center',
@@ -238,13 +340,18 @@ const HomePage = () => {
           <Title level={3} style={{ marginBottom: '24px' }}>
             Quản lý hệ thống
           </Title>
-          <Row gutter={[24, 24]}>
-            <Col xs={24} sm={12} md={8}>
-                             <Card
-                 hoverable
-                 onClick={() => navigate('/students/list')}
-                 style={{ cursor: 'pointer' }}
-               >
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={12} lg={8}>
+              <Card
+                hoverable
+                className="dashboard-card"
+                onClick={() => navigate('/students/list')}
+                style={{ 
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)',
+                  border: '1px solid #bbdefb'
+                }}
+              >
                 <Space direction="vertical" size="middle" style={{ width: '100%', textAlign: 'center' }}>
                   <UserOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
                   <Title level={4} style={{ margin: 0 }}>Quản lý học sinh</Title>
@@ -254,11 +361,16 @@ const HomePage = () => {
                 </Space>
               </Card>
             </Col>
-            <Col xs={24} sm={12} md={8}>
+            <Col xs={24} sm={12} lg={8}>
               <Card
                 hoverable
+                className="dashboard-card"
                 onClick={() => navigate('/classes')}
-                style={{ cursor: 'pointer' }}
+                style={{ 
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #fff3e0 0%, #fef7e0 100%)',
+                  border: '1px solid #ffcc80'
+                }}
               >
                 <Space direction="vertical" size="middle" style={{ width: '100%', textAlign: 'center' }}>
                   <BookOutlined style={{ fontSize: '48px', color: '#fa8c16' }} />
@@ -269,11 +381,16 @@ const HomePage = () => {
                 </Space>
               </Card>
             </Col>
-            <Col xs={24} sm={12} md={8}>
+            <Col xs={24} sm={12} lg={8}>
               <Card
                 hoverable
+                className="dashboard-card"
                 onClick={() => navigate('/subscriptions')}
-                style={{ cursor: 'pointer' }}
+                style={{ 
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #f3e5f5 0%, #f8f0f8 100%)',
+                  border: '1px solid #e1bee7'
+                }}
               >
                 <Space direction="vertical" size="middle" style={{ width: '100%', textAlign: 'center' }}>
                   <GiftOutlined style={{ fontSize: '48px', color: '#722ed1' }} />

@@ -1,0 +1,55 @@
+/* HomePage Responsive Styles */
+.dashboard-card {
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stats-card {
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ant-statistic-title {
+    font-size: 14px !important;
+  }
+  
+  .ant-statistic-content {
+    font-size: 20px !important;
+  }
+  
+  .ant-card-body {
+    padding: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .ant-statistic-title {
+    font-size: 12px !important;
+  }
+  
+  .ant-statistic-content {
+    font-size: 18px !important;
+  }
+  
+  .ant-card-body {
+    padding: 12px !important;
+  }
+  
+  .ant-typography h1 {
+    font-size: 24px !important;
+  }
+  
+  .ant-typography h3 {
+    font-size: 18px !important;
+  }
+}

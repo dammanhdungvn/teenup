@@ -1,0 +1,114 @@
+/* ParentDetailPage Responsive Styles */
+.parent-detail-card {
+  transition: all 0.3s ease;
+}
+
+.parent-detail-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.student-card {
+  transition: all 0.3s ease;
+}
+
+.student-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.reassign-modal .ant-modal-content {
+  border-radius: 12px;
+}
+
+.reassign-modal .ant-modal-header {
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+.student-selection-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.student-selection-item {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.student-selection-item:hover {
+  background-color: #f8f9fa;
+}
+
+.student-selection-item:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .parent-detail-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start !important;
+  }
+  
+  .parent-detail-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .parent-detail-actions .ant-btn {
+    flex: 1;
+    margin: 0 4px;
+  }
+  
+  .student-card-content {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start !important;
+  }
+  
+  .student-card-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .reassign-modal {
+    margin: 16px;
+    max-width: calc(100vw - 32px);
+  }
+  
+  .reassign-modal .ant-modal-content {
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .parent-detail-actions .ant-btn {
+    font-size: 12px;
+    padding: 0 12px;
+    height: 36px;
+  }
+  
+  .student-card-actions .ant-btn {
+    font-size: 10px;
+    padding: 2px 4px;
+    height: 20px;
+  }
+  
+  .reassign-modal .ant-modal-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .reassign-modal .ant-modal-footer .ant-btn {
+    width: 100%;
+    margin: 0;
+  }
+}

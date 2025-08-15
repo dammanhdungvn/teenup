@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import './ParentDetailPage.css';
 import { 
   Card, 
   Typography, 
@@ -12,7 +13,9 @@ import {
   Divider,
   Tag,
   Avatar,
-  Modal
+  Modal,
+  Select,
+  Checkbox
 } from 'antd';
 import { 
   TeamOutlined, 
@@ -22,11 +25,13 @@ import {
   PhoneOutlined,
   MailOutlined,
   CalendarOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  SwapOutlined,
+  CheckOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { parentsApi } from '../../services/parents.api.js';
-import { studentsApi } from '../../services/students.api.js';
+
 import { formatDate, DAY_OF_WEEK_MAP } from '../../utils/validation.js';
 import { handleError } from '../../utils/errorHandler.js';
 
@@ -42,8 +47,16 @@ const ParentDetailPage = () => {
   const [studentsLoading, setStudentsLoading] = useState(false);
   const [unassignModalVisible, setUnassignModalVisible] = useState(false);
   const [studentToUnassign, setStudentToUnassign] = useState(null);
+  
+  // Reassign states
+  const [reassignModalVisible, setReassignModalVisible] = useState(false);
+  const [targetParents, setTargetParents] = useState([]);
+  const [targetParentsLoading, setTargetParentsLoading] = useState(false);
+  const [selectedTargetParent, setSelectedTargetParent] = useState(null);
+  const [selectedStudents, setSelectedStudents] = useState([]);
+  const [reassignLoading, setReassignLoading] = useState(false);
 
-  const fetchParent = async () => {
+  const fetchParent = useCallback(async () => {
     try {
       setLoading(true);
       const resp = await parentsApi.getParentById(id);
@@ -53,23 +66,20 @@ const ParentDetailPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, message]);
 
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     try {
       setStudentsLoading(true);
       // Sử dụng API endpoint riêng để lấy students của parent này
       const resp = await parentsApi.getParentStudents(id);
-      
-
-      
       setStudents(resp.data);
     } catch (err) {
       handleError(err, message, 'Không thể tải danh sách học sinh', 'fetchStudents');
     } finally {
       setStudentsLoading(false);
     }
-  };
+  }, [id, message]);
 
   const handleUnassignStudent = (student) => {
     setStudentToUnassign(student);
@@ -98,12 +108,106 @@ const ParentDetailPage = () => {
     setStudentToUnassign(null);
   };
 
+  // Reassign functions
+  const handleReassignStudents = () => {
+    setReassignModalVisible(true);
+    fetchTargetParents();
+  };
+
+  const fetchTargetParents = async () => {
+    try {
+      setTargetParentsLoading(true);
+      const resp = await parentsApi.getParentsList();
+      // Filter out current parent
+      const filteredParents = resp.data.filter(p => p.id !== parseInt(id));
+      setTargetParents(filteredParents);
+    } catch (err) {
+      handleError(err, message, 'Không thể tải danh sách phụ huynh', 'fetchTargetParents');
+    } finally {
+      setTargetParentsLoading(false);
+    }
+  };
+
+  const handleStudentSelection = (studentId, checked) => {
+    if (checked) {
+      setSelectedStudents(prev => [...prev, studentId]);
+    } else {
+      setSelectedStudents(prev => prev.filter(id => id !== studentId));
+    }
+  };
+
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedStudents(students.map(s => s.id));
+    } else {
+      setSelectedStudents([]);
+    }
+  };
+
+  const handleMoveAll = async () => {
+    if (!selectedTargetParent) {
+      message.warning('Vui lòng chọn phụ huynh đích!');
+      return;
+    }
+
+    try {
+      setReassignLoading(true);
+      // Move all students (no studentIds parameter)
+      await parentsApi.reassignStudents(id, selectedTargetParent, []);
+      message.success('Đã chuyển tất cả học sinh sang phụ huynh mới!');
+      setReassignModalVisible(false);
+      resetReassignState();
+      fetchStudents(); // Refresh students list
+    } catch (err) {
+      handleError(err, message, 'Không thể chuyển học sinh', 'handleMoveAll');
+    } finally {
+      setReassignLoading(false);
+    }
+  };
+
+  const handleMoveSelected = async () => {
+    if (!selectedTargetParent) {
+      message.warning('Vui lòng chọn phụ huynh đích!');
+      return;
+    }
+
+    if (selectedStudents.length === 0) {
+      message.warning('Vui lòng chọn ít nhất một học sinh!');
+      return;
+    }
+
+    try {
+      setReassignLoading(true);
+      // Move selected students with studentIds parameter
+      await parentsApi.reassignStudents(id, selectedTargetParent, selectedStudents);
+      message.success(`Đã chuyển ${selectedStudents.length} học sinh sang phụ huynh mới!`);
+      setReassignModalVisible(false);
+      resetReassignState();
+      fetchStudents(); // Refresh students list
+    } catch (err) {
+      handleError(err, message, 'Không thể chuyển học sinh', 'handleMoveSelected');
+    } finally {
+      setReassignLoading(false);
+    }
+  };
+
+  const resetReassignState = () => {
+    setSelectedTargetParent(null);
+    setSelectedStudents([]);
+    setTargetParents([]);
+  };
+
+  const cancelReassign = () => {
+    setReassignModalVisible(false);
+    resetReassignState();
+  };
+
   useEffect(() => {
     if (id) {
       fetchParent();
       fetchStudents();
     }
-  }, [id]);
+  }, [id, fetchParent, fetchStudents]);
 
   if (loading) {
     return (
@@ -157,16 +261,22 @@ const ParentDetailPage = () => {
       <div style={{ width: '100%' }}>
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           {/* Header */}
-          <Card style={{ 
-            background: '#ffffff',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
-          }}>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center' 
-            }}>
+          <Card 
+            className="parent-detail-card"
+            style={{ 
+              background: '#ffffff',
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+            }}
+          >
+            <div 
+              className="parent-detail-header"
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center' 
+              }}
+            >
               <div>
                 <Title level={2} style={{ margin: 0, color: '#1f2937' }}>
                   <TeamOutlined style={{ marginRight: '12px', color: '#52c41a', fontSize: '28px' }} />
@@ -176,7 +286,7 @@ const ParentDetailPage = () => {
                   Thông tin chi tiết phụ huynh ID: {parent.id}
                 </div>
               </div>
-              <Space size="middle">
+              <Space size="middle" className="parent-detail-actions" wrap>
                 <Button
                   icon={<ArrowLeftOutlined />}
                   onClick={() => navigate('/parents')}
@@ -189,6 +299,22 @@ const ParentDetailPage = () => {
                   }}
                 >
                   Quay lại
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<SwapOutlined />}
+                  onClick={handleReassignStudents}
+                  size="large"
+                  style={{
+                    background: '#52c41a',
+                    border: 'none',
+                    borderRadius: '8px',
+                    height: '40px',
+                    padding: '0 20px'
+                  }}
+                  disabled={students.length === 0}
+                >
+                  Reassign
                 </Button>
                 <Button
                   type="primary"
@@ -210,11 +336,14 @@ const ParentDetailPage = () => {
           </Card>
 
           {/* Parent Information */}
-          <Card style={{ 
-            background: '#ffffff',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
-          }}>
+          <Card 
+            className="parent-detail-card"
+            style={{ 
+              background: '#ffffff',
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+            }}
+          >
             <Row gutter={[24, 24]}>
               {/* Avatar and Basic Info */}
               <Col xs={24} md={8}>
@@ -315,11 +444,14 @@ const ParentDetailPage = () => {
           </Card>
 
           {/* Students List */}
-          <Card style={{ 
-            background: '#ffffff',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
-          }}>
+          <Card 
+            className="parent-detail-card"
+            style={{ 
+              background: '#ffffff',
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+            }}
+          >
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
@@ -351,6 +483,7 @@ const ParentDetailPage = () => {
                     key={student.id}
                     size="small"
                     hoverable
+                    className="student-card"
                     style={{ 
                       marginBottom: '8px',
                       border: '1px solid #e5e7eb',
@@ -358,12 +491,15 @@ const ParentDetailPage = () => {
                       transition: 'all 0.3s ease'
                     }}
                   >
-                    <div style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      alignItems: 'center' 
-                    }}>
-                      <Space>
+                    <div 
+                      className="student-card-content"
+                      style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center' 
+                      }}
+                    >
+                      <Space className="student-card-actions">
                         <div style={{ 
                           width: '32px', 
                           height: '32px', 
@@ -501,6 +637,186 @@ const ParentDetailPage = () => {
             }}>
               <strong>⚠️ Lưu ý:</strong> Hành động này sẽ gỡ bỏ học sinh khỏi phụ huynh hiện tại. 
               Học sinh sẽ không còn liên kết với phụ huynh này.
+            </div>
+          </div>
+        </Modal>
+
+        {/* Reassign Students Modal */}
+        <Modal
+          className="reassign-modal"
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <SwapOutlined style={{ color: '#52c41a', fontSize: '20px' }} />
+              <span>Chuyển học sinh sang phụ huynh khác</span>
+            </div>
+          }
+          open={reassignModalVisible}
+          onCancel={cancelReassign}
+          footer={null}
+          width={600}
+          centered
+        >
+          <div style={{ padding: '16px 0' }}>
+            {/* Target Parent Selection */}
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ 
+                fontWeight: 600, 
+                color: '#1f2937', 
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <TeamOutlined style={{ color: '#1890ff' }} />
+                Chọn phụ huynh đích:
+              </div>
+              <Select
+                placeholder="Chọn phụ huynh đích..."
+                style={{ width: '100%' }}
+                loading={targetParentsLoading}
+                value={selectedTargetParent}
+                onChange={setSelectedTargetParent}
+                showSearch
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
+              >
+                {targetParents.map(parent => (
+                  <Select.Option key={parent.id} value={parent.id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>{parent.name}</span>
+                      <Tag size="small" color="blue">{parent.phone}</Tag>
+                    </div>
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+
+            {/* Students Selection */}
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ 
+                fontWeight: 600, 
+                color: '#1f2937', 
+                marginBottom: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <UserOutlined style={{ color: '#722ed1' }} />
+                Chọn học sinh cần chuyển:
+              </div>
+              
+              {/* Select All Checkbox */}
+              <div style={{ 
+                padding: '12px 16px', 
+                background: '#f8f9fa', 
+                borderRadius: '8px',
+                marginBottom: '12px',
+                border: '1px solid #e9ecef'
+              }}>
+                <Checkbox
+                  checked={selectedStudents.length === students.length && students.length > 0}
+                  indeterminate={selectedStudents.length > 0 && selectedStudents.length < students.length}
+                  onChange={(e) => handleSelectAll(e.target.checked)}
+                >
+                  <span style={{ fontWeight: 600, color: '#1f2937' }}>
+                    Chọn tất cả ({students.length} học sinh)
+                  </span>
+                </Checkbox>
+              </div>
+
+              {/* Students List */}
+              <div className="student-selection-list">
+                {students.map((student, index) => (
+                  <div
+                    key={student.id}
+                    className="student-selection-item"
+                    style={{
+                      borderBottom: index < students.length - 1 ? '1px solid #f0f0f0' : 'none'
+                    }}
+                  >
+                    <Checkbox
+                      checked={selectedStudents.includes(student.id)}
+                      onChange={(e) => handleStudentSelection(student.id, e.target.checked)}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, color: '#1f2937' }}>
+                        {student.name}
+                      </div>
+                      <div style={{ color: '#6b7280', fontSize: '12px' }}>
+                        {student.currentGrade} • {student.gender === 'M' ? 'Nam' : 'Nữ'}
+                      </div>
+                    </div>
+                    <Tag color="blue" size="small">ID: {student.id}</Tag>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '12px', 
+              justifyContent: 'flex-end',
+              borderTop: '1px solid #e5e7eb',
+              paddingTop: '16px'
+            }}>
+              <Button
+                onClick={cancelReassign}
+                style={{
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '8px',
+                  height: '40px',
+                  padding: '0 20px'
+                }}
+              >
+                Hủy
+              </Button>
+              <Button
+                type="primary"
+                icon={<CheckOutlined />}
+                onClick={handleMoveAll}
+                loading={reassignLoading}
+                style={{
+                  background: '#52c41a',
+                  border: 'none',
+                  borderRadius: '8px',
+                  height: '40px',
+                  padding: '0 20px'
+                }}
+                disabled={!selectedTargetParent}
+              >
+                Chuyển tất cả
+              </Button>
+              <Button
+                type="primary"
+                icon={<SwapOutlined />}
+                onClick={handleMoveSelected}
+                loading={reassignLoading}
+                style={{
+                  background: '#1890ff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  height: '40px',
+                  padding: '0 20px'
+                }}
+                disabled={!selectedTargetParent || selectedStudents.length === 0}
+              >
+                Chuyển đã chọn ({selectedStudents.length})
+              </Button>
+            </div>
+
+            {/* Warning Message */}
+            <div style={{ 
+              marginTop: '16px', 
+              padding: '12px 16px', 
+              background: '#fff2e8', 
+              border: '1px solid #ffd591',
+              borderRadius: '6px',
+              color: '#d46b08'
+            }}>
+              <strong>⚠️ Lưu ý:</strong> Hành động này sẽ chuyển học sinh từ phụ huynh hiện tại sang phụ huynh mới. 
+              Học sinh sẽ không còn liên kết với phụ huynh này nữa.
             </div>
           </div>
         </Modal>

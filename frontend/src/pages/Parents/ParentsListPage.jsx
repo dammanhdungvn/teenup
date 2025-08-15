@@ -9,7 +9,8 @@ import {
   Spin,
   Tooltip,
   App,
-  Select
+  Select,
+  Modal
 } from 'antd';
 import { 
   TeamOutlined, 
@@ -28,6 +29,8 @@ const { Title } = Typography;
 const ParentsListPage = () => {
   const [parents, setParents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [parentToDelete, setParentToDelete] = useState(null);
   const navigate = useNavigate();
   const { message } = App.useApp();
 
@@ -48,15 +51,29 @@ const ParentsListPage = () => {
     }
   };
 
-  const handleDeleteParent = async (id) => {
+  const showDeleteModal = (parent) => {
+    setParentToDelete(parent);
+    setDeleteModalVisible(true);
+  };
+
+  const handleDeleteParent = async () => {
+    if (!parentToDelete) return;
+    
     try {
-      await parentsApi.deleteParent(id);
+      await parentsApi.deleteParent(parentToDelete.id);
       message.success('Xóa phụ huynh thành công!');
       fetchParents(); // Refresh danh sách
+      setDeleteModalVisible(false);
+      setParentToDelete(null);
     } catch (err) {
       message.error('Không thể xóa phụ huynh');
       console.error('Error deleting parent:', err);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalVisible(false);
+    setParentToDelete(null);
   };
 
   const columns = [
@@ -211,7 +228,7 @@ const ParentsListPage = () => {
             <Button
               danger
               icon={<DeleteOutlined />}
-              onClick={() => handleDeleteParent(record.id)}
+              onClick={() => showDeleteModal(record)}
               size={{ xs: 'small', sm: 'middle' }}
               style={{
                 borderRadius: '8px',
@@ -245,14 +262,10 @@ const ParentsListPage = () => {
     <div style={{ 
       background: '#f8fafc', 
       minHeight: '100vh', 
-      padding: '32px 24px',
+      padding: '24px',
       backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(147, 51, 234, 0.05) 0%, transparent 50%)'
     }}>
-      <div style={{ 
-        maxWidth: '100%', 
-        margin: '0 auto', 
-        padding: { xs: '0 16px', sm: '0 20px', md: '0 24px' }
-      }}>
+      <div style={{ width: '100%' }}>
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           {/* Header */}
           <Card style={{ 
@@ -353,6 +366,75 @@ const ParentsListPage = () => {
             </div>
           </Card>
         </Space>
+
+        {/* Delete Confirmation Modal */}
+        <Modal
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <DeleteOutlined style={{ color: '#ff4d4f', fontSize: '20px' }} />
+              <span>Xác nhận xóa phụ huynh</span>
+            </div>
+          }
+          open={deleteModalVisible}
+          onOk={handleDeleteParent}
+          onCancel={handleCancelDelete}
+          okText="Xóa"
+          cancelText="Hủy"
+          okButtonProps={{
+            danger: true,
+            style: {
+              background: '#ff4d4f',
+              border: 'none',
+              borderRadius: '8px',
+              height: '40px',
+              padding: '0 20px'
+            }
+          }}
+          cancelButtonProps={{
+            style: {
+              border: '1px solid #d9d9d9',
+              borderRadius: '8px',
+              height: '40px',
+              padding: '0 20px'
+            }
+          }}
+          centered
+        >
+          <div style={{ padding: '16px 0' }}>
+            <p style={{ marginBottom: '16px', fontSize: '16px', color: '#1f2937' }}>
+              Bạn có chắc chắn muốn xóa phụ huynh này không?
+            </p>
+            {parentToDelete && (
+              <div style={{ 
+                background: '#f8f9fa', 
+                padding: '16px', 
+                borderRadius: '8px',
+                border: '1px solid #e9ecef'
+              }}>
+                <div style={{ fontWeight: 600, color: '#1f2937', marginBottom: '8px' }}>
+                  Thông tin phụ huynh:
+                </div>
+                <div style={{ color: '#6b7280' }}>
+                  <div><strong>ID:</strong> {parentToDelete.id}</div>
+                  <div><strong>Họ và tên:</strong> {parentToDelete.name}</div>
+                  <div><strong>Số điện thoại:</strong> {parentToDelete.phone}</div>
+                  <div><strong>Email:</strong> {parentToDelete.email}</div>
+                </div>
+              </div>
+            )}
+            <div style={{ 
+              marginTop: '16px', 
+              padding: '12px 16px', 
+              background: '#fff2e8', 
+              border: '1px solid #ffd591',
+              borderRadius: '6px',
+              color: '#d46b08'
+            }}>
+              <strong>⚠️ Lưu ý:</strong> Hành động này không thể hoàn tác. 
+              Tất cả học sinh liên quan sẽ bị ảnh hưởng.
+            </div>
+          </div>
+        </Modal>
       </div>
     </div>
   );

@@ -16,13 +16,22 @@ export const parentsApi = {
     return apiClient.post('/parents', parentData);
   },
 
-  // Cập nhật thông tin phụ huynh (nếu có)
+  // Cập nhật thông tin phụ huynh (partial update)
   updateParent: (id, parentData) => {
-    return apiClient.put(`/parents/${id}`, parentData);
+    return apiClient.patch(`/parents/${id}`, parentData);
   },
 
-  // Xóa phụ huynh (nếu có)
+  // Xóa phụ huynh
   deleteParent: (id) => {
     return apiClient.delete(`/parents/${id}`);
+  },
+
+  // Reassign students sang parent khác
+  reassignStudents: (sourceParentId, targetParentId, studentIds = null) => {
+    const requestBody = { targetParentId };
+    if (studentIds && studentIds.length > 0) {
+      requestBody.studentIds = studentIds;
+    }
+    return apiClient.patch(`/parents/${sourceParentId}/reassign`, requestBody);
   },
 };

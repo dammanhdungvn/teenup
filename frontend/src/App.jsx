@@ -13,6 +13,7 @@ import ClassDetailPage from './pages/Classes/ClassDetailPage';
 import ParentsListPage from './pages/Parents/ParentsListPage';
 import ParentDetailPage from './pages/Parents/ParentDetailPage';
 import CreateParentPage from './pages/Parents/CreateParentPage';
+import EditParentPage from './pages/Parents/EditParentPage';
 import CreateSubscriptionPage from './pages/Subscriptions/CreateSubscriptionPage';
 import SubscriptionsListPage from './pages/Subscriptions/SubscriptionsListPage';
 
@@ -83,6 +84,7 @@ function App() {
               <Route path="/parents" element={<ParentsListPage />} />
               <Route path="/parents/new" element={<CreateParentPage />} />
               <Route path="/parents/:id" element={<ParentDetailPage />} />
+              <Route path="/parents/:id/edit" element={<EditParentPage />} />
               <Route path="/subscriptions" element={<SubscriptionsListPage />} />
               <Route path="/subscriptions/list" element={<SubscriptionsListPage />} />
               <Route path="/subscriptions/new" element={<CreateSubscriptionPage />} />

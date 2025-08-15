@@ -131,6 +131,8 @@ Thư mục này chứa toàn bộ tài liệu kỹ thuật cho Frontend React c�
 - [React Router Documentation](https://reactrouter.com/)
 
 ### **Project Resources:**
+📚 **[📋 Technical Documentation](../../docs/README.md)** - Tài liệu kỹ thuật chính
+
 - [Backend Documentation](../backend/contest/docs/)
 - [Docker Setup](../../docker-compose.yml)
 - [Main Project README](../../README.md)

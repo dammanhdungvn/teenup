@@ -124,6 +124,8 @@ Thư mục này chứa toàn bộ tài liệu kỹ thuật cho Backend TeenUp Co
 - [MySQL Documentation](https://dev.mysql.com/doc/)
 
 ### **Project Resources:**
+📚 **[📋 Technical Documentation](../../docs/README.md)** - Tài liệu kỹ thuật chính
+
 - [Frontend Documentation](../frontend/docs/)
 - [Docker Setup](../../DOCKER-SETUP.md)
 - [Main Project README](../../README.md)

@@ -4,6 +4,8 @@ Hệ thống quản lý cuộc thi với **Spring Boot Backend** + **React Front
 
 ## 📚 **Documentation**
 
+📚 **[📋 Technical Documentation](docs/README.md)** - Tài liệu kỹ thuật chính
+
 - 🌐 **[Frontend Documentation](frontend/docs/INDEX.md)** - React app documentation index
 - 🔧 **[Backend Documentation](backend/contest/docs/INDEX.md)** - Spring Boot API documentation index
 - 🐳 **[Docker Setup](docker-compose.yml)** - Complete system deployment

@@ -32,4 +32,7 @@ public interface ClassRegistrationsRepository extends JpaRepository<ClassRegistr
     @Query("SELECT COUNT(r) FROM ClassRegistrationEntity r WHERE r.student.id = :studentId")
     long countByStudentId(Long studentId);
 
+    @Query("SELECT COUNT(r) FROM ClassRegistrationEntity r WHERE r.clazz.id = :classId")
+    long countByClassId(Long classId);
+
 }

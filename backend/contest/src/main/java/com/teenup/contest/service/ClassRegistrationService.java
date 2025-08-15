@@ -2,14 +2,14 @@ package com.teenup.contest.service;
 
 
 import com.teenup.contest.dto.request.RegisterRequest;
+import com.teenup.contest.dto.request.UpdateClassRequest;
+import com.teenup.contest.dto.response.ClassResponse;
 import com.teenup.contest.entity.ClassRegistrationEntity;
 import com.teenup.contest.entity.ClassesEntity;
 import com.teenup.contest.entity.StudentsEntity;
-import com.teenup.contest.exception.AlreadyRegisteredException;
-import com.teenup.contest.exception.ClassFullException;
+import com.teenup.contest.exception.*;
 import com.teenup.contest.exception.ClassNotFoundException;
-import com.teenup.contest.exception.ScheduleConflictException;
-import com.teenup.contest.exception.StudentNotFoundException;
+import com.teenup.contest.mapper.ClassMapper;
 import com.teenup.contest.repository.ClassRegistrationsRepository;
 import com.teenup.contest.repository.ClassesRepository;
 import com.teenup.contest.repository.StudentsRepository;
@@ -27,7 +27,6 @@ public class ClassRegistrationService {
     private final ClassRegistrationsRepository regRepo;
     private final ClassesRepository classRepo;
     private final StudentsRepository studentRepo;
-
     @Transactional
     public void register(Long classId, RegisterRequest req) {
         Long studentId = req.studentId();
@@ -82,6 +81,5 @@ public class ClassRegistrationService {
     private String describeSlot(ClassesEntity c) {
         return "day=" + c.getDayOfWeek() + ", time=" + c.getTimeSlot();
     }
-
 
 }

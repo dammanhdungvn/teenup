@@ -1,6 +1,7 @@
 package com.teenup.contest.controller;
 
 import com.teenup.contest.dto.request.CreateClassRequest;
+import com.teenup.contest.dto.request.UpdateClassRequest;
 import com.teenup.contest.dto.response.ClassResponse;
 import com.teenup.contest.entity.ClassRegistrationEntity;
 import com.teenup.contest.mapper.ClassReadMapper;
@@ -53,5 +54,18 @@ public class ClassController {
         }
         // Trả gọn như cũ (không students)
         return service.listByDay(day);
+    }
+
+    // Cập nhật lớp (partial)
+    @PatchMapping("/{id}")
+    public ClassResponse update(@PathVariable Long id, @Valid @RequestBody UpdateClassRequest req) {
+        return service.update(id, req);
+    }
+
+    // Xoá lớp (chặn nếu đang có đăng ký)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

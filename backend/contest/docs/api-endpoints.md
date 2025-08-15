@@ -364,6 +364,38 @@ curl "http://localhost:8080/api/classes/1"
 }
 ```
 
+### 3.5 Cập nhật lớp (partial)
+**PATCH** `/api/classes/{id}`
+```bash
+curl -X PATCH "http://localhost:8081/api/classes/1" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "name": "Toán Nâng Cao (updated)",
+        "subject": "Math",
+        "dayOfWeek": 2,
+        "timeSlot": "15:00-16:30",
+        "teacherName": "Thầy A",
+        "maxStudents": 25
+      }'
+```
+
+**200 OK**
+```JSON
+{
+  "id": 1,
+  "name": "Toán Nâng Cao (updated)",
+  "subject": "Math",
+  "dayOfWeek": 2,
+  "timeSlot": "15:00-16:30",
+  "teacherName": "Thầy A",
+  "maxStudents": 25,
+  "createdAt": "...",
+  "updatedAt": "..."
+}
+```
+## 3.6 Xóa lớp 
+**DELETE** `/api/classes/{id}`
+
 ---
 
 ## 4) ClassRegistrations

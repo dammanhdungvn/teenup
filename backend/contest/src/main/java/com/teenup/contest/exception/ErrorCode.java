@@ -18,6 +18,8 @@ public enum ErrorCode {
     CLASS_NOT_FOUND   ("CLASS_NOT_FOUND", HttpStatus.NOT_FOUND, "Không tìm thấy lớp học"),
     INVALID_DAY       ("INVALID_DAY",     HttpStatus.BAD_REQUEST, "Giá trị dayOfWeek không hợp lệ (1-7)"),
     CLASS_CONFLICT    ("CLASS_CONFLICT",  HttpStatus.CONFLICT, "Lớp học trùng lịch hoặc vi phạm ràng buộc"),
+    CLASS_HAS_REGISTRATIONS      ("CLASS_HAS_REGISTRATIONS",      HttpStatus.CONFLICT,   "Lớp đang có học sinh đăng ký, không thể xoá"),
+    CLASS_CAPACITY_TOO_SMALL     ("CLASS_CAPACITY_TOO_SMALL",     HttpStatus.CONFLICT,   "maxStudents nhỏ hơn số học sinh đã đăng ký"),
 
     ALREADY_REGISTERED   ("ALREADY_REGISTERED",   HttpStatus.CONFLICT,   "Học sinh đã đăng ký lớp này"),
     CLASS_FULL           ("CLASS_FULL",           HttpStatus.CONFLICT,   "Lớp đã đủ số lượng"),

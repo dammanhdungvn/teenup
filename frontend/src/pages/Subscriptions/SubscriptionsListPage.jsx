@@ -14,7 +14,8 @@ import {
   Modal,
   Descriptions,
   Badge,
-  Typography
+  Typography,
+  Form
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -23,7 +24,9 @@ import {
   EyeOutlined,
   CalendarOutlined,
   UserOutlined,
-  GiftOutlined
+  GiftOutlined,
+  EditOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { App } from 'antd';
@@ -49,6 +52,12 @@ const SubscriptionsListPage = () => {
   // State cho modal xem chi tiết
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
+
+  // State cho modal edit và delete
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [editingSubscription, setEditingSubscription] = useState(null);
+  const [deletingSubscription, setDeletingSubscription] = useState(null);
 
   // Fetch subscriptions
   const fetchSubscriptions = async (params = {}) => {
@@ -154,6 +163,44 @@ const SubscriptionsListPage = () => {
     setSelectedSubscription(null);
   };
 
+  // Xử lý edit subscription
+  const handleEdit = (subscription) => {
+    setEditingSubscription(subscription);
+    setEditModalVisible(true);
+  };
+
+  // Xử lý delete subscription
+  const handleDelete = (subscription) => {
+    setDeletingSubscription(subscription);
+    setDeleteModalVisible(true);
+  };
+
+  // Xác nhận delete
+  const confirmDelete = async () => {
+    if (!deletingSubscription) return;
+    
+    try {
+      await subscriptionsApi.deleteSubscription(deletingSubscription.id);
+      messageApi.success('Đã xóa gói học thành công!');
+      setDeleteModalVisible(false);
+      setDeletingSubscription(null);
+      fetchSubscriptions(); // Refresh data
+    } catch (err) {
+      const backendMessage = err?.response?.data?.message;
+      if (backendMessage) {
+        messageApi.error(backendMessage);
+      } else {
+        messageApi.error('Không thể xóa gói học');
+      }
+    }
+  };
+
+  // Hủy delete
+  const cancelDelete = () => {
+    setDeleteModalVisible(false);
+    setDeletingSubscription(null);
+  };
+
   // Sử dụng 1 buổi học
   const handleUseSession = async (subscriptionId) => {
     try {
@@ -185,10 +232,9 @@ const SubscriptionsListPage = () => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 100,
+      width: 60,
       align: 'center',
       fixed: 'left',
-      responsive: ['md'],
       render: (id) => (
         <Tag 
           color="blue" 
@@ -208,7 +254,7 @@ const SubscriptionsListPage = () => {
       title: 'Tên gói',
       dataIndex: 'packageName',
       key: 'packageName',
-      width: 300,
+      width: 180,
       render: (name) => (
         <Space size="middle">
           <div style={{
@@ -236,7 +282,7 @@ const SubscriptionsListPage = () => {
       title: 'Học sinh',
       dataIndex: 'studentId',
       key: 'studentId',
-      width: 250,
+      width: 180,
       render: (studentId) => {
         const student = students.find(s => s.id === studentId);
         return (
@@ -266,7 +312,7 @@ const SubscriptionsListPage = () => {
     {
       title: 'Thời gian',
       key: 'dateRange',
-      width: 200,
+      width: 160,
       render: (_, record) => (
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '14px', color: '#374151', marginBottom: '4px', fontWeight: 500 }}>
@@ -284,7 +330,7 @@ const SubscriptionsListPage = () => {
     {
       title: 'Số buổi học',
       key: 'sessions',
-      width: 180,
+      width: 120,
       align: 'center',
       render: (_, record) => (
         <div style={{ textAlign: 'center' }}>
@@ -300,7 +346,7 @@ const SubscriptionsListPage = () => {
     {
       title: 'Trạng thái',
       key: 'status',
-      width: 140,
+      width: 100,
       align: 'center',
       render: (_, record) => {
         let status = 'active';
@@ -357,6 +403,35 @@ const SubscriptionsListPage = () => {
               }}
             />
           </Tooltip>
+          
+          <Tooltip title="Chỉnh sửa">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+              style={{ 
+                color: '#fa8c16',
+                borderRadius: '6px',
+                height: '32px',
+                width: '32px'
+              }}
+            />
+          </Tooltip>
+
+          <Tooltip title="Xóa">
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(record)}
+              style={{ 
+                borderRadius: '6px',
+                height: '32px',
+                width: '32px'
+              }}
+            />
+          </Tooltip>
+
           {record.remainingSessions > 0 && (
             <Tooltip title="Sử dụng 1 buổi học">
               <Button
@@ -485,28 +560,31 @@ const SubscriptionsListPage = () => {
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
             padding: '0'
           }}>
-            <Table
-              columns={columns}
-              dataSource={filteredSubscriptions}
-              rowKey="id"
-              pagination={false}
-              loading={loading}
-              locale={{
-                emptyText: (
-                  <div style={{ textAlign: 'center', padding: '60px' }}>
-                    <GiftOutlined style={{ fontSize: '64px', color: '#d1d5db', marginBottom: '24px' }} />
-                    <div style={{ color: '#6b7280', fontSize: '16px' }}>Chưa có gói học nào</div>
-                  </div>
-                ),
-              }}
-              style={{
-                borderRadius: '12px',
-                overflow: 'hidden'
-              }}
-              size="large"
-              scroll={{ x: 1200 }}
-              responsive={true}
-            />
+            <div style={{ overflowX: 'auto', width: '100%' }}>
+              <Table
+                columns={columns}
+                dataSource={filteredSubscriptions}
+                rowKey="id"
+                pagination={false}
+                loading={loading}
+                locale={{
+                  emptyText: (
+                    <div style={{ textAlign: 'center', padding: '60px' }}>
+                      <GiftOutlined style={{ fontSize: '64px', color: '#d1d5db', marginBottom: '24px' }} />
+                      <div style={{ color: '#6b7280', fontSize: '16px' }}>Chưa có gói học nào</div>
+                    </div>
+                  ),
+                }}
+                style={{
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  minWidth: '980px'
+                }}
+                size="middle"
+                scroll={false}
+                responsive={false}
+              />
+            </div>
           </Card>
 
           {/* Pagination - Tách riêng ở cuối */}
@@ -542,6 +620,78 @@ const SubscriptionsListPage = () => {
           </Card>
         </Space>
       </div>
+
+      {/* Edit Subscription Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <EditOutlined style={{ color: '#fa8c16', fontSize: '20px' }} />
+            <span>Chỉnh sửa gói học</span>
+          </div>
+        }
+        open={editModalVisible}
+        onCancel={() => setEditModalVisible(false)}
+        footer={null}
+        width={600}
+        centered
+      >
+        {editingSubscription && (
+          <div style={{ padding: '16px 0' }}>
+            <p style={{ marginBottom: '16px', color: '#6b7280' }}>
+              Gói học: <strong>{editingSubscription.packageName}</strong><br/>
+              Học sinh: <strong>{students.find(s => s.id === editingSubscription.studentId)?.name}</strong>
+            </p>
+            <p style={{ color: '#fa8c16', fontSize: '14px' }}>
+              ⚠️ Chức năng chỉnh sửa gói học sẽ được implement trong Task 8
+            </p>
+            <div style={{ textAlign: 'center', marginTop: '24px' }}>
+              <Button onClick={() => setEditModalVisible(false)}>
+                Đóng
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <DeleteOutlined style={{ color: '#ff4d4f', fontSize: '20px' }} />
+            <span>Xác nhận xóa gói học</span>
+          </div>
+        }
+        open={deleteModalVisible}
+        onOk={confirmDelete}
+        onCancel={cancelDelete}
+        okText="Xóa"
+        cancelText="Hủy"
+        okButtonProps={{
+          danger: true,
+          style: {
+            background: '#ff4d4f',
+            border: 'none',
+            borderRadius: '8px',
+            height: '40px',
+            padding: '0 20px'
+          }
+        }}
+        cancelButtonProps={{
+          style: {
+            border: '1px solid #d9d9d9',
+            borderRadius: '8px',
+            height: '40px',
+            padding: '0 20px'
+          }
+        }}
+      >
+        <div style={{ padding: '16px 0' }}>
+          <p>Bạn có chắc chắn muốn xóa gói học <strong>"{deletingSubscription?.packageName}"</strong> của học sinh <strong>"{students.find(s => s.id === deletingSubscription?.studentId)?.name}"</strong>?</p>
+          <p style={{ color: '#ff4d4f', fontSize: '14px' }}>
+            Hành động này không thể hoàn tác!
+          </p>
+        </div>
+      </Modal>
 
       {/* Modal chi tiết subscription */}
       <Modal

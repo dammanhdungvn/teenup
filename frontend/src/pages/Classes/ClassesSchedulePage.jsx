@@ -12,6 +12,7 @@ import {
   Tooltip,
   Modal,
   Form,
+  Input,
   message
 } from 'antd';
 import { 
@@ -140,6 +141,11 @@ const ClassesSchedulePage = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [classToDelete, setClassToDelete] = useState(null);
 
+  // State cho modal edit lớp học
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingClass, setEditingClass] = useState(null);
+  const [editForm] = Form.useForm();
+
   const fetchClasses = async (params = {}) => {
     try {
       setLoading(true);
@@ -208,7 +214,7 @@ const ClassesSchedulePage = () => {
         ),
         dataIndex: 'timeSlot',
         key: 'timeSlot',
-        width: 120,
+        width: 100,
         fixed: 'left',
         align: 'center',
         render: (_, record) => (
@@ -236,7 +242,7 @@ const ClassesSchedulePage = () => {
         ),
         dataIndex: `day${day}`,
         key: `day${day}`,
-        width: 200,
+        width: 160,
         align: 'center',
         render: (_, record) => {
           const dayClasses = classes.filter(c => c.dayOfWeek === day);
@@ -264,36 +270,53 @@ const ClassesSchedulePage = () => {
                       key={classData.id}
                       className="class-block"
                       style={{
-                        height: `${position.spanSlots * 60 - 4}px`,
-                        top: '2px'
+                        height: `${position.spanSlots * 60 - 2}px`,
+                        top: '1px',
+                        position: 'absolute',
+                        left: '1px',
+                        right: '1px',
+                        background: 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)',
+                        border: '1px solid #bbdefb',
+                        borderRadius: '4px',
+                        padding: '3px',
+                        overflow: 'hidden',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        zIndex: 10
                       }}
                     >
                       <div style={{ 
                         fontWeight: 600, 
-                        fontSize: '12px',
+                        fontSize: '11px',
                         color: '#1565c0',
                         textAlign: 'center',
-                        marginBottom: '2px',
-                        lineHeight: '1.2'
+                        marginBottom: '1px',
+                        lineHeight: '1.1'
                       }}>
                         {classData.name}
                       </div>
                       <div style={{ 
-                        fontSize: '10px', 
+                        fontSize: '9px', 
                         color: '#1976d2',
                         textAlign: 'center',
-                        marginBottom: '2px',
+                        marginBottom: '1px',
                         fontWeight: 500
                       }}>
                         {classData.teacherName}
                       </div>
-                      <div style={{ textAlign: 'center', marginBottom: '2px' }}>
-                        <Tag color="blue" size="small" style={{ fontSize: '9px', padding: '0 4px' }}>
+                      <div style={{ textAlign: 'center', marginBottom: '1px' }}>
+                        <Tag color="blue" size="small" style={{ fontSize: '8px', padding: '0 2px' }}>
                           {classData.subject}
                         </Tag>
                       </div>
-                      <div style={{ textAlign: 'center' }}>
-                        <Space size="small">
+                      <div style={{ 
+                        textAlign: 'center',
+                        padding: '2px 0',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '2px'
+                      }}>
+                        {/* Row 1: View & Edit */}
+                        <div style={{ display: 'flex', gap: '1px', justifyContent: 'center' }}>
                           <Tooltip title="Xem chi tiết">
                             <Button
                               size="small"
@@ -301,11 +324,14 @@ const ClassesSchedulePage = () => {
                               onClick={() => navigate(`/classes/${classData.id}`)}
                               style={{
                                 border: '1px solid #1976d2',
-                                borderRadius: '4px',
-                                fontSize: '9px',
+                                borderRadius: '3px',
+                                fontSize: '7px',
                                 padding: '1px 4px',
                                 height: '20px',
-                                minWidth: '40px'
+                                minWidth: '28px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
                               }}
                             >
                               Xem
@@ -315,20 +341,27 @@ const ClassesSchedulePage = () => {
                             <Button
                               size="small"
                               icon={<EditOutlined />}
-                              onClick={() => navigate(`/classes/${classData.id}/edit`)}
+                              onClick={() => handleEdit(classData)}
                               style={{
                                 border: '1px solid #52c41a',
                                 color: '#52c41a',
-                                borderRadius: '4px',
-                                fontSize: '9px',
+                                borderRadius: '3px',
+                                fontSize: '7px',
                                 padding: '1px 4px',
                                 height: '20px',
-                                minWidth: '40px'
+                                minWidth: '28px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
                               }}
                             >
                               Sửa
                             </Button>
                           </Tooltip>
+                        </div>
+                        
+                        {/* Row 2: Delete & Register */}
+                        <div style={{ display: 'flex', gap: '1px', justifyContent: 'center' }}>
                           <Tooltip title="Xóa lớp học">
                             <Button
                               danger
@@ -336,11 +369,14 @@ const ClassesSchedulePage = () => {
                               icon={<DeleteOutlined />}
                               onClick={() => showDeleteModal(classData)}
                               style={{
-                                borderRadius: '4px',
-                                fontSize: '9px',
+                                borderRadius: '3px',
+                                fontSize: '7px',
                                 padding: '1px 4px',
                                 height: '20px',
-                                minWidth: '40px'
+                                minWidth: '28px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
                               }}
                             >
                               Xóa
@@ -355,17 +391,20 @@ const ClassesSchedulePage = () => {
                               style={{
                                 background: '#1976d2',
                                 border: 'none',
-                                borderRadius: '4px',
-                                fontSize: '9px',
+                                borderRadius: '3px',
+                                fontSize: '7px',
                                 padding: '1px 4px',
                                 height: '20px',
-                                minWidth: '40px'
+                                minWidth: '28px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
                               }}
                             >
                               ĐK
                             </Button>
                           </Tooltip>
-                        </Space>
+                        </div>
                       </div>
                     </div>
                   );
@@ -506,6 +545,59 @@ const ClassesSchedulePage = () => {
     setClassToDelete(null);
   };
 
+  // Xử lý edit lớp học
+  const handleEdit = (classData) => {
+    setEditingClass(classData);
+    editForm.setFieldsValue({
+      name: classData.name,
+      subject: classData.subject,
+      dayOfWeek: classData.dayOfWeek,
+      timeSlot: classData.timeSlot,
+      teacherName: classData.teacherName,
+      maxStudents: classData.maxStudents
+    });
+    setEditModalVisible(true);
+  };
+
+  // Xác nhận edit
+  const confirmEdit = async () => {
+    try {
+      const values = await editForm.validateFields();
+      
+      // Convert maxStudents to number
+      const formData = {
+        ...values,
+        maxStudents: parseInt(values.maxStudents)
+      };
+      
+      await classesApi.updateClass(editingClass.id, formData);
+      message.success('Cập nhật lớp học thành công!');
+      setEditModalVisible(false);
+      setEditingClass(null);
+      editForm.resetFields();
+      
+      // Refresh danh sách lớp
+      if (dayFilter && dayFilter !== 'all') {
+        fetchClasses({ day: dayFilter, expand: 'registrations' });
+      } else {
+        fetchClasses({ expand: 'registrations' });
+      }
+    } catch (err) {
+      if (err.errorFields) {
+        // Form validation error
+        return;
+      }
+      handleError(err, message, 'Không thể cập nhật lớp học', 'confirmEdit');
+    }
+  };
+
+  // Hủy edit
+  const cancelEdit = () => {
+    setEditModalVisible(false);
+    setEditingClass(null);
+    editForm.resetFields();
+  };
+
   const dayOptions = [
     { label: 'Không lọc theo ngày', value: 'all' },
     ...dayColumns.map((d) => ({ 
@@ -601,30 +693,33 @@ const ClassesSchedulePage = () => {
                 </div>
               </div>
             ) : (
-              <Table
-                columns={columns}
-                dataSource={dataSource}
-                rowKey="timeSlot"
-                pagination={false}
-                scroll={{ x: 'max-content' }}
-                style={{
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  width: '100%'
-                }}
-                className="schedule-table"
-                bordered={true}
-                size="middle"
-                rowClassName={(record, index) => 'schedule-row'}
-                locale={{
-                  emptyText: (
-                    <div style={{ textAlign: 'center', padding: '40px' }}>
-                      <CalendarOutlined style={{ fontSize: '48px', color: '#d1d5db', marginBottom: '16px' }} />
-                      <div style={{ color: '#6b7280' }}>Chưa có lớp học nào</div>
-                    </div>
-                  ),
-                }}
-              />
+              <div style={{ overflowX: 'auto', width: '100%' }}>
+                <Table
+                  columns={columns}
+                  dataSource={dataSource}
+                  rowKey="timeSlot"
+                  pagination={false}
+                  scroll={false}
+                  style={{
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    minWidth: '1100px'
+                  }}
+                  className="schedule-table"
+                  bordered={true}
+                  size="middle"
+                  rowClassName={(record, index) => 'schedule-row'}
+                  responsive={false}
+                  locale={{
+                    emptyText: (
+                      <div style={{ textAlign: 'center', padding: '40px' }}>
+                        <CalendarOutlined style={{ fontSize: '48px', color: '#d1d5db', marginBottom: '16px' }} />
+                        <div style={{ color: '#6b7280' }}>Chưa có lớp học nào</div>
+                      </div>
+                    ),
+                  }}
+                />
+              </div>
             )}
           </Card>
         </Space>
@@ -841,6 +936,125 @@ const ClassesSchedulePage = () => {
         )}
       </Modal>
 
+      {/* Edit Class Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <EditOutlined style={{ color: '#52c41a', fontSize: '20px' }} />
+            <span>Chỉnh sửa lớp học</span>
+          </div>
+        }
+        open={editModalVisible}
+        onOk={confirmEdit}
+        onCancel={cancelEdit}
+        okText="Cập nhật"
+        cancelText="Hủy"
+        width={700}
+        centered
+      >
+        {editingClass && (
+          <Form
+            form={editForm}
+            layout="vertical"
+            style={{ marginTop: '16px' }}
+          >
+            <Form.Item
+              name="name"
+              label="Tên lớp"
+              rules={[
+                { required: true, message: 'Vui lòng nhập tên lớp!' },
+                { min: 2, message: 'Tên lớp phải có ít nhất 2 ký tự!' }
+              ]}
+            >
+              <Input placeholder="Nhập tên lớp" />
+            </Form.Item>
+
+            <Form.Item
+              name="subject"
+              label="Môn học"
+              rules={[
+                { required: true, message: 'Vui lòng chọn môn học!' }
+              ]}
+            >
+              <Select placeholder="Chọn môn học">
+                <Select.Option value="Math">Toán học</Select.Option>
+                <Select.Option value="Literature">Văn học</Select.Option>
+                <Select.Option value="English">Tiếng Anh</Select.Option>
+                <Select.Option value="Physics">Vật lý</Select.Option>
+                <Select.Option value="Chemistry">Hóa học</Select.Option>
+                <Select.Option value="Biology">Sinh học</Select.Option>
+                <Select.Option value="History">Lịch sử</Select.Option>
+                <Select.Option value="Geography">Địa lý</Select.Option>
+                <Select.Option value="Computer">Tin học</Select.Option>
+                <Select.Option value="Art">Mỹ thuật</Select.Option>
+                <Select.Option value="Music">Âm nhạc</Select.Option>
+                <Select.Option value="Physical">Thể dục</Select.Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="dayOfWeek"
+              label="Thứ trong tuần"
+              rules={[
+                { required: true, message: 'Vui lòng chọn thứ!' }
+              ]}
+            >
+              <Select placeholder="Chọn thứ">
+                {dayColumns.map((day) => (
+                  <Select.Option key={day} value={day}>
+                    {DAY_OF_WEEK_MAP[day]}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="timeSlot"
+              label="Thời gian học"
+              rules={[
+                { required: true, message: 'Vui lòng nhập thời gian học!' },
+                { pattern: /^([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]$/, message: 'Định dạng thời gian không hợp lệ (HH:MM-HH:MM)!' }
+              ]}
+            >
+              <Input placeholder="VD: 14:00-15:30" />
+            </Form.Item>
+
+            <Form.Item
+              name="teacherName"
+              label="Tên giáo viên"
+              rules={[
+                { required: true, message: 'Vui lòng nhập tên giáo viên!' },
+                { min: 2, message: 'Tên giáo viên phải có ít nhất 2 ký tự!' }
+              ]}
+            >
+              <Input placeholder="Nhập tên giáo viên" />
+            </Form.Item>
+
+            <Form.Item
+              name="maxStudents"
+              label="Số học sinh tối đa"
+              rules={[
+                { required: true, message: 'Vui lòng nhập số học sinh tối đa!' },
+                { 
+                  validator: (_, value) => {
+                    const num = parseInt(value);
+                    if (isNaN(num)) {
+                      return Promise.reject(new Error('Vui lòng nhập số hợp lệ!'));
+                    }
+                    if (num < 1 || num > 50) {
+                      return Promise.reject(new Error('Số học sinh phải từ 1-50!'));
+                    }
+                    return Promise.resolve();
+                  }
+                }
+              ]}
+            >
+              <Input type="number" placeholder="Nhập số học sinh tối đa" min="1" max="50" />
+            </Form.Item>
+          </Form>
+        )}
+      </Modal>
+
       {/* Delete Confirmation Modal */}
       <Modal
         title={
@@ -916,3 +1130,100 @@ const ClassesSchedulePage = () => {
 };
 
 export default ClassesSchedulePage;
+
+// CSS styles for responsive design
+const styles = `
+  .schedule-table {
+    font-size: 11px;
+  }
+  
+  .schedule-table .ant-table-thead > tr > th {
+    padding: 6px 3px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  
+  .schedule-table .ant-table-tbody > tr > td {
+    padding: 3px;
+    font-size: 10px;
+  }
+  
+  .class-block {
+    transition: all 0.2s ease;
+    overflow: hidden;
+  }
+  
+  .class-block:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+  
+  .class-block button {
+    font-size: 7px !important;
+    padding: 1px 3px !important;
+    height: 18px !important;
+    min-width: 26px !important;
+    line-height: 1 !important;
+  }
+  
+  @media (max-width: 768px) {
+    .schedule-table {
+      font-size: 9px;
+    }
+    
+    .schedule-table .ant-table-thead > tr > th {
+      padding: 3px 2px;
+      font-size: 9px;
+    }
+    
+    .schedule-table .ant-table-tbody > tr > td {
+      padding: 2px;
+      font-size: 8px;
+    }
+    
+    .class-block {
+      padding: 2px;
+    }
+    
+    .class-block button {
+      font-size: 6px !important;
+      padding: 1px 2px !important;
+      height: 16px !important;
+      min-width: 24px !important;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .schedule-table {
+      font-size: 8px;
+    }
+    
+    .schedule-table .ant-table-thead > tr > th {
+      padding: 2px 1px;
+      font-size: 8px;
+    }
+    
+    .schedule-table .ant-table-tbody > tr > td {
+      padding: 1px;
+      font-size: 7px;
+    }
+    
+    .class-block {
+      padding: 1px;
+    }
+    
+    .class-block button {
+      font-size: 5px !important;
+      padding: 1px 1px !important;
+      height: 14px !important;
+      min-width: 20px !important;
+    }
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
+}

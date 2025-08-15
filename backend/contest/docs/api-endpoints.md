@@ -468,6 +468,24 @@ curl "http://localhost:8080/api/students/3/classes"
 ]
 ```
 
+### 4.4 Huỷ đăng ký học sinh khỏi lớp
+**DELETE** `/api/classes/{classId}/registrations/{studentId}`
+```bash
+curl -i -X DELETE "http://localhost:8081/api/classes/1/registrations/3"
+```
+**204 No Content**
+
+### 4.5 Chuyển lớp cho học sinh
+
+**PATCH** `/api/classes/{classId}/registrations/{studentId}`
+
+```bash
+curl -i -X PATCH "http://localhost:8081/api/classes/1/registrations/3" \
+  -H "Content-Type: application/json" \
+  -d '{ "targetClassId": 2 }'
+```
+**204 No Content**
+
 ---
 
 ## 5) Subscriptions

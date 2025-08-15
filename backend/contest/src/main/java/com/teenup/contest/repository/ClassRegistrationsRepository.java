@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ClassRegistrationsRepository extends JpaRepository<ClassRegistrationEntity, Long> {
 
@@ -35,4 +36,17 @@ public interface ClassRegistrationsRepository extends JpaRepository<ClassRegistr
     @Query("SELECT COUNT(r) FROM ClassRegistrationEntity r WHERE r.clazz.id = :classId")
     long countByClassId(Long classId);
 
+    //register classes
+    @Query("""
+        SELECT r FROM ClassRegistrationEntity r
+        WHERE r.clazz.id = :classId AND r.student.id = :studentId
+    """)
+    Optional<ClassRegistrationEntity> findByClassIdAndStudentId(Long classId, Long studentId);
+
+    @Query("""
+        SELECT CASE WHEN COUNT(r)>0 THEN TRUE ELSE FALSE END
+        FROM ClassRegistrationEntity r
+        WHERE r.clazz.id = :classId AND r.student.id = :studentId
+    """)
+    boolean existsByClassIdAndStudentId(Long classId, Long studentId);
 }

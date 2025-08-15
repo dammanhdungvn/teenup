@@ -25,6 +25,9 @@ public enum ErrorCode {
     CLASS_FULL           ("CLASS_FULL",           HttpStatus.CONFLICT,   "Lớp đã đủ số lượng"),
     SCHEDULE_CONFLICT    ("SCHEDULE_CONFLICT",    HttpStatus.CONFLICT,   "Trùng lịch với lớp khác"),
 
+    REGISTRATION_NOT_FOUND   ("REGISTRATION_NOT_FOUND",   HttpStatus.NOT_FOUND,  "Không tìm thấy đăng ký lớp"),
+    SAME_CLASS_TARGET        ("SAME_CLASS_TARGET",        HttpStatus.CONFLICT,   "Lớp đích trùng với lớp hiện tại"),
+
     SUBSCRIPTION_NOT_FOUND ("SUBSCRIPTION_NOT_FOUND", HttpStatus.NOT_FOUND, "Không tìm thấy gói học"),
     SUBSCRIPTION_INACTIVE  ("SUBSCRIPTION_INACTIVE",  HttpStatus.CONFLICT, "Gói học chưa hiệu lực hoặc đã hết hạn"),
     NO_REMAINING_SESSIONS  ("NO_REMAINING_SESSIONS",  HttpStatus.CONFLICT, "Gói học đã dùng hết số buổi");

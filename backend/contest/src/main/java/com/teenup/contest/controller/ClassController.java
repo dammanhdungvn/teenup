@@ -1,10 +1,12 @@
 package com.teenup.contest.controller;
 
 import com.teenup.contest.dto.request.CreateClassRequest;
+import com.teenup.contest.dto.request.MoveRegistrationRequest;
 import com.teenup.contest.dto.request.UpdateClassRequest;
 import com.teenup.contest.dto.response.ClassResponse;
 import com.teenup.contest.entity.ClassRegistrationEntity;
 import com.teenup.contest.mapper.ClassReadMapper;
+import com.teenup.contest.service.ClassRegistrationService;
 import com.teenup.contest.service.ClassService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class ClassController {
 
     private final ClassService service;
     private final ClassReadMapper mapper;
+    private final ClassRegistrationService regService;
     // POST /api/classes – tạo lớp mới
     @PostMapping
     public ResponseEntity<ClassResponse> create(@Valid @RequestBody CreateClassRequest req) {
@@ -66,6 +69,24 @@ public class ClassController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 1) Huỷ đăng ký một học sinh khỏi lớp
+    @DeleteMapping("/{classId}/registrations/{studentId}")
+    public ResponseEntity<Void> unregister(@PathVariable Long classId, @PathVariable Long studentId) {
+        regService.unregister(classId, studentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 2) Chuyển lớp cho học sinh
+    @PatchMapping("/{classId}/registrations/{studentId}")
+    public ResponseEntity<Void> move(
+            @PathVariable Long classId,
+            @PathVariable Long studentId,
+            @Valid @RequestBody MoveRegistrationRequest req
+    ) {
+        regService.move(classId, studentId, req);
         return ResponseEntity.noContent().build();
     }
 }

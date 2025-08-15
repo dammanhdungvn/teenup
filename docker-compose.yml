@@ -1,63 +1,104 @@
 version: "3.9"
 
 services:
+  # ========= DATABASE =========
   db:
     image: mysql:8.0
-    container_name: lms_mysql
+    container_name: teenup_mysql
+    restart: unless-stopped
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-lms}
-      MYSQL_USER: ${MYSQL_USER:-lms}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-lmspass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-teenup}
+      MYSQL_USER: ${MYSQL_USER:-teenup}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-teenup123}
+      TZ: Asia/Bangkok
     ports:
-      - "3306:3306"   # nếu trùng port local, đổi thành "3307:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      # Nếu có file init SQL, mở dòng dưới:
-      # - ./db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p${MYSQL_PASSWORD:-lmspass} --silent"]
-      interval: 5s
-      timeout: 3s
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpass}"]
+      interval: 10s
+      timeout: 5s
       retries: 30
+      start_period: 30s
+    networks:
+      - teenup_network
 
+  # ========= BACKEND =========
   backend:
     build:
       context: ./backend/contest
       dockerfile: Dockerfile
-    container_name: lms_backend
+    container_name: teenup_backend
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     environment:
-      # JDBC trỏ tới service "db" trong mạng docker
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE:-lms}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-lms}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-lmspass}
-
-      # JPA ddl
+      # Database connection
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE:-teenup}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-teenup}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-teenup123}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      
+      # JPA configuration
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-
-      # Profile & port như bạn yêu cầu
+      SPRING_JPA_SHOW_SQL: false
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: false
+      
+      # Application configuration
       SPRING_PROFILES_ACTIVE: dev
       SERVER_PORT: 8081
-
-      # Timezone container (tùy chỉnh nếu cần)
+      
+      # Timezone
       TZ: Asia/Bangkok
     ports:
       - "8081:8081"
+    volumes:
+      - ./logs/backend:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - teenup_network
 
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   container_name: lms_frontend
-  #   depends_on:
-  #     - backend
-  #   ports:
-  #     - "3000:80"
-  #   # Nếu muốn frontend gọi backend qua cùng domain, bật proxy /api trong nginx.conf của FE.
+  # ========= FRONTEND =========
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: teenup_frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "3000:80"
+    volumes:
+      - ./logs/frontend:/var/log/nginx
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - teenup_network
 
+# ========= VOLUMES =========
 volumes:
   mysql_data:
+    driver: local
+
+# ========= NETWORKS =========
+networks:
+  teenup_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

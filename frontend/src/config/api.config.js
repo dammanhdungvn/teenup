@@ -2,10 +2,16 @@
 // Có thể thay đổi dễ dàng khi deploy
 
 const API_CONFIG = {
-  // Development
+  // Development (Local)
   development: {
     baseURL: 'http://localhost:8081',
     useProxy: true, // Sử dụng Vite proxy trong development
+  },
+  
+  // Docker Development
+  docker: {
+    baseURL: 'http://localhost:8081',
+    useProxy: false, // Không dùng proxy trong Docker
   },
   
   // Production
@@ -25,10 +31,13 @@ const API_CONFIG = {
 const isDev = import.meta.env.DEV;
 const isProd = import.meta.env.PROD;
 const isStaging = import.meta.env.MODE === 'staging';
+const isDocker = import.meta.env.VITE_DOCKER === 'true';
 
 // Chọn config phù hợp
 let currentConfig;
-if (isStaging) {
+if (isDocker) {
+  currentConfig = API_CONFIG.docker;
+} else if (isStaging) {
   currentConfig = API_CONFIG.staging;
 } else if (isProd) {
   currentConfig = API_CONFIG.production;

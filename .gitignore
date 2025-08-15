@@ -1,22 +1,243 @@
+# ========= IDE & EDITORS =========
 # IntelliJ IDEA
 .idea/
 *.iml
+*.ipr
+*.iws
 
-# Maven build
+# VS Code
+.vscode/
+*.code-workspace
+
+# Eclipse
+.metadata/
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Vim
+*~
+
+# ========= MAVEN BUILD (Backend) =========
 target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
 
-# Logs
-*.log
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Node modules (frontend)
+# ========= NODE.JS (Frontend) =========
+# Dependencies
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Build outputs
 dist/
 build/
+.next/
+.nuxt/
+.vuepress/dist
 
-# Env
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# ========= DOCKER =========
+# Docker volumes
+mysql_data/
+postgres_data/
+
+# Docker logs
+logs/
+*.log
+
+# Docker environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.docker
+
+# ========= OPERATING SYSTEM =========
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.tmp
+*.temp
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ========= LOGS & TEMPORARY FILES =========
+*.log
+*.log.*
+logs/
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ========= SECURITY & SENSITIVE FILES =========
+# Environment variables
 .env
 .env.*
+!.env.example
+
+# API keys
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# ========= BUILD & DEPLOYMENT =========
+# Build artifacts
+build/
+dist/
+out/
+.next/
+.nuxt/
+.vuepress/dist
+
+# Deployment
+deploy/
+production/
+staging/
+
+# ========= TESTING =========
+# Test coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Test results
+test-results/
+junit.xml
+test-report.xml
+
+# ========= CACHE & TEMPORARY =========
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ========= SPECIFIC TO THIS PROJECT =========
+# Application logs
+logs/backend/
+logs/frontend/
+
+# Docker compose override files
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# ========= KEEP THESE FILES =========
+# Don't ignore these important files
+!.env.example
+!docker-compose.yml
+!Dockerfile*
+!.dockerignore
+!nginx.conf
+!start.sh
+!start.bat
+!stop.sh
+!stop.bat

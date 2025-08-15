@@ -10,12 +10,71 @@ Hướng dẫn tích hợp **Frontend React** với **Backend Spring Boot API** 
 - **Production:** `https://your-domain.com`
 
 ### **API Endpoints:**
-```
-/api/students/*          # Student management
-/api/parents/*           # Parent management  
-/api/classes/*           # Class management
-/api/subscriptions/*     # Subscription management
-/api/dashboard/*         # Dashboard statistics
+```mermaid
+graph TD
+    subgraph "API Endpoints Structure"
+        subgraph "Student Management"
+            S1[GET /api/students/list]
+            S2[GET /api/students/{id}]
+            S3[POST /api/students]
+            S4[PUT /api/students/{id}]
+            S5[DELETE /api/students/{id}]
+        end
+        
+        subgraph "Parent Management"
+            P1[GET /api/parents/list]
+            P2[GET /api/parents/{id}]
+            P3[POST /api/parents]
+            P4[PUT /api/parents/{id}]
+            P5[DELETE /api/parents/{id}]
+        end
+        
+        subgraph "Class Management"
+            C1[GET /api/classes]
+            C2[GET /api/classes/{id}]
+            C3[POST /api/classes]
+            C4[PUT /api/classes/{id}]
+            C5[DELETE /api/classes/{id}]
+            C6[POST /api/classes/{id}/register]
+        end
+        
+        subgraph "Subscription Management"
+            SU1[GET /api/subscriptions]
+            SU2[GET /api/subscriptions/{id}]
+            SU3[POST /api/subscriptions]
+            SU4[PUT /api/subscriptions/{id}]
+            SU5[DELETE /api/subscriptions/{id}]
+            SU6[POST /api/subscriptions/{id}/use-session]
+        end
+        
+        subgraph "Dashboard"
+            D1[GET /api/dashboard/statistics]
+        end
+    end
+    
+    style S1 fill:#e8f5e8
+    style S2 fill:#e8f5e8
+    style S3 fill:#e8f5e8
+    style S4 fill:#e8f5e8
+    style S5 fill:#e8f5e8
+    style P1 fill:#f3e5f5
+    style P2 fill:#f3e5f5
+    style P3 fill:#f3e5f5
+    style P4 fill:#f3e5f5
+    style P5 fill:#f3e5f5
+    style C1 fill:#fff3e0
+    style C2 fill:#fff3e0
+    style C3 fill:#fff3e0
+    style C4 fill:#fff3e0
+    style C5 fill:#fff3e0
+    style C6 fill:#fff3e0
+    style SU1 fill:#fce4ec
+    style SU2 fill:#fce4ec
+    style SU3 fill:#fce4ec
+    style SU4 fill:#fce4ec
+    style SU5 fill:#fce4ec
+    style SU6 fill:#fce4ec
+    style D1 fill:#e0f2f1
 ```
 
 ## **🔧 Configuration**
@@ -124,6 +183,41 @@ export const studentsApi = {
 ```
 
 ## **📊 Data Flow Examples**
+
+### **🔄 Complete Data Flow Diagram:**
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant C as Component
+    participant S as Service
+    participant A as API Client
+    participant B as Backend
+    participant D as Database
+    
+    Note over U,D: Fetch Students List Flow
+    U->>C: Click "Load Students"
+    C->>S: studentsApi.getStudentsList()
+    S->>A: GET /api/students/list
+    A->>B: HTTP Request
+    B->>D: SELECT * FROM students
+    D-->>B: Students Data
+    B-->>A: JSON Response
+    A-->>S: Response Data
+    S-->>C: Students Array
+    C-->>U: Display Table
+    
+    Note over U,D: Create Student Flow
+    U->>C: Fill Form & Submit
+    C->>S: studentsApi.createStudent(data)
+    S->>A: POST /api/students
+    A->>B: HTTP Request + JSON Body
+    B->>D: INSERT INTO students
+    D-->>B: Success Response
+    B-->>A: Created Student Data
+    A-->>S: Response Data
+    S-->>C: Success Message
+    C-->>U: Navigate to List
+```
 
 ### **1. Fetch Students List:**
 ```javascript
@@ -250,6 +344,51 @@ const handleApiCall = async () => {
 
 ## **🔄 Data Synchronization**
 
+### **🔄 Data Flow Patterns:**
+```mermaid
+graph TD
+    subgraph "Optimistic Updates"
+        OU1[User Action]
+        OU2[Update UI Immediately]
+        OU3[Send API Request]
+        OU4{Success?}
+        OU5[Keep Changes]
+        OU6[Revert Changes]
+        
+        OU1 --> OU2
+        OU2 --> OU3
+        OU3 --> OU4
+        OU4 -->|Yes| OU5
+        OU4 -->|No| OU6
+    end
+    
+    subgraph "Real-time Updates"
+        RT1[Component Mount]
+        RT2[Start Polling]
+        RT3[Fetch Data]
+        RT4[Update UI]
+        RT5[Wait Interval]
+        
+        RT1 --> RT2
+        RT2 --> RT3
+        RT3 --> RT4
+        RT4 --> RT5
+        RT5 --> RT3
+    end
+    
+    style OU1 fill:#e8f5e8
+    style OU2 fill:#e8f5e8
+    style OU3 fill:#e8f5e8
+    style OU4 fill:#ff9800,color:#fff
+    style OU5 fill:#4caf50,color:#fff
+    style OU6 fill:#f44336,color:#fff
+    style RT1 fill:#e3f2fd
+    style RT2 fill:#e3f2fd
+    style RT3 fill:#e3f2fd
+    style RT4 fill:#e3f2fd
+    style RT5 fill:#e3f2fd
+```
+
 ### **Optimistic Updates:**
 ```javascript
 const updateStudentOptimistic = async (id, updates) => {
@@ -336,6 +475,53 @@ apiClient.interceptors.request.use((config) => {
 
 ## **📊 API Testing**
 
+### **🔍 API Testing Workflow:**
+```mermaid
+graph TD
+    subgraph "Testing Phases"
+        T1[Unit Testing<br/>Individual Functions]
+        T2[Integration Testing<br/>API Endpoints]
+        T3[E2E Testing<br/>Full User Flows]
+        T4[Performance Testing<br/>Load & Stress]
+    end
+    
+    subgraph "Testing Tools"
+        TT1[Postman/Insomnia<br/>API Testing]
+        TT2[cURL<br/>Command Line]
+        TT3[Jest/Testing Library<br/>Unit Tests]
+        TT4[Cypress/Playwright<br/>E2E Tests]
+    end
+    
+    subgraph "Test Data"
+        TD1[Sample Data<br/>Test Database]
+        TD2[Mock Responses<br/>Development]
+        TD3[Real Data<br/>Staging]
+    end
+    
+    T1 --> T2
+    T2 --> T3
+    T3 --> T4
+    T1 --> TT3
+    T2 --> TT1
+    T2 --> TT2
+    T3 --> TT4
+    T1 --> TD2
+    T2 --> TD1
+    T3 --> TD3
+    
+    style T1 fill:#e8f5e8
+    style T2 fill:#e3f2fd
+    style T3 fill:#f3e5f5
+    style T4 fill:#fff3e0
+    style TT1 fill:#ff9800,color:#fff
+    style TT2 fill:#ff9800,color:#fff
+    style TT3 fill:#ff9800,color:#fff
+    style TT4 fill:#ff9800,color:#fff
+    style TD1 fill:#e0f2f1
+    style TD2 fill:#e0f2f1
+    style TD3 fill:#e0f2f1
+```
+
 ### **Test API Endpoints:**
 ```bash
 # Test backend health
@@ -354,6 +540,54 @@ curl "http://localhost:8081/api/students/list?page=0&size=10"
 - **Application** - Check localStorage/sessionStorage
 
 ## **🚀 Performance Optimization**
+
+### **⚡ Performance Strategies:**
+```mermaid
+graph TD
+    subgraph "Caching Strategies"
+        C1[Browser Cache<br/>HTTP Headers]
+        C2[Session Storage<br/>Temporary Data]
+        C3[Local Storage<br/>Persistent Data]
+        C4[Memory Cache<br/>React State]
+    end
+    
+    subgraph "Request Optimization"
+        R1[Debounced Search<br/>Reduce API Calls]
+        R2[Batch Requests<br/>Multiple Data]
+        R3[Pagination<br/>Limit Data Size]
+        R4[Lazy Loading<br/>On-Demand Data]
+    end
+    
+    subgraph "Data Management"
+        D1[Optimistic Updates<br/>Immediate UI]
+        D2[Data Normalization<br/>Efficient Storage]
+        D3[Selective Re-renders<br/>React.memo]
+        D4[Virtual Scrolling<br/>Large Lists]
+    end
+    
+    C1 --> C4
+    C2 --> C4
+    C3 --> C4
+    R1 --> R2
+    R2 --> R3
+    R3 --> R4
+    D1 --> D2
+    D2 --> D3
+    D3 --> D4
+    
+    style C1 fill:#e8f5e8
+    style C2 fill:#e8f5e8
+    style C3 fill:#e8f5e8
+    style C4 fill:#e8f5e8
+    style R1 fill:#e3f2fd
+    style R2 fill:#e3f2fd
+    style R3 fill:#e3f2fd
+    style R4 fill:#e3f2fd
+    style D1 fill:#f3e5f5
+    style D2 fill:#f3e5f5
+    style D3 fill:#f3e5f5
+    style D4 fill:#f3e5f5
+```
 
 ### **Request Caching:**
 ```javascript

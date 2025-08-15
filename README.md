@@ -122,21 +122,34 @@ docker-compose down -v       # Xóa volumes (database data)
 
 ## 🏗️ **Kiến Trúc Hệ Thống**
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │    Backend      │    │     MySQL      │
-│   (React)       │    │ (Spring Boot)   │    │   Database     │
-│   Port: 3000    │    │   Port: 8081    │    │   Port: 3306   │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    └─────────────┴─────────────┐
-                                               │
-                                    ┌─────────────────┐
-                                    │ Docker Network  │
-                                    │ teenup_network  │
-                                    └─────────────────┘
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        FE[Frontend<br/>React App<br/>Port: 3000/5173]
+    end
+    
+    subgraph "Backend Layer"
+        BE[Backend<br/>Spring Boot<br/>Port: 8081]
+    end
+    
+    subgraph "Database Layer"
+        DB[(MySQL Database<br/>Port: 3306)]
+    end
+    
+    subgraph "Docker Network"
+        DN[teenup_network]
+    end
+    
+    FE <-->|HTTP API| BE
+    BE <-->|JDBC| DB
+    FE -.->|Docker Network| DN
+    BE -.->|Docker Network| DN
+    DB -.->|Docker Network| DN
+    
+    style FE fill:#61dafb,stroke:#333,stroke-width:2px
+    style BE fill:#6db33f,stroke:#333,stroke-width:2px
+    style DB fill:#00758f,stroke:#333,stroke-width:2px,color:#fff
+    style DN fill:#f0f0f0,stroke:#333,stroke-width:1px
 ```
 
 ---

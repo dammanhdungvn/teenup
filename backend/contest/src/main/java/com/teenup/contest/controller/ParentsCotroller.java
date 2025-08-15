@@ -1,6 +1,7 @@
 package com.teenup.contest.controller;
 
 import com.teenup.contest.dto.request.CreateParentRequest;
+import com.teenup.contest.dto.request.UpdateParentRequest;
 import com.teenup.contest.dto.response.ParentResponse;
 import com.teenup.contest.service.ParentService;
 import jakarta.validation.Valid;
@@ -31,5 +32,18 @@ public class ParentsCotroller {
     @GetMapping("list")
     public ResponseEntity<List<ParentResponse>> getAll() {
         return ResponseEntity.ok(service.getAll());
+    }
+
+    // Cập nhật 1 phần thông tin phụ huynh
+    @PatchMapping("/{id}")
+    public ParentResponse update(@PathVariable Long id, @Valid @RequestBody UpdateParentRequest req) {
+        return service.update(id, req);
+    }
+
+    // Xóa phụ huynh (chặn nếu còn học sinh)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

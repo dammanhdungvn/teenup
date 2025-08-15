@@ -1,6 +1,7 @@
 package com.teenup.contest.controller;
 
 import com.teenup.contest.dto.request.CreateStudentRequest;
+import com.teenup.contest.dto.request.UpdateStudentRequest;
 import com.teenup.contest.dto.response.StudentResponse;
 import com.teenup.contest.service.StudentService;
 import jakarta.validation.Valid;
@@ -30,5 +31,16 @@ public class StudentController {
     @GetMapping("list")
     public  ResponseEntity<List<StudentResponse>> getAll() {
         return ResponseEntity.ok(service.getAll());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}")
+    public StudentResponse update(@PathVariable Long id, @Valid @RequestBody UpdateStudentRequest req) {
+        return service.update(id, req);
     }
 }

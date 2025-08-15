@@ -1,10 +1,10 @@
 package com.teenup.contest.mapper;
 
 import com.teenup.contest.dto.request.CreateParentRequest;
+import com.teenup.contest.dto.request.UpdateParentRequest;
 import com.teenup.contest.dto.response.ParentResponse;
 import com.teenup.contest.entity.ParentsEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -22,4 +22,7 @@ public interface ParentMapper {
     ParentResponse toResponse(ParentsEntity e);
 
     List<ParentResponse> toResponses(List<ParentsEntity> list);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(UpdateParentRequest req, @MappingTarget ParentsEntity entity);
 }

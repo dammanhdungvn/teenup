@@ -79,6 +79,42 @@ curl "http://localhost:8081/api/parents/list"
   { "id": 2, "name": "Tran Thi B" }
 ]
 ```
+
+## 1.3 Parents — Cập nhật & Xoá
+
+### Cập nhật phụ huynh (partial)
+**PATCH** `/api/parents/{id}`
+```bash
+curl -X PATCH "http://localhost:8081/api/parents/1" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "name": "Nguyen Van A (updated)",
+        "phone": "0909999999",
+        "email": "a.updated@example.com"
+      }'
+```
+
+**200 OK**
+
+```JSON
+{
+  "id": 1,
+  "name": "Nguyen Van A (updated)",
+  "phone": "0909999999",
+  "email": "a.updated@example.com",
+  "createdAt": "...",
+  "updatedAt": "..."
+}
+```
+
+## 1.4 DELETE 
+**DELETE** `/api/parents/{id}`
+```bash
+curl -i -X DELETE "http://localhost:8081/api/parents/1"
+```
+**204 No Content**
+
+
 ---
 
 ## 2) Students
@@ -153,6 +189,46 @@ curl http://localhost:8080/api/students/3
     "name": "Nguyen Van A",
     "phone": "0901234567",
     "email": "a@example.com"
+  }
+}
+```
+
+### 2.4 Xoá học sinh 
+
+**DELETE** `/api/students/{id}`
+
+```bash
+DELETE "http://localhost:8081/api/students/3"
+```
+**204 No Content**
+
+### 2.5 Cập nhật thông tin học sinh
+**PATCH** `/api/students/{id}`
+```bash
+curl -X PATCH "http://localhost:8081/api/students/3" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "name": "Tran Thi B (updated)",
+        "dob": "2010-09-02",
+        "gender": "F",
+        "currentGrade": "Grade 9",
+        "parentId": 2
+      }'
+```
+**200 OK**
+
+```JSON
+{
+  "id": 3,
+  "name": "Tran Thi B (updated)",
+  "dob": "2010-09-02",
+  "gender": "F",
+  "currentGrade": "Grade 9",
+  "parent": {
+    "id": 2,
+    "name": "Tran Thi B",
+    "phone": "0902222222",
+    "email": "b@example.com"
   }
 }
 ```

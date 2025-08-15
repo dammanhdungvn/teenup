@@ -9,8 +9,11 @@ public enum ErrorCode {
     VALIDATION_FAILED  ("VALIDATION_FAILED",   HttpStatus.UNPROCESSABLE_ENTITY, "Dữ liệu không hợp lệ"),
     CONFLICT           ("CONFLICT",            HttpStatus.CONFLICT,             "Dữ liệu xung đột/vi phạm ràng buộc"),
     INTERNAL_ERROR     ("INTERNAL_ERROR",      HttpStatus.INTERNAL_SERVER_ERROR,"Lỗi hệ thống không mong muốn"),
+    PARENT_HAS_STUDENTS    ("PARENT_HAS_STUDENTS",    HttpStatus.CONFLICT,   "Phụ huynh đang có học sinh, không thể xoá"),
 
     STUDENT_NOT_FOUND  ("STUDENT_NOT_FOUND",   HttpStatus.NOT_FOUND,            "Không tìm thấy học sinh"),
+    STUDENT_HAS_REGISTRATIONS ("STUDENT_HAS_REGISTRATIONS", HttpStatus.CONFLICT, "Học sinh đang có đăng ký lớp, không thể xóa"),
+    STUDENT_HAS_ACTIVE_SUBS  ("STUDENT_HAS_ACTIVE_SUBS",  HttpStatus.CONFLICT, "Học sinh đang có gói học còn hiệu lực/ còn buổi, không thể xóa"),
 
     CLASS_NOT_FOUND   ("CLASS_NOT_FOUND", HttpStatus.NOT_FOUND, "Không tìm thấy lớp học"),
     INVALID_DAY       ("INVALID_DAY",     HttpStatus.BAD_REQUEST, "Giá trị dayOfWeek không hợp lệ (1-7)"),
@@ -23,6 +26,7 @@ public enum ErrorCode {
     SUBSCRIPTION_NOT_FOUND ("SUBSCRIPTION_NOT_FOUND", HttpStatus.NOT_FOUND, "Không tìm thấy gói học"),
     SUBSCRIPTION_INACTIVE  ("SUBSCRIPTION_INACTIVE",  HttpStatus.CONFLICT, "Gói học chưa hiệu lực hoặc đã hết hạn"),
     NO_REMAINING_SESSIONS  ("NO_REMAINING_SESSIONS",  HttpStatus.CONFLICT, "Gói học đã dùng hết số buổi");
+
 
 
 

@@ -1,13 +1,13 @@
 package com.teenup.contest.mapper;
 
 import com.teenup.contest.dto.request.CreateStudentRequest;
+import com.teenup.contest.dto.request.UpdateStudentRequest;
 import com.teenup.contest.dto.response.ParentBrief;
 import com.teenup.contest.dto.response.ParentResponse;
 import com.teenup.contest.dto.response.StudentResponse;
 import com.teenup.contest.entity.ParentsEntity;
 import com.teenup.contest.entity.StudentsEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -31,4 +31,8 @@ public interface StudentMapper {
     ParentBrief toBrief(ParentsEntity parent);
 
     List<StudentResponse> toResponses(List<StudentsEntity> list);
+
+    // ✅ PATCH: chỉ map các field != null
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(UpdateStudentRequest req, @MappingTarget StudentsEntity entity);
 }

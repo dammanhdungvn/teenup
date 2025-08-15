@@ -44,8 +44,13 @@ const ParentsListPage = () => {
       const response = await parentsApi.getParentsList();
       setParents(response.data);
     } catch (error) {
-      message.error('Không thể tải danh sách phụ huynh');
       console.error('Error fetching parents:', error);
+      const backendMessage = error?.response?.data?.message;
+      if (backendMessage) {
+        message.error(backendMessage);
+      } else {
+        message.error('Không thể tải danh sách phụ huynh');
+      }
     } finally {
       setLoading(false);
     }
@@ -66,8 +71,13 @@ const ParentsListPage = () => {
       setDeleteModalVisible(false);
       setParentToDelete(null);
     } catch (err) {
-      message.error('Không thể xóa phụ huynh');
       console.error('Error deleting parent:', err);
+      const backendMessage = err?.response?.data?.message;
+      if (backendMessage) {
+        message.error(backendMessage);
+      } else {
+        message.error('Không thể xóa phụ huynh');
+      }
     }
   };
 

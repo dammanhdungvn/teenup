@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { studentsApi } from '../../services/students.api.js';
 import { parentsApi } from '../../services/parents.api.js';
 import { GENDER_OPTIONS, GRADE_OPTIONS, validateRequired, validateDate } from '../../utils/validation.js';
+import { handleError } from '../../utils/errorHandler.js';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -41,8 +42,7 @@ const CreateStudentPage = () => {
       const response = await parentsApi.getParentsList();
       setParents(response.data);
     } catch (error) {
-      message.error('Không thể tải danh sách phụ huynh');
-      console.error('Error fetching parents:', error);
+      handleError(error, message, 'Không thể tải danh sách phụ huynh', 'fetchParents');
     } finally {
       setLoadingParents(false);
     }

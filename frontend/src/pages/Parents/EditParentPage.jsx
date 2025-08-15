@@ -16,6 +16,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { parentsApi } from '../../services/parents.api.js';
+import { handleError } from '../../utils/errorHandler.js';
 
 const { Title } = Typography;
 
@@ -45,8 +46,7 @@ const EditParentPage = () => {
         email: response.data.email
       });
     } catch (error) {
-      message.error('Không thể tải thông tin phụ huynh');
-      console.error('Error fetching parent:', error);
+      handleError(error, message, 'Không thể tải thông tin phụ huynh', 'fetchParent');
     } finally {
       setLoading(false);
     }
@@ -66,8 +66,7 @@ const EditParentPage = () => {
       message.success('Cập nhật phụ huynh thành công');
       navigate(`/parents/${id}`);
     } catch (error) {
-      message.error('Không thể cập nhật phụ huynh');
-      console.error('Error updating parent:', error);
+      handleError(error, message, 'Không thể cập nhật phụ huynh', 'onFinish');
     } finally {
       setSaving(false);
     }

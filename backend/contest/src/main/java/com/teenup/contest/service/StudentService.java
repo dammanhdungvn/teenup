@@ -2,10 +2,12 @@ package com.teenup.contest.service;
 
 import com.teenup.contest.dto.request.CreateStudentRequest;
 import com.teenup.contest.dto.request.UpdateStudentRequest;
+import com.teenup.contest.dto.response.StudentClassItem;
 import com.teenup.contest.dto.response.StudentResponse;
 import com.teenup.contest.entity.ParentsEntity;
 import com.teenup.contest.entity.StudentsEntity;
 import com.teenup.contest.exception.*;
+import com.teenup.contest.mapper.ClassMapper;
 import com.teenup.contest.mapper.StudentMapper;
 import com.teenup.contest.repository.ClassRegistrationsRepository;
 import com.teenup.contest.repository.ParentsRepository;
@@ -26,6 +28,7 @@ public class StudentService {
     private final SubscriptionsRepository subsRepo;
     private final ClassRegistrationsRepository regsRepo;
     private final StudentMapper mapper;
+    private final ClassMapper classMapper;
 
     @Transactional
     public StudentResponse create(CreateStudentRequest req) {
@@ -93,5 +96,17 @@ public class StudentService {
 
         // JPA dirty checking sẽ flush
         return mapper.toResponse(entity);
+    }
+
+    // danh sách lớp của 1 học sinh
+    @Transactional(readOnly = true)
+    public List<StudentClassItem> listClasses(Long studentId) {
+        // đảm bảo 404 đúng chuẩn khi student không tồn tại
+        studentsRepo.findById(studentId).orElseThrow(() -> new StudentNotFoundException(studentId));
+
+        return regsRepo.findClassesByStudentId(studentId)
+                .stream()
+                .map(classMapper::toStudentClassItem)
+                .toList();
     }
 }

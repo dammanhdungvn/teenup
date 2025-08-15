@@ -2,6 +2,7 @@ package com.teenup.contest.repository;
 
 
 import com.teenup.contest.entity.ClassRegistrationEntity;
+import com.teenup.contest.entity.ClassesEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -68,4 +69,11 @@ public interface ClassRegistrationsRepository extends JpaRepository<ClassRegistr
 
     boolean existsConflictWhenReschedule(Long classId, Integer dayOfWeek, String start, String end);
 
+    // lấy danh sách lớp của một học sinh
+    @Query("""
+        SELECT r.clazz
+        FROM ClassRegistrationEntity r
+        WHERE r.student.id = :studentId
+    """)
+    List<ClassesEntity> findClassesByStudentId(Long studentId);
 }

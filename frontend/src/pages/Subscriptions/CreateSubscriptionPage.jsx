@@ -21,6 +21,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { subscriptionsApi } from '../../services/subscriptions.api.js';
 import { studentsApi } from '../../services/students.api.js';
+import { handleError } from '../../utils/errorHandler.js';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -44,8 +45,7 @@ const CreateSubscriptionPage = () => {
       const response = await studentsApi.getStudentsList();
       setStudents(response.data || []);
     } catch (error) {
-      message.error('Không thể tải danh sách học sinh');
-      console.error('Error fetching students:', error);
+      handleError(error, message, 'Không thể tải danh sách học sinh', 'fetchStudents');
     } finally {
       setStudentsLoading(false);
     }
@@ -69,12 +69,7 @@ const CreateSubscriptionPage = () => {
       message.success('Tạo gói học thành công!');
       navigate('/subscriptions');
     } catch (error) {
-      console.error('Error creating subscription:', error);
-      if (error.response?.data?.message) {
-        message.error(error.response.data.message);
-      } else {
-        message.error('Không thể tạo gói học. Vui lòng thử lại.');
-      }
+      handleError(error, message, 'Không thể tạo gói học. Vui lòng thử lại.', 'onFinish');
     } finally {
       setLoading(false);
     }

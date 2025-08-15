@@ -80,7 +80,7 @@ curl "http://localhost:8081/api/parents/list"
 ]
 ```
 
-## 1.3 Parents — Cập nhật & Xoá
+### 1.3 Parents — Cập nhật & Xoá
 
 ### Cập nhật phụ huynh (partial)
 **PATCH** `/api/parents/{id}`
@@ -107,13 +107,33 @@ curl -X PATCH "http://localhost:8081/api/parents/1" \
 }
 ```
 
-## 1.4 DELETE 
+### 1.4 DELETE 
 **DELETE** `/api/parents/{id}`
 ```bash
 curl -i -X DELETE "http://localhost:8081/api/parents/1"
 ```
 **204 No Content**
 
+### 1.5 Lấy danh sách học sinh thuộc một phụ huynh
+
+**GET** `/api/parents/{parentId}/students`
+```bash
+curl "http://localhost:8081/api/parents/1/students"
+```
+**200 OK**
+```JSON
+[
+  { "id": 3, "name": "Lan", "dob": "2011-09-01", "gender": "F", "currentGrade": "Grade 8" }
+]
+```
+
+
+### 1.5 Xoá học sinh theo ngữ cảnh phụ huynh (unassign)
+**DELETE** `/api/parents/{parentId}/students/{studentId}`
+```bash
+curl -i -X DELETE "http://localhost:8081/api/parents/1/students/3"
+```
+**204 No Content**
 
 ---
 
@@ -267,6 +287,27 @@ curl -X PATCH "http://localhost:8081/api/parents/1/reassign" \
 }
 
 ```
+
+### 2.8 Danh sách lớp của một học sinh
+**GET** `/api/students/{studentId}/classes`
+```bash
+curl "http://localhost:8081/api/students/3/classes"
+```
+**200 OK**
+
+```JSON
+[
+  { 
+    "id": 1, 
+    "name": "Toán Nâng Cao", 
+    "subject": "Math", 
+    "dayOfWeek": 2, 
+    "timeSlot": "14:00-15:30", 
+    "teacherName": "Thầy A", 
+    "maxStudents": 20 }
+]
+```
+
 
 ---
 

@@ -4,6 +4,7 @@ package com.teenup.contest.mapper;
 import com.teenup.contest.dto.request.CreateClassRequest;
 import com.teenup.contest.dto.request.UpdateClassRequest;
 import com.teenup.contest.dto.response.ClassResponse;
+import com.teenup.contest.dto.response.StudentClassItem;
 import com.teenup.contest.entity.ClassesEntity;
 import org.mapstruct.*;
 
@@ -25,4 +26,6 @@ public interface ClassMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(UpdateClassRequest req, @MappingTarget ClassesEntity entity);
+
+    StudentClassItem toStudentClassItem(ClassesEntity e);
 }

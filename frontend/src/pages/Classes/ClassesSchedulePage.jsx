@@ -19,12 +19,15 @@ import {
   ReloadOutlined,
   UserAddOutlined,
   PlusOutlined,
-  EyeOutlined
+  EyeOutlined,
+  EditOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { classesApi } from '../../services/classes.api.js';
 import { studentsApi } from '../../services/students.api.js';
 import { DAY_OF_WEEK_MAP, formatTimeSlot, ERROR_MESSAGE_MAP } from '../../utils/validation.js';
+import { handleError } from '../../utils/errorHandler.js';
 
 const { Title, Text } = Typography;
 
@@ -133,6 +136,10 @@ const ClassesSchedulePage = () => {
   const [classStudents, setClassStudents] = useState([]);
   const [classStudentsLoading, setClassStudentsLoading] = useState(false);
 
+  // State cho modal xóa lớp học
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [classToDelete, setClassToDelete] = useState(null);
+
   const fetchClasses = async (params = {}) => {
     try {
       setLoading(true);
@@ -154,14 +161,7 @@ const ClassesSchedulePage = () => {
         setClasses([]);
       }
     } catch (err) {
-      console.error('Error fetching classes:', err);
-      console.error('Error details:', {
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status,
-        config: err.config
-      });
-      message.error('Không thể tải danh sách lớp');
+      handleError(err, message, 'Không thể tải danh sách lớp', 'fetchClasses');
       setClasses([]);
     } finally {
       setLoading(false);
@@ -294,10 +294,11 @@ const ClassesSchedulePage = () => {
                       </div>
                       <div style={{ textAlign: 'center' }}>
                         <Space size="small">
-                          <Tooltip title="Xem danh sách học sinh">
+                          <Tooltip title="Xem chi tiết">
                             <Button
                               size="small"
-                              onClick={() => handleViewStudents(classData)}
+                              icon={<EyeOutlined />}
+                              onClick={() => navigate(`/classes/${classData.id}`)}
                               style={{
                                 border: '1px solid #1976d2',
                                 borderRadius: '4px',
@@ -308,6 +309,41 @@ const ClassesSchedulePage = () => {
                               }}
                             >
                               Xem
+                            </Button>
+                          </Tooltip>
+                          <Tooltip title="Chỉnh sửa">
+                            <Button
+                              size="small"
+                              icon={<EditOutlined />}
+                              onClick={() => navigate(`/classes/${classData.id}/edit`)}
+                              style={{
+                                border: '1px solid #52c41a',
+                                color: '#52c41a',
+                                borderRadius: '4px',
+                                fontSize: '9px',
+                                padding: '1px 4px',
+                                height: '20px',
+                                minWidth: '40px'
+                              }}
+                            >
+                              Sửa
+                            </Button>
+                          </Tooltip>
+                          <Tooltip title="Xóa lớp học">
+                            <Button
+                              danger
+                              size="small"
+                              icon={<DeleteOutlined />}
+                              onClick={() => showDeleteModal(classData)}
+                              style={{
+                                borderRadius: '4px',
+                                fontSize: '9px',
+                                padding: '1px 4px',
+                                height: '20px',
+                                minWidth: '40px'
+                              }}
+                            >
+                              Xóa
                             </Button>
                           </Tooltip>
                           <Tooltip title="Đăng ký học sinh">
@@ -364,8 +400,7 @@ const ClassesSchedulePage = () => {
       const resp = await studentsApi.getStudentsList();
       setStudents(resp.data || []);
     } catch (err) {
-      message.error('Không thể tải danh sách học sinh');
-      console.error('Error fetching students:', err);
+      handleError(err, message, 'Không thể tải danh sách học sinh', 'handleOpenRegister');
     } finally {
       setStudentsLoading(false);
     }
@@ -425,8 +460,7 @@ const ClassesSchedulePage = () => {
       const resp = await classesApi.getRegistrations(classData.id);
       setClassStudents(resp.data || []);
     } catch (err) {
-      message.error('Không thể tải danh sách học sinh');
-      console.error('Error fetching class students:', err);
+      handleError(err, message, 'Không thể tải danh sách học sinh', 'handleViewStudents');
     } finally {
       setClassStudentsLoading(false);
     }
@@ -437,6 +471,39 @@ const ClassesSchedulePage = () => {
     setStudentsModalVisible(false);
     setSelectedClass(null);
     setClassStudents([]);
+  };
+
+  // Hiển thị modal xóa lớp học
+  const showDeleteModal = (classData) => {
+    setClassToDelete(classData);
+    setDeleteModalVisible(true);
+  };
+
+  // Xử lý xóa lớp học
+  const handleDeleteClass = async () => {
+    if (!classToDelete) return;
+    
+    try {
+      await classesApi.deleteClass(classToDelete.id);
+      message.success('Xóa lớp học thành công!');
+      setDeleteModalVisible(false);
+      setClassToDelete(null);
+      
+      // Refresh danh sách lớp
+      if (dayFilter && dayFilter !== 'all') {
+        fetchClasses({ day: dayFilter, expand: 'registrations' });
+      } else {
+        fetchClasses({ expand: 'registrations' });
+      }
+    } catch (err) {
+      handleError(err, message, 'Không thể xóa lớp học', 'handleDeleteClass');
+    }
+  };
+
+  // Hủy bỏ xóa lớp học
+  const handleCancelDelete = () => {
+    setDeleteModalVisible(false);
+    setClassToDelete(null);
   };
 
   const dayOptions = [
@@ -772,6 +839,77 @@ const ClassesSchedulePage = () => {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <DeleteOutlined style={{ color: '#ff4d4f', fontSize: '20px' }} />
+            <span>Xác nhận xóa lớp học</span>
+          </div>
+        }
+        open={deleteModalVisible}
+        onOk={handleDeleteClass}
+        onCancel={handleCancelDelete}
+        okText="Xóa"
+        cancelText="Hủy"
+        okButtonProps={{
+          danger: true,
+          style: {
+            background: '#ff4d4f',
+            border: 'none',
+            borderRadius: '8px',
+            height: '40px',
+              padding: '0 20px'
+          }
+        }}
+        cancelButtonProps={{
+          style: {
+            border: '1px solid #d9d9d9',
+            borderRadius: '8px',
+            height: '40px',
+            padding: '0 20px'
+          }
+        }}
+        centered
+      >
+        <div style={{ padding: '16px 0' }}>
+          <p style={{ marginBottom: '16px', fontSize: '16px', color: '#1f2937' }}>
+            Bạn có chắc chắn muốn xóa lớp học này không?
+          </p>
+          {classToDelete && (
+            <div style={{ 
+              background: '#f8f9fa', 
+              padding: '16px', 
+              borderRadius: '8px',
+              border: '1px solid #e9ecef'
+            }}>
+              <div style={{ fontWeight: 600, color: '#1f2937', marginBottom: '8px' }}>
+                Thông tin lớp học:
+              </div>
+              <div style={{ color: '#6b7280' }}>
+                <div><strong>ID:</strong> {classToDelete.id}</div>
+                <div><strong>Tên lớp:</strong> {classToDelete.name}</div>
+                <div><strong>Môn học:</strong> {classToDelete.subject}</div>
+                <div><strong>Thứ:</strong> {DAY_OF_WEEK_MAP[classToDelete.dayOfWeek]}</div>
+                <div><strong>Thời gian:</strong> {formatTimeSlot(classToDelete.timeSlot)}</div>
+                <div><strong>Số học sinh tối đa:</strong> {classToDelete.maxStudents}</div>
+              </div>
+            </div>
+          )}
+          <div style={{ 
+            marginTop: '16px', 
+            padding: '12px 16px', 
+            background: '#fff2e8', 
+            border: '1px solid #ffd591',
+            borderRadius: '6px',
+            color: '#d46b08'
+          }}>
+            <strong>⚠️ Lưu ý:</strong> Hành động này không thể hoàn tác. 
+            Tất cả học sinh đã đăng ký sẽ bị ảnh hưởng.
+          </div>
+        </div>
       </Modal>
     </div>
   );

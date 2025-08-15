@@ -40,8 +40,13 @@ const StudentsListPage = () => {
       const response = await studentsApi.getStudentsList();
       setStudents(response.data);
     } catch (error) {
-      message.error('Không thể tải danh sách học sinh');
       console.error('Error fetching students:', error);
+      const backendMessage = error?.response?.data?.message;
+      if (backendMessage) {
+        message.error(backendMessage);
+      } else {
+        message.error('Không thể tải danh sách học sinh');
+      }
     } finally {
       setLoading(false);
     }
@@ -269,8 +274,13 @@ const StudentsListPage = () => {
       message.success('Xóa học sinh thành công');
       fetchStudents(); // Refresh danh sách
     } catch (error) {
-      message.error('Không thể xóa học sinh');
       console.error('Error deleting student:', error);
+      const backendMessage = error?.response?.data?.message;
+      if (backendMessage) {
+        message.error(backendMessage);
+      } else {
+        message.error('Không thể xóa học sinh');
+      }
     }
   };
 

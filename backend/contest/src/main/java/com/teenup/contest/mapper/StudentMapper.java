@@ -4,6 +4,7 @@ import com.teenup.contest.dto.request.CreateStudentRequest;
 import com.teenup.contest.dto.request.UpdateStudentRequest;
 import com.teenup.contest.dto.response.ParentBrief;
 import com.teenup.contest.dto.response.ParentResponse;
+import com.teenup.contest.dto.response.ParentStudentItem;
 import com.teenup.contest.dto.response.StudentResponse;
 import com.teenup.contest.entity.ParentsEntity;
 import com.teenup.contest.entity.StudentsEntity;
@@ -35,4 +36,6 @@ public interface StudentMapper {
     // ✅ PATCH: chỉ map các field != null
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(UpdateStudentRequest req, @MappingTarget StudentsEntity entity);
+
+    ParentStudentItem toParentStudentItem(StudentsEntity e);
 }

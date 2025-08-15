@@ -36,7 +36,7 @@ public class StudentsEntity extends BaseAuditableEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "parent_id", nullable = false,
+    @JoinColumn(name = "parent_id", nullable = true,
             foreignKey = @ForeignKey(name = "fk_student_parent"))
     private ParentsEntity parent;
 

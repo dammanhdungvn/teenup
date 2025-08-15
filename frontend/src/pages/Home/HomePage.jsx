@@ -20,6 +20,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { dashboardApi } from '../../services/dashboard.api.js';
+import { handleError } from '../../utils/errorHandler.js';
 
 const { Title, Paragraph } = Typography;
 
@@ -58,8 +59,7 @@ const HomePage = () => {
       });
 
     } catch (err) {
-      message.error('Không thể tải dữ liệu dashboard');
-      console.error('Error fetching dashboard data:', err);
+      handleError(err, message, 'Không thể tải dữ liệu dashboard', 'fetchDashboardData');
     } finally {
       setLoading(false);
     }

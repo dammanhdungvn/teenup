@@ -22,6 +22,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { studentsApi } from '../../services/students.api.js';
 import { parentsApi } from '../../services/parents.api.js';
 import { GENDER_OPTIONS, GRADE_OPTIONS } from '../../utils/validation.js';
+import { handleError } from '../../utils/errorHandler.js';
 import dayjs from 'dayjs';
 
 const { Title } = Typography;
@@ -62,8 +63,7 @@ const EditStudentPage = () => {
         parentId: studentResponse.data.parent?.id || studentResponse.data.parentId
       });
     } catch (error) {
-      message.error('Không thể tải thông tin học sinh');
-      console.error('Error fetching data:', error);
+      handleError(error, message, 'Không thể tải thông tin học sinh', 'fetchStudent');
     } finally {
       setLoading(false);
     }
@@ -85,8 +85,7 @@ const EditStudentPage = () => {
       message.success('Cập nhật học sinh thành công');
       navigate(`/students/${id}`);
     } catch (error) {
-      message.error('Không thể cập nhật học sinh');
-      console.error('Error updating student:', error);
+      handleError(error, message, 'Không thể cập nhật học sinh', 'onFinish');
     } finally {
       setSaving(false);
     }

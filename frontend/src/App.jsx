@@ -10,6 +10,7 @@ import EditStudentPage from './pages/Students/EditStudentPage';
 import ClassesSchedulePage from './pages/Classes/ClassesSchedulePage';
 import CreateClassPage from './pages/Classes/CreateClassPage';
 import ClassDetailPage from './pages/Classes/ClassDetailPage';
+import EditClassPage from './pages/Classes/EditClassPage';
 import ParentsListPage from './pages/Parents/ParentsListPage';
 import ParentDetailPage from './pages/Parents/ParentDetailPage';
 import CreateParentPage from './pages/Parents/CreateParentPage';
@@ -81,6 +82,7 @@ function App() {
               <Route path="/classes" element={<ClassesSchedulePage />} />
               <Route path="/classes/new" element={<CreateClassPage />} />
               <Route path="/classes/:id" element={<ClassDetailPage />} />
+              <Route path="/classes/:id/edit" element={<EditClassPage />} />
               <Route path="/parents" element={<ParentsListPage />} />
               <Route path="/parents/new" element={<CreateParentPage />} />
               <Route path="/parents/:id" element={<ParentDetailPage />} />

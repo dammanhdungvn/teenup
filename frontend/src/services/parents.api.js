@@ -34,4 +34,14 @@ export const parentsApi = {
     }
     return apiClient.patch(`/parents/${sourceParentId}/reassign`, requestBody);
   },
+
+  // Lấy danh sách students của một parent
+  getParentStudents: (parentId) => {
+    return apiClient.get(`/parents/${parentId}/students`);
+  },
+
+  // Unassign student from parent
+  unassignStudent: (parentId, studentId) => {
+    return apiClient.delete(`/parents/${parentId}/students/${studentId}`);
+  },
 };

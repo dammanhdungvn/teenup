@@ -37,4 +37,7 @@ public interface StudentsRepository extends JpaRepository<StudentsEntity, Long> 
         WHERE s.id IN :studentIds AND s.parent = :source
     """)
     int reassignSome(Collection<Long> studentIds, ParentsEntity source, ParentsEntity target);
+
+    @Query("SELECT s FROM StudentsEntity s JOIN FETCH s.parent p WHERE p.id = :parentId")
+    List<StudentsEntity> findAllByParentId(Long parentId);
 }

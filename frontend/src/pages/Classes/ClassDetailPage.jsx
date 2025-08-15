@@ -13,7 +13,9 @@ import {
   Tag,
   Avatar,
   Table,
-  Tooltip
+  Tooltip,
+  Modal,
+  Select
 } from 'antd';
 import { 
   BookOutlined, 
@@ -27,6 +29,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { classesApi } from '../../services/classes.api.js';
+import { studentsApi } from '../../services/students.api.js';
 import { formatDate, getDayOfWeekLabel, formatTimeSlot } from '../../utils/validation.js';
 
 const { Title, Text } = Typography;
@@ -39,6 +42,12 @@ const ClassDetailPage = () => {
   const [classData, setClassData] = useState(null);
   const [registrations, setRegistrations] = useState([]);
   const [registrationsLoading, setRegistrationsLoading] = useState(false);
+  const [unregisterModalVisible, setUnregisterModalVisible] = useState(false);
+  const [selectedRegistration, setSelectedRegistration] = useState(null);
+  const [registerModalVisible, setRegisterModalVisible] = useState(false);
+  const [studentsList, setStudentsList] = useState([]);
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
+  const [registerLoading, setRegisterLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -53,8 +62,13 @@ const ClassDetailPage = () => {
       const resp = await classesApi.getClassById(id);
       setClassData(resp.data);
     } catch (err) {
-      message.error('Không thể tải thông tin lớp học');
       console.error('Error fetching class:', err);
+      const backendMessage = err?.response?.data?.message;
+      if (backendMessage) {
+        message.error(backendMessage);
+      } else {
+        message.error('Không thể tải thông tin lớp học');
+      }
     } finally {
       setLoading(false);
     }
@@ -67,6 +81,7 @@ const ClassDetailPage = () => {
       setRegistrations(resp.data || []);
     } catch (err) {
       console.error('Error fetching registrations:', err);
+      console.error('Error details:', err.response?.data);
     } finally {
       setRegistrationsLoading(false);
     }
@@ -78,9 +93,99 @@ const ClassDetailPage = () => {
       message.success('Xóa lớp học thành công!');
       navigate('/classes');
     } catch (err) {
-      message.error('Không thể xóa lớp học');
       console.error('Error deleting class:', err);
+      const backendMessage = err?.response?.data?.message;
+      if (backendMessage) {
+        message.error(backendMessage);
+      } else {
+        message.error('Không thể xóa lớp học');
+      }
     }
+  };
+
+  const handleUnregisterStudent = (registration) => {
+    setSelectedRegistration(registration);
+    setUnregisterModalVisible(true);
+  };
+
+  const confirmUnregisterStudent = async () => {
+    if (!selectedRegistration) return;
+    
+    // Lấy student ID từ selectedRegistration
+    const studentId = selectedRegistration.id;
+    
+    if (!studentId) {
+      message.error('Không thể xác định ID học sinh');
+      return;
+    }
+    
+    try {
+      await classesApi.unregisterStudent(id, studentId);
+      message.success('Đã xóa học sinh khỏi lớp học!');
+      setUnregisterModalVisible(false);
+      setSelectedRegistration(null);
+      
+      // Refresh danh sách đăng ký
+      fetchClassRegistrations();
+    } catch (err) {
+      console.error('Error unregistering student:', err);
+      const backendMessage = err?.response?.data?.message;
+      if (backendMessage) {
+        message.error(backendMessage);
+      } else {
+        message.error('Không thể xóa học sinh khỏi lớp học');
+      }
+    }
+  };
+
+  const cancelUnregisterStudent = () => {
+    setUnregisterModalVisible(false);
+    setSelectedRegistration(null);
+  };
+
+  const showRegisterModal = async () => {
+    try {
+      setRegisterLoading(true);
+      const resp = await studentsApi.getStudentsList();
+      setStudentsList(resp.data || []);
+      setRegisterModalVisible(true);
+    } catch (err) {
+      message.error('Không thể tải danh sách học sinh');
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
+
+  const confirmRegisterStudent = async () => {
+    if (!selectedStudentId) {
+      message.error('Vui lòng chọn học sinh');
+      return;
+    }
+
+    try {
+      setRegisterLoading(true);
+      await classesApi.registerStudent(id, { studentId: selectedStudentId });
+      message.success('Đã đăng ký học sinh vào lớp học!');
+      setRegisterModalVisible(false);
+      setSelectedStudentId(null);
+      
+      // Refresh danh sách đăng ký
+      fetchClassRegistrations();
+    } catch (err) {
+      const backendMessage = err?.response?.data?.message;
+      if (backendMessage) {
+        message.error(backendMessage);
+      } else {
+        message.error('Không thể đăng ký học sinh vào lớp học');
+      }
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
+
+  const cancelRegisterStudent = () => {
+    setRegisterModalVisible(false);
+    setSelectedStudentId(null);
   };
 
   const registrationColumns = [
@@ -90,6 +195,7 @@ const ClassDetailPage = () => {
       key: 'id',
       width: 80,
       align: 'center',
+      fixed: 'left',
       render: (id) => (
         <Tag color="blue" style={{ fontWeight: 600 }}>
           {id}
@@ -99,6 +205,7 @@ const ClassDetailPage = () => {
     {
       title: 'Học sinh',
       key: 'student',
+      width: 200,
       render: (_, record) => (
         <Space>
           <Avatar 
@@ -108,10 +215,10 @@ const ClassDetailPage = () => {
           />
           <div>
             <div style={{ fontWeight: 600, fontSize: '14px' }}>
-              {record.student?.name || 'N/A'}
+              {record.name || 'N/A'}
             </div>
             <div style={{ fontSize: '12px', color: '#6b7280' }}>
-              ID: {record.student?.id || 'N/A'}
+              ID: {record.id || 'N/A'}
             </div>
           </div>
         </Space>
@@ -119,8 +226,10 @@ const ClassDetailPage = () => {
     },
     {
       title: 'Lớp hiện tại',
-      dataIndex: ['student', 'currentGrade'],
+      dataIndex: 'currentGrade',
       key: 'currentGrade',
+      width: 120,
+      align: 'center',
       render: (grade) => (
         <Tag color="green">
           {grade || 'N/A'}
@@ -131,7 +240,58 @@ const ClassDetailPage = () => {
       title: 'Ngày đăng ký',
       dataIndex: 'createdAt',
       key: 'createdAt',
+      width: 150,
+      align: 'center',
       render: (date) => formatDate(date),
+    },
+    {
+      title: 'Thao tác',
+      key: 'actions',
+      width: 120,
+      align: 'center',
+      render: (_, record) => (
+        <Space size="small">
+          <Tooltip title="Xem chi tiết học sinh">
+            <Button
+              size="small"
+              icon={<UserOutlined />}
+              onClick={() => {
+                const studentId = record.id;
+                if (studentId) {
+                  navigate(`/students/${studentId}`);
+                } else {
+                  message.error('Không thể xác định ID học sinh');
+                }
+              }}
+              style={{
+                border: '1px solid #1890ff',
+                borderRadius: '6px',
+                fontSize: '11px',
+                padding: '2px 6px',
+                height: '24px'
+              }}
+            >
+              Xem
+            </Button>
+          </Tooltip>
+          <Tooltip title="Xóa khỏi lớp học">
+            <Button
+              danger
+              size="small"
+              icon={<DeleteOutlined />}
+              onClick={() => handleUnregisterStudent(record)}
+              style={{
+                borderRadius: '6px',
+                fontSize: '11px',
+                padding: '2px 6px',
+                height: '24px'
+              }}
+            >
+              Xóa
+            </Button>
+          </Tooltip>
+        </Space>
+      ),
     },
   ];
 
@@ -203,7 +363,7 @@ const ClassDetailPage = () => {
                   Chi tiết Lớp học
                 </Title>
                 <div style={{ color: '#6b7280', marginTop: '4px' }}>
-                  Thông tin chi tiết lớp học: {classData.className}
+                  Thông tin chi tiết lớp học: {classData.name || classData.className}
                 </div>
               </div>
               <Space>
@@ -275,7 +435,7 @@ const ClassDetailPage = () => {
                   </Descriptions.Item>
                   <Descriptions.Item label="Tên lớp">
                     <Text strong style={{ fontSize: '16px' }}>
-                      {classData.className}
+                      {classData.name || classData.className}
                     </Text>
                   </Descriptions.Item>
                   <Descriptions.Item label="Giáo viên">
@@ -350,7 +510,7 @@ const ClassDetailPage = () => {
               <Button
                 type="primary"
                 icon={<UserOutlined />}
-                onClick={() => navigate(`/classes/${id}/register`)}
+                onClick={showRegisterModal}
                 style={{
                   background: '#722ed1',
                   border: 'none',
@@ -375,6 +535,7 @@ const ClassDetailPage = () => {
                 rowKey="id"
                 pagination={false}
                 size="middle"
+                scroll={{ x: 800 }}
                 style={{
                   borderRadius: '8px',
                   overflow: 'hidden'
@@ -393,7 +554,7 @@ const ClassDetailPage = () => {
                 <Button
                   type="primary"
                   icon={<UserOutlined />}
-                  onClick={() => navigate(`/classes/${id}/register`)}
+                  onClick={showRegisterModal}
                   style={{
                     background: '#722ed1',
                     border: 'none',
@@ -406,6 +567,133 @@ const ClassDetailPage = () => {
             )}
           </Card>
         </Space>
+
+        {/* Register Student Modal */}
+        <Modal
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <UserOutlined style={{ color: '#722ed1', fontSize: '20px' }} />
+              <span>Đăng ký học sinh vào lớp học</span>
+            </div>
+          }
+          open={registerModalVisible}
+          onOk={confirmRegisterStudent}
+          onCancel={cancelRegisterStudent}
+          okText="Đăng ký"
+          cancelText="Hủy"
+          confirmLoading={registerLoading}
+          okButtonProps={{
+            style: {
+              background: '#722ed1',
+              border: 'none',
+              borderRadius: '8px',
+              height: '40px',
+              padding: '0 20px'
+            }
+          }}
+          cancelButtonProps={{
+            style: {
+              border: '1px solid #d9d9d9',
+              borderRadius: '8px',
+              height: '40px',
+              padding: '0 20px'
+            }
+          }}
+        >
+          <div style={{ padding: '16px 0' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600 }}>
+                Chọn học sinh:
+              </label>
+              <Select
+                placeholder="Chọn học sinh để đăng ký"
+                style={{ width: '100%' }}
+                value={selectedStudentId}
+                onChange={setSelectedStudentId}
+                loading={registerLoading}
+                showSearch
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
+              >
+                {studentsList.map(student => (
+                  <Select.Option key={student.id} value={student.id}>
+                    {student.name} - {student.currentGrade}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Unregister Student Confirmation Modal */}
+        <Modal
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <DeleteOutlined style={{ color: '#ff4d4f', fontSize: '20px' }} />
+              <span>Xác nhận xóa học sinh khỏi lớp học</span>
+            </div>
+          }
+          open={unregisterModalVisible}
+          onOk={confirmUnregisterStudent}
+          onCancel={cancelUnregisterStudent}
+          okText="Xóa"
+          cancelText="Hủy"
+          okButtonProps={{
+            danger: true,
+            style: {
+              background: '#ff4d4f',
+              border: 'none',
+              borderRadius: '8px',
+              height: '40px',
+              padding: '0 20px'
+            }
+          }}
+          cancelButtonProps={{
+            style: {
+              border: '1px solid #d9d9d9',
+              borderRadius: '8px',
+              height: '40px',
+              padding: '0 20px'
+            }
+          }}
+          centered
+        >
+          <div style={{ padding: '16px 0' }}>
+            <p style={{ marginBottom: '16px', fontSize: '16px', color: '#1f2937' }}>
+              Bạn có chắc chắn muốn xóa học sinh này khỏi lớp học không?
+            </p>
+            {selectedRegistration && (
+              <div style={{ 
+                background: '#f8f9fa', 
+                padding: '16px', 
+                borderRadius: '8px',
+                border: '1px solid #e9ecef'
+              }}>
+                <div style={{ fontWeight: 600, color: '#1f2937', marginBottom: '8px' }}>
+                  Thông tin học sinh:
+                </div>
+                <div style={{ color: '#6b7280' }}>
+                  <div><strong>ID:</strong> {selectedRegistration.student?.id}</div>
+                  <div><strong>Họ và tên:</strong> {selectedRegistration.student?.name}</div>
+                  <div><strong>Lớp hiện tại:</strong> {selectedRegistration.student?.currentGrade}</div>
+                  <div><strong>Ngày đăng ký:</strong> {formatDate(selectedRegistration.createdAt)}</div>
+                </div>
+              </div>
+            )}
+            <div style={{ 
+              marginTop: '16px', 
+              padding: '12px 16px', 
+              background: '#fff2e8', 
+              border: '1px solid #ffd591',
+              borderRadius: '6px',
+              color: '#d46b08'
+            }}>
+              <strong>⚠️ Lưu ý:</strong> Hành động này sẽ xóa học sinh khỏi lớp học. 
+              Học sinh có thể đăng ký lại sau.
+            </div>
+          </div>
+        </Modal>
       </div>
     </div>
   );

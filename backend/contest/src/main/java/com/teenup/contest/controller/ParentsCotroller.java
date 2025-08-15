@@ -4,6 +4,7 @@ import com.teenup.contest.dto.request.CreateParentRequest;
 import com.teenup.contest.dto.request.ReassignStudentsRequest;
 import com.teenup.contest.dto.request.UpdateParentRequest;
 import com.teenup.contest.dto.response.ParentResponse;
+import com.teenup.contest.dto.response.ParentStudentItem;
 import com.teenup.contest.dto.response.ReassignResultResponse;
 import com.teenup.contest.service.ParentService;
 import jakarta.validation.Valid;
@@ -56,5 +57,18 @@ public class ParentsCotroller {
             @Valid @RequestBody ReassignStudentsRequest req
     ) {
         return service.reassign(sourceParentId, req);
+    }
+
+    // ✅ NEW: Lấy danh sách học sinh của một phụ huynh
+    @GetMapping("/{parentId}/students")
+    public List<ParentStudentItem> listStudentsOfParent(@PathVariable Long parentId) {
+        return service.listStudents(parentId);
+    }
+
+    /** Unassign: xoá học sinh thuộc parent (theo ngữ cảnh parent) */
+    @DeleteMapping("/{parentId}/students/{studentId}")
+    public ResponseEntity<Void> deleteChild(@PathVariable Long parentId, @PathVariable Long studentId) {
+        service.deleteChild(parentId, studentId);
+        return ResponseEntity.noContent().build();
     }
 }

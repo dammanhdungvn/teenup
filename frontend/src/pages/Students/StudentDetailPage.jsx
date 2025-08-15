@@ -23,6 +23,7 @@ import {
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { studentsApi } from '../../services/students.api.js';
 import { GENDER_OPTIONS, GRADE_OPTIONS, formatDate } from '../../utils/validation.js';
+import { handleError } from '../../utils/errorHandler.js';
 
 const { Title, Text } = Typography;
 
@@ -49,8 +50,7 @@ const StudentDetailPage = () => {
       // Fetch student classes
       await fetchStudentClasses(id);
     } catch (error) {
-      message.error('Không thể tải thông tin học sinh');
-      console.error('Error fetching student:', error);
+      handleError(error, message, 'Không thể tải thông tin học sinh', 'fetchStudent');
     } finally {
       setLoading(false);
     }

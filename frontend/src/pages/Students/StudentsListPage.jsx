@@ -9,7 +9,11 @@ import {
   Spin,
   Tooltip,
   App,
-  Select
+  Select,
+  Modal,
+  Form,
+  Input,
+  DatePicker
 } from 'antd';
 import { 
   UserOutlined, 
@@ -20,7 +24,9 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { studentsApi } from '../../services/students.api.js';
+import { parentsApi } from '../../services/parents.api.js';
 import { GENDER_OPTIONS, GRADE_OPTIONS } from '../../utils/validation.js';
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 
@@ -30,8 +36,17 @@ const StudentsListPage = () => {
   const navigate = useNavigate();
   const { message } = App.useApp();
 
+  // State cho modals
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
+  const [deletingStudent, setDeletingStudent] = useState(null);
+  const [editForm] = Form.useForm();
+  const [parents, setParents] = useState([]);
+
   useEffect(() => {
     fetchStudents();
+    fetchParents();
   }, []);
 
   const fetchStudents = async () => {
@@ -49,6 +64,15 @@ const StudentsListPage = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchParents = async () => {
+    try {
+      const response = await parentsApi.getParentsList();
+      setParents(response.data || []);
+    } catch (error) {
+      console.error('Error fetching parents:', error);
     }
   };
 
@@ -216,7 +240,7 @@ const StudentsListPage = () => {
             <Button
               type="default"
               icon={<EditOutlined />}
-              onClick={() => navigate(`/students/${record.id}/edit`)}
+              onClick={() => handleEdit(record)}
               size="middle"
               style={{
                 border: '2px solid #52c41a',
@@ -236,11 +260,7 @@ const StudentsListPage = () => {
               type="default"
               danger
               icon={<DeleteOutlined />}
-              onClick={() => {
-                if (window.confirm('Bạn có chắc chắn muốn xóa học sinh này?')) {
-                  handleDelete(record.id);
-                }
-              }}
+              onClick={() => handleDelete(record)}
               size="middle"
               style={{
                 border: '2px solid #ff4d4f',
@@ -268,13 +288,72 @@ const StudentsListPage = () => {
     navigate('/students/list');
   };
 
-  const handleDelete = async (studentId) => {
+  // Xử lý edit student
+  const handleEdit = (student) => {
+    setEditingStudent(student);
+    editForm.setFieldsValue({
+      name: student.name,
+      dob: student.dob ? dayjs(student.dob) : null,
+      gender: student.gender,
+      currentGrade: student.currentGrade,
+      parentId: student.parentId
+    });
+    setEditModalVisible(true);
+  };
+
+  // Xác nhận edit
+  const confirmEdit = async () => {
     try {
-      await studentsApi.deleteStudent(studentId);
+      const values = await editForm.validateFields();
+      const updateData = {
+        ...values,
+        dob: values.dob ? values.dob.format('YYYY-MM-DD') : null
+      };
+      
+      await studentsApi.updateStudent(editingStudent.id, updateData);
+      message.success('Cập nhật học sinh thành công!');
+      setEditModalVisible(false);
+      setEditingStudent(null);
+      editForm.resetFields();
+      fetchStudents(); // Refresh data
+    } catch (err) {
+      if (err.errorFields) {
+        // Form validation error
+        return;
+      }
+      const backendMessage = err?.response?.data?.message;
+      if (backendMessage) {
+        message.error(backendMessage);
+      } else {
+        message.error('Không thể cập nhật học sinh');
+      }
+    }
+  };
+
+  // Hủy edit
+  const cancelEdit = () => {
+    setEditModalVisible(false);
+    setEditingStudent(null);
+    editForm.resetFields();
+  };
+
+  // Xử lý delete student
+  const handleDelete = (student) => {
+    setDeletingStudent(student);
+    setDeleteModalVisible(true);
+  };
+
+  // Xác nhận delete
+  const confirmDelete = async () => {
+    if (!deletingStudent) return;
+    
+    try {
+      await studentsApi.deleteStudent(deletingStudent.id);
       message.success('Xóa học sinh thành công');
+      setDeleteModalVisible(false);
+      setDeletingStudent(null);
       fetchStudents(); // Refresh danh sách
     } catch (error) {
-      console.error('Error deleting student:', error);
       const backendMessage = error?.response?.data?.message;
       if (backendMessage) {
         message.error(backendMessage);
@@ -282,6 +361,12 @@ const StudentsListPage = () => {
         message.error('Không thể xóa học sinh');
       }
     }
+  };
+
+  // Hủy delete
+  const cancelDelete = () => {
+    setDeleteModalVisible(false);
+    setDeletingStudent(null);
   };
 
   if (loading) {
@@ -343,29 +428,31 @@ const StudentsListPage = () => {
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
             padding: '0'
           }}>
-            <Table
-              columns={columns}
-              dataSource={students}
-              rowKey="id"
-              pagination={false}
-              loading={loading}
-              locale={{
-                emptyText: (
-                  <div style={{ textAlign: 'center', padding: '60px' }}>
-                    <UserOutlined style={{ fontSize: '64px', color: '#d1d5db', marginBottom: '24px' }} />
-                    <div style={{ color: '#6b7280', fontSize: '16px' }}>Chưa có học sinh nào</div>
-                  </div>
-                ),
-              }}
-              style={{
-                borderRadius: '12px',
-                overflow: 'hidden',
-                width: '100%'
-              }}
-              size="large"
-              scroll={{ x: 1200 }}
-              responsive={false}
-            />
+            <div style={{ overflowX: 'auto', width: '100%' }}>
+              <Table
+                columns={columns}
+                dataSource={students}
+                rowKey="id"
+                pagination={false}
+                loading={loading}
+                locale={{
+                  emptyText: (
+                    <div style={{ textAlign: 'center', padding: '60px' }}>
+                      <UserOutlined style={{ fontSize: '64px', color: '#d1d5db', marginBottom: '24px' }} />
+                      <div style={{ color: '#6b7280', fontSize: '16px' }}>Chưa có học sinh nào</div>
+                    </div>
+                  ),
+                }}
+                style={{
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  minWidth: '1000px'
+                }}
+                size="middle"
+                scroll={false}
+                responsive={false}
+              />
+            </div>
           </Card>
 
           {/* Pagination - Tách riêng ở cuối */}
@@ -400,6 +487,139 @@ const StudentsListPage = () => {
             </div>
           </Card>
         </Space>
+
+        {/* Edit Student Modal */}
+        <Modal
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <EditOutlined style={{ color: '#52c41a', fontSize: '20px' }} />
+              <span>Chỉnh sửa học sinh</span>
+            </div>
+          }
+          open={editModalVisible}
+          onOk={confirmEdit}
+          onCancel={cancelEdit}
+          okText="Cập nhật"
+          cancelText="Hủy"
+          width={600}
+          centered
+        >
+          {editingStudent && (
+            <Form
+              form={editForm}
+              layout="vertical"
+              style={{ marginTop: '16px' }}
+            >
+              <Form.Item
+                name="name"
+                label="Họ và tên"
+                rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}
+              >
+                <Input placeholder="Nhập họ và tên học sinh" />
+              </Form.Item>
+
+              <Form.Item
+                name="dob"
+                label="Ngày sinh"
+                rules={[{ required: true, message: 'Vui lòng chọn ngày sinh!' }]}
+              >
+                <DatePicker 
+                  style={{ width: '100%' }} 
+                  placeholder="Chọn ngày sinh"
+                  format="DD/MM/YYYY"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="gender"
+                label="Giới tính"
+                rules={[{ required: true, message: 'Vui lòng chọn giới tính!' }]}
+              >
+                <Select placeholder="Chọn giới tính">
+                  {GENDER_OPTIONS.map(option => (
+                    <Select.Option key={option.value} value={option.value}>
+                      {option.label}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+
+              <Form.Item
+                name="currentGrade"
+                label="Lớp hiện tại"
+                rules={[{ required: true, message: 'Vui lòng chọn lớp!' }]}
+              >
+                <Select placeholder="Chọn lớp">
+                  {GRADE_OPTIONS.map(option => (
+                    <Select.Option key={option.value} value={option.value}>
+                      {option.label}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+
+              <Form.Item
+                name="parentId"
+                label="Phụ huynh"
+                rules={[{ required: true, message: 'Vui lòng chọn phụ huynh!' }]}
+              >
+                <Select 
+                  placeholder="Chọn phụ huynh"
+                  showSearch
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                >
+                  {parents.map(parent => (
+                    <Select.Option key={parent.id} value={parent.id}>
+                      {parent.name} - {parent.phone}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Form>
+          )}
+        </Modal>
+
+        {/* Delete Confirmation Modal */}
+        <Modal
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <DeleteOutlined style={{ color: '#ff4d4f', fontSize: '20px' }} />
+              <span>Xác nhận xóa học sinh</span>
+            </div>
+          }
+          open={deleteModalVisible}
+          onOk={confirmDelete}
+          onCancel={cancelDelete}
+          okText="Xóa"
+          cancelText="Hủy"
+          okButtonProps={{
+            danger: true,
+            style: {
+              background: '#ff4d4f',
+              border: 'none',
+              borderRadius: '8px',
+              height: '40px',
+              padding: '0 20px'
+            }
+          }}
+          cancelButtonProps={{
+            style: {
+              border: '1px solid #d9d9d9',
+              borderRadius: '8px',
+              height: '40px',
+              padding: '0 20px'
+            }
+          }}
+        >
+          <div style={{ padding: '16px 0' }}>
+            <p>Bạn có chắc chắn muốn xóa học sinh <strong>"{deletingStudent?.name}"</strong>?</p>
+            <p style={{ color: '#ff4d4f', fontSize: '14px' }}>
+              Hành động này không thể hoàn tác!
+            </p>
+          </div>
+        </Modal>
       </div>
     </div>
   );

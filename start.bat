@@ -1,108 +1,192 @@
 @echo off
 chcp 65001 >nul
-echo 🚀 TeenUp Contest - Starting System...
-echo ======================================
+setlocal enabledelayedexpansion
 
-REM Check if Docker is running
-docker info >nul 2>&1
+echo.
+echo ========================================
+echo    🚀 TeenUp Contest Management System
+echo ========================================
+echo.
+
+:: Kiểm tra Docker Desktop
+echo 🔍 Kiểm tra Docker Desktop...
+docker --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ❌ Docker is not running. Please start Docker Desktop first.
+    echo ❌ Docker không được cài đặt hoặc không chạy!
+    echo    Vui lòng cài đặt Docker Desktop và khởi động lại.
+    echo    Download: https://www.docker.com/products/docker-desktop
     pause
     exit /b 1
 )
 
-REM Check if ports are available
-echo 🔍 Checking port availability...
+echo ✅ Docker đã được cài đặt
 
-netstat -an | findstr ":3000" >nul 2>&1
-if %errorlevel% equ 0 (
-    echo ❌ Port 3000 is already in use. Please free up the port.
+:: Kiểm tra Docker Compose
+echo 🔍 Kiểm tra Docker Compose...
+docker compose version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo ❌ Docker Compose không được cài đặt!
+    echo    Vui lòng cài đặt Docker Compose hoặc cập nhật Docker Desktop.
     pause
     exit /b 1
+)
+
+echo ✅ Docker Compose đã được cài đặt
+
+:: Kiểm tra Docker daemon
+echo 🔍 Kiểm tra Docker daemon...
+docker info >nul 2>&1
+if %errorlevel% neq 0 (
+    echo ❌ Docker daemon không chạy!
+    echo    Vui lòng khởi động Docker Desktop và đợi đến khi status "Running"
+    pause
+    exit /b 1
+)
+
+echo ✅ Docker daemon đang chạy
+
+:: Kiểm tra ports
+echo 🔍 Kiểm tra ports...
+netstat -an | findstr ":3000" >nul 2>&1
+if %errorlevel% equ 0 (
+    echo ⚠️  Port 3000 đang được sử dụng
+    echo    Đang dừng process sử dụng port 3000...
+    for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":3000"') do (
+        taskkill /PID %%a /F >nul 2>&1
+    )
+    timeout /t 2 >nul
 )
 
 netstat -an | findstr ":8081" >nul 2>&1
 if %errorlevel% equ 0 (
-    echo ❌ Port 8081 is already in use. Please free up the port.
-    pause
-    exit /b 1
+    echo ⚠️  Port 8081 đang được sử dụng
+    echo    Đang dừng process sử dụng port 8081...
+    for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":8081"') do (
+        taskkill /PID %%a /F >nul 2>&1
+    )
+    timeout /t 2 >nul
 )
 
 netstat -an | findstr ":3306" >nul 2>&1
 if %errorlevel% equ 0 (
-    echo ❌ Port 3306 is already in use. Please free up the port.
+    echo ⚠️  Port 3306 đang được sử dụng
+    echo    Đang dừng process sử dụng port 3306...
+    for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":3306"') do (
+        taskkill /PID %%a /F >nul 2>&1
+    )
+    timeout /t 2 >nul
+)
+
+echo ✅ Ports đã sẵn sàng
+
+:: Kiểm tra .env file
+echo 🔍 Kiểm tra file .env...
+if not exist ".env" (
+    echo ❌ File .env không tồn tại!
+    echo    Vui lòng tạo file .env với cấu hình phù hợp.
     pause
     exit /b 1
 )
 
-echo ✅ All ports are available.
+echo ✅ File .env đã tồn tại
 
-REM Create logs directory
-if not exist "logs\backend" mkdir "logs\backend"
-if not exist "logs\frontend" mkdir "logs\frontend"
+:: Dừng containers cũ nếu có
+echo 🛑 Dừng containers cũ...
+docker compose down >nul 2>&1
 
-REM Copy env.example to .env if .env doesn't exist
-if not exist ".env" (
-    echo 📝 Creating .env file from env.example...
-    copy "env.example" ".env"
-)
+:: Xóa containers và networks cũ
+echo 🧹 Dọn dẹp containers cũ...
+docker compose down --remove-orphans >nul 2>&1
 
-REM Start services using docker compose v2
-echo 🐳 Starting Docker services...
-docker compose up -d
+:: Build và khởi động services
+echo 🏗️  Build và khởi động services...
 
 echo.
-echo ⏳ Waiting for services to start...
-echo This may take 2-3 minutes on first run...
-
-REM Wait for database to be ready
-echo 🗄️  Waiting for database...
-:wait_db
-docker compose exec -T db mysqladmin ping -h localhost -u root -prootpass --silent >nul 2>&1
+echo 📦 Khởi động MySQL Database...
+docker compose up -d db
 if %errorlevel% neq 0 (
-    echo    Database not ready yet...
-    timeout /t 5 /nobreak >nul
-    goto wait_db
+    echo ❌ Không thể khởi động MySQL!
+    pause
+    exit /b 1
 )
-echo ✅ Database is ready!
 
-REM Wait for backend to be ready
-echo 🔧 Waiting for backend...
-:wait_backend
-curl -f http://localhost:8081/actuator/health >nul 2>&1
+:: Đợi MySQL khởi động
+echo ⏳ Đợi MySQL khởi động...
+:wait_mysql
+docker compose exec -T db mysqladmin ping -h localhost -u root -prootpass >nul 2>&1
 if %errorlevel% neq 0 (
-    echo    Backend not ready yet...
-    timeout /t 10 /nobreak >nul
+    echo    MySQL chưa sẵn sàng, đợi thêm...
+    timeout /t 5 >nul
+    goto wait_mysql
+)
+echo ✅ MySQL đã sẵn sàng
+
+echo.
+echo 🚀 Khởi động Backend...
+docker compose up -d backend
+if %errorlevel% neq 0 (
+    echo ❌ Không thể khởi động Backend!
+    pause
+    exit /b 1
+)
+
+:: Đợi Backend khởi động
+echo ⏳ Đợi Backend khởi động...
+:wait_backend
+curl -f http://localhost:8081/api/parents/list >nul 2>&1
+if %errorlevel% neq 0 (
+    echo    Backend chưa sẵn sàng, đợi thêm...
+    timeout /t 10 >nul
     goto wait_backend
 )
-echo ✅ Backend is ready!
+echo ✅ Backend đã sẵn sàng
 
-REM Wait for frontend to be ready
-echo 🌐 Waiting for frontend...
+echo.
+echo 🌐 Khởi động Frontend...
+docker compose up -d frontend
+if %errorlevel% neq 0 (
+    echo ❌ Không thể khởi động Frontend!
+    pause
+    exit /b 1
+)
+
+:: Đợi Frontend khởi động
+echo ⏳ Đợi Frontend khởi động...
 :wait_frontend
 curl -f http://localhost:3000 >nul 2>&1
 if %errorlevel% neq 0 (
-    echo    Frontend not ready yet...
-    timeout /t 5 /nobreak >nul
+    echo    Frontend chưa sẵn sàng, đợi thêm...
+    timeout /t 5 >nul
     goto wait_frontend
 )
-echo ✅ Frontend is ready!
+echo ✅ Frontend đã sẵn sàng
+
+:: Kiểm tra trạng thái cuối cùng
+echo.
+echo 📊 Kiểm tra trạng thái services...
+docker compose ps
 
 echo.
-echo 🎉 TeenUp Contest System is ready!
-echo ======================================
+echo ========================================
+echo    🎉 Khởi động thành công!
+echo ========================================
+echo.
 echo 🌐 Frontend: http://localhost:3000
-echo 🔧 Backend API: http://localhost:8081
+echo 🔧 Backend API: http://localhost:8081/api
 echo 🗄️  Database: localhost:3306
 echo.
-echo 📊 Data Seeding:
-echo    - 2 Parents (Nguyen Van A, Tran Thi B)
-echo    - 3 Students (Minh, Lan, Hoang)
-echo    - 3 Classes (Toán, Tiếng Anh, Khoa học)
-echo    - Subscriptions and Registrations
+echo 💡 Lệnh hữu ích:
+echo    - Xem logs: docker compose logs -f
+echo    - Dừng: docker compose down
+echo    - Restart: docker compose restart
 echo.
-echo 🔍 Check logs: docker compose logs -f
-echo 🛑 Stop system: docker compose down
-echo 🔄 Restart: docker compose restart
+echo Nhấn phím bất kỳ để mở trình duyệt...
+pause >nul
+
+:: Mở trình duyệt
+start http://localhost:3000
+
+echo.
+echo 🚀 Đã mở trình duyệt với ứng dụng!
 echo.
 pause

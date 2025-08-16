@@ -11,16 +11,17 @@
 - [Development Workflow](#development-workflow)
 - [Troubleshooting](#troubleshooting)
 - [Platform Specific](#platform-specific)
+- [CORS Configuration](#cors-configuration)
 
 ---
 
 ## 🎯 Overview
 
 TeenUp Contest Management System sử dụng Docker để containerize toàn bộ stack:
-- **Frontend**: React + Vite + Ant Design
+- **Frontend**: React + Vite + Ant Design + Nginx
 - **Backend**: Spring Boot + JPA + MySQL
 - **Database**: MySQL 8.0
-- **Reverse Proxy**: Nginx
+- **Reverse Proxy**: Nginx với API proxy và CORS support
 
 ---
 
@@ -60,16 +61,26 @@ cd Contest
 # Kiểm tra Docker status
 ./check-docker.sh  # Linux/Mac
 # hoặc
-check-docker.bat   # Windows
+check-docker.bat   # Windows Native
+# hoặc
+check-docker.bat   # Windows + WSL2
 ```
 
 ### **2. Start All Services**
-```bash
-# Linux/Mac
-./start.sh
 
-# Windows
+#### **Linux/macOS:**
+```bash
+./start.sh
+```
+
+#### **Windows Native (Docker Desktop):**
+```bash
 start.bat
+```
+
+#### **Windows + WSL2:**
+```bash
+start-wsl2.bat
 ```
 
 ### **3. Access Application**
@@ -85,18 +96,23 @@ start.bat
 Contest/
 ├── docker-compose.yml          # Main orchestration
 ├── start.sh                    # Linux/Mac startup script
-├── start.bat                   # Windows startup script
+├── start.bat                   # Windows Native startup script
+├── start-wsl2.bat             # Windows + WSL2 startup script
 ├── stop.sh                     # Linux/Mac stop script
-├── stop.bat                    # Windows stop script
-├── check-docker.sh             # Pre-flight checks
+├── stop.bat                    # Windows Native stop script
+├── stop-wsl2.bat              # Windows + WSL2 stop script
+├── check-docker.sh             # Linux/Mac pre-flight checks
 ├── check-docker.bat            # Windows pre-flight checks
 ├── .env                        # Environment variables
 ├── frontend/
 │   ├── Dockerfile             # Frontend container
-│   └── nginx.conf             # Nginx configuration
+│   ├── nginx.conf             # Nginx configuration với API proxy
+│   └── env.docker             # Docker environment config
 └── backend/
     └── contest/
-        └── Dockerfile         # Backend container
+        ├── Dockerfile         # Backend container
+        └── src/main/java/com/teenup/contest/config/
+            └── CorsConfig.java # CORS configuration
 ```
 
 ---
@@ -116,6 +132,7 @@ SPRING_PROFILES_ACTIVE=docker
 SERVER_PORT=8081
 
 # Frontend
+VITE_DOCKER=true
 VITE_API_BASE_URL=http://localhost:8081
 VITE_USE_PROXY=false
 ```
@@ -203,6 +220,7 @@ docker compose restart backend
 # Service name: frontend
 # Port: 3000 (mapped to 80)
 # Build context: ./frontend
+# Features: API proxy, CORS support, SPA routing
 
 # View logs
 docker compose logs frontend
@@ -213,6 +231,61 @@ docker compose build frontend
 # Access container
 docker compose exec frontend sh
 ```
+
+---
+
+## 🌐 CORS Configuration
+
+### **Backend CORS (Spring Boot)**
+```java
+@Configuration
+public class CorsConfig implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedOriginPatterns("*")
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
+    }
+}
+```
+
+### **Frontend Nginx CORS Proxy**
+```nginx
+# API Proxy - Forward /api requests to backend
+location /api/ {
+    proxy_pass http://backend:8081/api/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    
+    # CORS headers
+    add_header Access-Control-Allow-Origin * always;
+    add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
+    add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
+    add_header Access-Control-Expose-Headers "Content-Length,Content-Range" always;
+    
+    # Handle preflight requests
+    if ($request_method = 'OPTIONS') {
+        add_header Access-Control-Allow-Origin * always;
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
+        add_header Access-Control-Max-Age 1728000 always;
+        add_header Content-Type 'text/plain; charset=utf-8' always;
+        add_header Content-Length 0 always;
+        return 204;
+    }
+}
+```
+
+### **CORS Flow**
+1. **Frontend** (localhost:3000) → **Nginx Proxy** → **Backend** (localhost:8081)
+2. **API calls** được proxy qua nginx với CORS headers
+3. **Backend** cũng có CORS configuration riêng
+4. **Double CORS protection** đảm bảo compatibility
 
 ---
 
@@ -249,7 +322,9 @@ docker run --rm -v teenup_mysql_data:/data -v $(pwd):/backup alpine tar xzf /bac
 ### **1. Development Mode**
 ```bash
 # Start services
-./start.sh
+./start.sh          # Linux/Mac
+start.bat           # Windows Native
+start-wsl2.bat      # Windows + WSL2
 
 # View all logs
 docker compose logs -f
@@ -288,17 +363,23 @@ npm run dev
 
 #### **1. Port Already in Use**
 ```bash
-# Kiểm tra ports đang sử dụng
+# Linux/Mac
 sudo netstat -tulpn | grep :3000
 sudo netstat -tulpn | grep :8081
 sudo netstat -tulpn | grep :3306
 
+# Windows
+netstat -an | findstr ":3000"
+netstat -an | findstr ":8081"
+netstat -an | findstr ":3306"
+
 # Stop conflicting services
-sudo systemctl stop mysql  # Nếu có MySQL local
-sudo systemctl stop nginx  # Nếu có Nginx local
+sudo systemctl stop mysql  # Linux
+sudo systemctl stop nginx  # Linux
+net stop mysql             # Windows
 ```
 
-#### **2. Permission Denied**
+#### **2. Permission Denied (Linux)**
 ```bash
 # Fix Docker permissions
 sudo usermod -aG docker $USER
@@ -331,6 +412,18 @@ docker system prune -a
 
 # Check disk space
 df -h
+```
+
+#### **5. CORS Issues**
+```bash
+# Kiểm tra CORS configuration
+curl -H "Origin: http://localhost:3000" http://localhost:8081/api/parents/list -v
+
+# Kiểm tra nginx proxy
+curl -H "Origin: http://localhost:3000" http://localhost:3000/api/parents/list -v
+
+# Rebuild frontend nếu cần
+docker compose build frontend --no-cache
 ```
 
 ### **Debug Commands**
@@ -380,17 +473,38 @@ docker --version
 docker compose version
 ```
 
-### **Windows**
+### **Windows Native (Docker Desktop)**
 ```bash
 # Install Docker Desktop
 # Download từ: https://www.docker.com/products/docker-desktop
 
-# Enable WSL2 backend
 # Start Docker Desktop
+# Run as Administrator
 
 # Verify installation
 docker --version
 docker compose version
+
+# Use startup script
+start.bat
+```
+
+### **Windows + WSL2**
+```bash
+# Install WSL2
+# PowerShell as Administrator: wsl --install
+
+# Install Docker in WSL2
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+
+# Install Docker Compose
+sudo apt update
+sudo apt install docker-compose-plugin
+
+# Use startup script
+start-wsl2.bat
 ```
 
 ---
@@ -450,6 +564,8 @@ docker compose logs > logs.txt
 - [Docker Compose Reference](https://docs.docker.com/compose/)
 - [Spring Boot Docker Guide](https://spring.io/guides/gs/spring-boot-docker/)
 - [React Docker Guide](https://nodejs.org/en/docs/guides/nodejs-docker-webapp/)
+- [WSL2 Docker Setup](https://docs.docker.com/desktop/windows/wsl/)
+- [Nginx CORS Configuration](https://enable-cors.org/server_nginx.html)
 
 ---
 
@@ -461,9 +577,17 @@ Nếu gặp vấn đề:
 2. **Restart services**: `docker compose restart`
 3. **Rebuild containers**: `docker compose build --no-cache`
 4. **Check health status**: `docker compose ps`
-5. **Verify configuration**: `./check-docker.sh`
+5. **Verify configuration**: 
+   - Linux/Mac: `./check-docker.sh`
+   - Windows: `check-docker.bat`
+
+### **Platform-Specific Support**
+- **Linux/Mac**: Sử dụng `start.sh`, `stop.sh`, `check-docker.sh`
+- **Windows Native**: Sử dụng `start.bat`, `stop.bat`, `check-docker.bat`
+- **Windows + WSL2**: Sử dụng `start-wsl2.bat`, `stop-wsl2.bat`, `check-docker.bat`
 
 ---
 
 *Last updated: August 16, 2025*
-*Version: 2.0*
+*Version: 3.0*
+*Features: CORS Support, Windows WSL2, Enhanced Troubleshooting*

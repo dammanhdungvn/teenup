@@ -93,25 +93,23 @@ if not exist ".env" (
     ) else (
         echo 📝 Tạo file .env thủ công...
         (
-            echo # ========================================
-            echo # TeenUp Contest Management System
-            echo # Environment Variables
-            echo # ========================================
-            echo.
-            echo # Database Configuration
+            echo # ========= DATABASE CONFIGURATION =========
             echo MYSQL_ROOT_PASSWORD=rootpass
-            echo MYSQL_DATABASE=teenup_contest
-            echo MYSQL_USER=contest_user
-            echo MYSQL_PASSWORD=contest_pass
+            echo MYSQL_DATABASE=teenup
+            echo MYSQL_USER=teenup
+            echo MYSQL_PASSWORD=teenup123
             echo.
-            echo # Backend Configuration
-            echo SPRING_PROFILES_ACTIVE=docker
-            echo SERVER_PORT=8081
+            echo # ========= APPLICATION PORTS =========
+            echo FRONTEND_PORT=3000
+            echo BACKEND_PORT=8081
+            echo DATABASE_PORT=3306
             echo.
-            echo # Frontend Configuration
-            echo VITE_DOCKER=true
-            echo VITE_API_BASE_URL=http://localhost:8081
-            echo VITE_USE_PROXY=false
+            echo # ========= SPRING BOOT CONFIG =========
+            echo SPRING_PROFILES_ACTIVE=dev
+            echo SPRING_JPA_HIBERNATE_DDL_AUTO=update
+            echo.
+            echo # ========= TIMEZONE =========
+            echo TZ=Asia/Bangkok
         ) > .env
         echo ✅ Đã tạo file .env với giá trị mặc định
     )

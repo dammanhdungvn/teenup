@@ -2,7 +2,7 @@
 
 # ========================================
 # TeenUp Contest Management System
-# WSL Docker Startup Script for Windows  
+# Docker Startup Script for Linux/macOS
 # ========================================
 
 set -e  # Exit on any error
@@ -31,20 +31,6 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Function to check if running in WSL
-check_wsl() {
-    if ! grep -q Microsoft /proc/version; then
-        print_error "Đây không phải là WSL environment!"
-        print_error "Vui lòng sử dụng script phù hợp:"
-        echo "  - Linux/macOS native: ./start.sh"
-        echo "  - Windows native: start.bat"
-        echo "  - Windows WSL2: start-wsl2.bat"
-        exit 1
-    fi
-    
-    print_success "Đang chạy trong WSL environment"
-}
-
 # Function to check if .env file exists
 check_env_file() {
     if [ ! -f ".env" ]; then
@@ -58,25 +44,23 @@ check_env_file() {
         else
             print_status "Tạo file .env thủ công..."
             cat > .env << 'EOF'
-# ========================================
-# TeenUp Contest Management System
-# Environment Variables
-# ========================================
-
-# Database Configuration
+# ========= DATABASE CONFIGURATION =========
 MYSQL_ROOT_PASSWORD=rootpass
-MYSQL_DATABASE=teenup_contest
-MYSQL_USER=contest_user
-MYSQL_PASSWORD=contest_pass
+MYSQL_DATABASE=teenup
+MYSQL_USER=teenup
+MYSQL_PASSWORD=teenup123
 
-# Backend Configuration
-SPRING_PROFILES_ACTIVE=docker
-SERVER_PORT=8081
+# ========= APPLICATION PORTS =========
+FRONTEND_PORT=3000
+BACKEND_PORT=8081
+DATABASE_PORT=3306
 
-# Frontend Configuration
-VITE_DOCKER=true
-VITE_API_BASE_URL=http://localhost:8081
-VITE_USE_PROXY=false
+# ========= SPRING BOOT CONFIG =========
+SPRING_PROFILES_ACTIVE=dev
+SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+# ========= TIMEZONE =========
+TZ=Asia/Bangkok
 EOF
             print_success "Đã tạo file .env với giá trị mặc định"
         fi
@@ -93,37 +77,27 @@ EOF
 
 # Function to check Docker
 check_docker() {
-    print_status "Kiểm tra Docker trong WSL..."
+    print_status "Kiểm tra Docker..."
     
     if ! command -v docker &> /dev/null; then
-        print_error "Docker không được cài đặt trong WSL"
-        print_error "Vui lòng cài đặt Docker:"
-        echo "  1. curl -fsSL https://get.docker.com -o get-docker.sh"
-        echo "  2. sudo sh get-docker.sh"
-        echo "  3. sudo usermod -aG docker \$USER"
-        echo "  4. Logout và login lại WSL"
+        print_error "Docker không được cài đặt hoặc không có trong PATH"
         exit 1
     fi
     
     if ! docker info &> /dev/null; then
-        print_error "Docker daemon không chạy"
-        print_error "Vui lòng khởi động Docker:"
-        echo "  1. sudo service docker start"
-        echo "  2. sudo chmod 666 /var/run/docker.sock"
+        print_error "Docker daemon không chạy. Vui lòng khởi động Docker"
         exit 1
     fi
     
-    print_success "Docker đã sẵn sàng trong WSL"
+    print_success "Docker đã sẵn sàng"
 }
 
 # Function to check Docker Compose
 check_docker_compose() {
-    print_status "Kiểm tra Docker Compose trong WSL..."
+    print_status "Kiểm tra Docker Compose..."
     
     if ! docker compose version &> /dev/null; then
         print_error "Docker Compose không khả dụng"
-        print_error "Vui lòng cài đặt Docker Compose:"
-        echo "  sudo apt update && sudo apt install docker-compose-plugin"
         exit 1
     fi
     
@@ -145,7 +119,10 @@ check_ports() {
     
     if [ ${#conflicts[@]} -gt 0 ]; then
         print_warning "Các ports sau đang được sử dụng: ${conflicts[*]}"
-        print_status "Windows sẽ forward ports từ WSL tự động"
+        print_status "Bạn có thể thay đổi ports trong file .env"
+        echo "FRONTEND_PORT=3001"
+        echo "BACKEND_PORT=8082"
+        echo "MYSQL_PORT=3307"
         echo
     else
         print_success "Tất cả ports đều khả dụng"
@@ -164,13 +141,42 @@ stop_existing() {
     fi
 }
 
+# Function to retry command with exponential backoff
+retry_command() {
+    local command="$1"
+    local max_attempts="${2:-3}"
+    local base_delay="${3:-2}"
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        print_status "Thử lần $attempt/$max_attempts: $command"
+        
+        if eval "$command"; then
+            return 0
+        fi
+        
+        if [ $attempt -eq $max_attempts ]; then
+            print_error "Lệnh thất bại sau $max_attempts lần thử: $command"
+            return 1
+        fi
+        
+        local delay=$((base_delay * attempt))
+        print_warning "Lệnh thất bại, thử lại sau ${delay}s..."
+        sleep $delay
+        ((attempt++))
+    done
+}
+
 # Function to start services
 start_services() {
-    print_status "Khởi động các services trong WSL..."
+    print_status "Khởi động các services..."
     
-    # Start database first
+    # Start database first with retry
     print_status "Khởi động database..."
-    docker compose up -d db
+    if ! retry_command "docker compose up -d db" 3 3; then
+        print_error "Không thể khởi động database sau nhiều lần thử"
+        exit 1
+    fi
     
     # Wait for database to be ready
     print_status "Chờ database khởi động..."
@@ -178,7 +184,7 @@ start_services() {
     local attempt=1
     
     while [ $attempt -le $max_attempts ]; do
-        if docker compose exec -T db mysqladmin ping -h localhost -u root -prootpass &> /dev/null; then
+        if docker compose exec -T db mysql -u root -prootpass -e "SELECT 1" &> /dev/null; then
             print_success "Database đã sẵn sàng"
             break
         fi
@@ -193,16 +199,21 @@ start_services() {
         ((attempt++))
     done
     
-    # Start backend
+    # Start backend with retry
     print_status "Khởi động backend..."
-    docker compose up -d backend
+    if ! retry_command "docker compose up -d backend" 3 5; then
+        print_error "Không thể khởi động backend sau nhiều lần thử"
+        print_status "Hiển thị logs để debug:"
+        docker compose logs backend
+        exit 1
+    fi
     
     # Wait for backend to be ready
     print_status "Chờ backend khởi động..."
     attempt=1
     
     while [ $attempt -le $max_attempts ]; do
-        if curl -s http://localhost:8081/api/parents/list &> /dev/null; then
+        if curl -s -f http://localhost:8081/api/parents/list &> /dev/null; then
             print_success "Backend đã sẵn sàng"
             break
         fi
@@ -217,11 +228,16 @@ start_services() {
         ((attempt++))
     done
     
-    # Start frontend
+    # Start frontend with retry
     print_status "Khởi động frontend..."
-    docker compose up -d frontend
+    if ! retry_command "docker compose up -d frontend" 3 3; then
+        print_error "Không thể khởi động frontend sau nhiều lần thử"
+        print_status "Hiển thị logs để debug:"
+        docker compose logs frontend
+        exit 1
+    fi
     
-    print_success "Tất cả services đã khởi động thành công trong WSL!"
+    print_success "Tất cả services đã khởi động thành công!"
 }
 
 # Function to show status
@@ -238,16 +254,19 @@ show_status() {
 # Function to show access info
 show_access_info() {
     echo
-    print_success "🎉 TeenUp Contest Management System đã khởi động thành công trong WSL!"
+    print_success "🎉 TeenUp Contest Management System đã khởi động thành công!"
     echo
     echo -e "${GREEN}📱 Frontend:${NC} http://localhost:3000"
     echo -e "${GREEN}🔧 Backend API:${NC} http://localhost:8081/api"
-    echo -e "${GREEN}📚 API Docs:${NC} http://localhost:8081/api-docs"
+    echo -e "${GREEN}📋 API Examples:${NC}"
+    echo "     Parents: http://localhost:8081/api/parents/list"
+    echo "     Students: http://localhost:8081/api/students/list"
+    echo "     Classes: http://localhost:8081/api/classes"
     echo -e "${GREEN}🗄️  Database:${NC} localhost:3306"
     echo
-    echo -e "${BLUE}📋 Các lệnh hữu ích (trong WSL):${NC}"
+    echo -e "${BLUE}📋 Các lệnh hữu ích:${NC}"
     echo "  Xem logs: docker compose logs -f"
-    echo "  Dừng services: ./stop-wsl.sh"
+    echo "  Dừng services: ./stop.sh"
     echo "  Restart: docker compose restart"
     echo "  Xem status: docker compose ps"
     echo
@@ -255,12 +274,7 @@ show_access_info() {
     echo "  Logs backend: docker compose logs backend"
     echo "  Logs frontend: docker compose logs frontend"
     echo "  Logs database: docker compose logs db"
-    echo "  Reset data: docker compose down -v && ./start-wsl.sh"
-    echo
-    echo -e "${BLUE}💡 WSL Notes:${NC}"
-    echo "  Ports được Windows forward tự động từ WSL"
-    echo "  Truy cập từ Windows qua localhost"
-    echo "  Performance tốt hơn Docker Desktop"
+    echo "  Reset data: docker compose down -v && ./start.sh"
     echo
 }
 
@@ -268,13 +282,12 @@ show_access_info() {
 main() {
     echo -e "${BLUE}========================================${NC}"
     echo -e "${BLUE}  🚀 TeenUp Contest Management System${NC}"
-    echo -e "${BLUE}  🪟 Windows WSL Edition${NC}"
+    echo -e "${BLUE}  🐧 Linux/macOS Edition${NC}"
     echo -e "${BLUE}  Docker Startup Script${NC}"
     echo -e "${BLUE}========================================${NC}"
     echo
     
     # Check prerequisites
-    check_wsl
     check_env_file
     check_docker
     check_docker_compose

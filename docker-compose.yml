@@ -57,11 +57,11 @@ services:
     volumes:
       - ./logs/backend:/app/logs
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      test: ["CMD", "curl", "-f", "--connect-timeout", "5", "http://localhost:8081/api/parents/list"]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 60s
+      retries: 3
+      start_period: 90s
     networks:
       - teenup_network
 

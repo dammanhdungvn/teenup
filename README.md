@@ -2,398 +2,423 @@
 
 Hệ thống quản lý cuộc thi với **Spring Boot Backend** + **React Frontend** + **MySQL Database**.
 
-## 📚 **Documentation**
-
-📚 **[📋 Technical Documentation](docs/README.md)** - Tài liệu kỹ thuật chính
-
-- 🌐 **[Frontend Documentation](frontend/docs/INDEX.md)** - React app documentation index
-- 🔧 **[Backend Documentation](backend/contest/docs/INDEX.md)** - Spring Boot API documentation index
-- 🐳 **[Docker Setup](docker-compose.yml)** - Complete system deployment
-- 🚀 **[Docker Installation Guide](DOCKER-SETUP.md)** - Cài đặt Docker cho từng hệ điều hành
-
 ## 🚀 **QUICK START - ONE COMMAND**
 
-### **Yêu cầu:**
-- Docker & Docker Compose
-- Ports: 3000, 8081, 3306 (available)
+### **🌟 Universal Control Script (Recommended)**
 
-> 📖 **Chưa có Docker?** Xem [Docker Installation Guide](DOCKER-SETUP.md)
-
-### **Khởi động toàn bộ hệ thống:**
-
-#### **🐧 Ubuntu/Linux/macOS:**
+**🐧 Linux/macOS/WSL:**
 ```bash
-# Chạy startup script
-chmod +x start.sh
-./start.sh
+# Universal script - tự động nhận diện môi trường
+./teenup.sh start     # Khởi động hệ thống
+./teenup.sh stop      # Dừng hệ thống  
+./teenup.sh health    # Kiểm tra sức khỏe
+./teenup.sh status    # Xem trạng thái
+./teenup.sh info      # Hiển thị thông tin
+
+# Interactive mode
+./teenup.sh
 ```
 
-#### **🪟 Windows:**
+**🪟 Windows:**
 ```cmd
-# Chạy startup script
-start.bat
+# Universal script - tự động nhận diện môi trường
+teenup.bat start      # Khởi động hệ thống
+teenup.bat stop       # Dừng hệ thống
+teenup.bat health     # Kiểm tra sức khỏe
+teenup.bat status     # Xem trạng thái
+teenup.bat info       # Hiển thị thông tin
+
+# Interactive mode  
+teenup.bat
 ```
 
-**Hoặc chạy trực tiếp (cả hai OS):**
-```bash
-docker-compose up -d
-```
+### **📋 Yêu cầu hệ thống:**
+- **Docker & Docker Compose** - [Xem hướng dẫn cài đặt](docs/DOCKER.md)
+- **Ports khả dụng:** 3000, 8081, 3306
+- **File .env** - sẽ được tạo tự động từ `env.example`
 
-### **Truy cập hệ thống:**
-- 🌐 **Frontend:** http://localhost:3000 (Docker) / http://localhost:5173 (Local Dev)
-- 🔧 **Backend API:** http://localhost:8081
+### **🎯 Truy cập hệ thống:**
+- 🌐 **Frontend:** http://localhost:3000
+- 🔧 **Backend API:** http://localhost:8081/api (base path)
+- 📋 **API Examples:** 
+  - Parents: http://localhost:8081/api/parents/list
+  - Students: http://localhost:8081/api/students/list  
+  - Classes: http://localhost:8081/api/classes
 - 🗄️ **Database:** localhost:3306
 
 ---
 
-## 📊 **Data Seeding Tự Động**
+## 📚 **Documentation**
 
-Khi khởi động, hệ thống sẽ tự động tạo:
+### **📖 Tài liệu chính:**
+- 📋 **[Tổng quan kiến trúc](docs/ARCHITECTURE.md)** - System architecture overview
+- 🐳 **[Docker setup](docs/DOCKER.md)** - Hướng dẫn cài đặt Docker
+- 📝 **[Project specification](docs/project-spec.md)** - Chi tiết yêu cầu dự án
 
-### **👨‍👩‍👧‍👦 Parents (2):**
-- Nguyen Van A (0901111111, a@example.com)
-- Tran Thi B (0902222222, b@example.com)
+### **🔧 Backend documentation:**
+- 🏗️ **[Backend Architecture](docs/backend/ARCHITECTURE.md)** - Backend architecture details
+- 📡 **[API Endpoints](docs/backend/api-endpoints.md)** - REST API documentation
+- 🎯 **[Business Logic](docs/backend/BUSINESS-LOGIC.md)** - Business rules & validation
+- 🚀 **[Development Guide](docs/backend/DEVELOPMENT.md)** - Backend development setup
 
-### **👨‍🎓 Students (3):**
-- **Minh** - Grade 7, Parent: Nguyen Van A
-- **Lan** - Grade 8, Parent: Nguyen Van A  
-- **Hoang** - Grade 6, Parent: Tran Thi B
-
-### **📚 Classes (3):**
-- **Toán Nâng Cao** - Thứ 3, 14:00-15:30
-- **Tiếng Anh A2** - Thứ 5, 08:00-09:30
-- **Khoa học Vui** - Thứ 7, 09:00-10:30
-
-### **🎁 Subscriptions:**
-- Basic-12 (Minh): 12 buổi, 0 đã dùng
-- Basic-08 (Lan): 8 buổi, 1 đã dùng
+### **🌐 Frontend documentation:**
+- 🏗️ **[Frontend Structure](docs/frontend/STRUCTURE.md)** - Component architecture
+- 🔌 **[API Integration](docs/frontend/API-INTEGRATION.md)** - API client implementation
+- 🚀 **[Development Setup](docs/frontend/DEVELOPMENT.md)** - Frontend development guide
+- 📦 **[Setup Guide](docs/frontend/SETUP.md)** - Environment setup
 
 ---
 
-## 🛠️ **Quản Lý Hệ Thống**
-
-### **Khởi động:**
-
-#### **🐧 Ubuntu/Linux/macOS:**
-```bash
-./start.sh                    # Startup script với health checks
-docker-compose up -d         # Docker Compose trực tiếp
-```
-
-#### **🪟 Windows:**
-```cmd
-start.bat                     # Startup script với health checks
-docker-compose up -d         # Docker Compose trực tiếp
-```
-
-### **Dừng:**
-
-#### **🐧 Ubuntu/Linux/macOS:**
-```bash
-./stop.sh                     # Stop script
-docker-compose down          # Docker Compose trực tiếp
-```
-
-#### **🪟 Windows:**
-```cmd
-stop.bat                      # Stop script
-docker-compose down          # Docker Compose trực tiếp
-```
-
-### **Xem logs:**
-```bash
-docker-compose logs -f       # Tất cả services
-docker-compose logs -f backend    # Chỉ backend
-docker-compose logs -f frontend   # Chỉ frontend
-docker-compose logs -f db         # Chỉ database
-```
-
-### **Restart service:**
-```bash
-docker-compose restart backend    # Restart backend
-docker-compose restart frontend   # Restart frontend
-docker-compose restart db         # Restart database
-```
-
-### **Xóa dữ liệu:**
-```bash
-docker-compose down -v       # Xóa volumes (database data)
-```
-
----
-
-## 🏗️ **Kiến Trúc Hệ Thống**
+## 🏗️ **System Architecture**
 
 ```mermaid
 graph TB
-    subgraph "Frontend Layer"
-        FE[Frontend<br/>React App<br/>Port: 3000/5173]
+    subgraph "User Interface"
+        UI[React Frontend<br/>Port: 3000<br/>Nginx + Static Files]
     end
     
-    subgraph "Backend Layer"
-        BE[Backend<br/>Spring Boot<br/>Port: 8081]
+    subgraph "Application Layer"
+        API[Spring Boot API<br/>Port: 8081<br/>REST Endpoints]
     end
     
-    subgraph "Database Layer"
-        DB[(MySQL Database<br/>Port: 3306)]
+    subgraph "Data Layer"
+        DB[(MySQL Database<br/>Port: 3306<br/>Persistent Storage)]
     end
     
-    subgraph "Docker Network"
-        DN[teenup_network]
+    subgraph "Container Orchestration"
+        DOCKER[Docker Compose<br/>Network: teenup_network<br/>Health Checks + Auto-restart]
     end
     
-    FE <-->|HTTP API| BE
-    BE <-->|JDBC| DB
-    FE -.->|Docker Network| DN
-    BE -.->|Docker Network| DN
-    DB -.->|Docker Network| DN
+    UI <-->|HTTP/JSON| API
+    API <-->|JDBC/JPA| DB
+    UI -.->|Containerized| DOCKER
+    API -.->|Containerized| DOCKER
+    DB -.->|Containerized| DOCKER
     
-    style FE fill:#61dafb,stroke:#333,stroke-width:2px
-    style BE fill:#6db33f,stroke:#333,stroke-width:2px
+    style UI fill:#61dafb,stroke:#333,stroke-width:2px
+    style API fill:#6db33f,stroke:#333,stroke-width:2px
     style DB fill:#00758f,stroke:#333,stroke-width:2px,color:#fff
-    style DN fill:#f0f0f0,stroke:#333,stroke-width:1px
+    style DOCKER fill:#2496ed,stroke:#333,stroke-width:2px,color:#fff
+```
+
+---
+
+## 📊 **Auto Data Seeding**
+
+Khi khởi động lần đầu, hệ thống tự động tạo dữ liệu mẫu:
+
+### **👨‍👩‍👧‍👦 Parents (2):**
+- **Nguyen Van A** - 📞 0901111111, 📧 a@example.com
+- **Tran Thi B** - 📞 0902222222, 📧 b@example.com
+
+### **👨‍🎓 Students (3):**
+- **Minh** (Grade 7) - Parent: Nguyen Van A
+- **Lan** (Grade 8) - Parent: Nguyen Van A  
+- **Hoang** (Grade 6) - Parent: Tran Thi B
+
+### **📚 Classes (3):**
+- **Toán Nâng Cao** - Thứ 3, 14:00-15:30, Giáo viên: Cô Hoa
+- **Tiếng Anh A2** - Thứ 5, 08:00-09:30, Giáo viên: Thầy Nam
+- **Khoa học Vui** - Thứ 7, 09:00-10:30, Giáo viên: Cô Linh
+
+### **🎁 Subscriptions:**
+- **Basic-12** (Minh): 12 buổi học, 0 đã sử dụng
+- **Basic-08** (Lan): 8 buổi học, 1 đã sử dụng
+
+---
+
+## 🛠️ **Advanced Usage**
+
+### **📁 Script Organization:**
+```
+scripts/
+├── docker-healthcheck.sh/bat     # Docker & port health check
+├── start-native.sh/bat           # Native OS startup
+├── start-linux-wsl.sh            # WSL startup (from Linux)
+├── start-windows-wsl.bat         # WSL startup (from Windows)
+├── stop-native.sh/bat            # Native OS shutdown
+├── stop-linux-wsl.sh             # WSL shutdown (from Linux)
+└── stop-windows-wsl.bat          # WSL shutdown (from Windows)
+```
+
+### **🔧 Manual Script Execution:**
+
+**Linux/macOS Native:**
+```bash
+./scripts/start-native.sh         # Start system
+./scripts/stop-native.sh          # Stop system
+./scripts/docker-healthcheck.sh   # Health check
+```
+
+**Windows Native:**
+```cmd
+scripts\start-native.bat          # Start system
+scripts\stop-native.bat           # Stop system  
+scripts\docker-healthcheck.bat    # Health check
+```
+
+**WSL (from Linux):**
+```bash
+./scripts/start-linux-wsl.sh      # Start in WSL
+./scripts/stop-linux-wsl.sh       # Stop in WSL
+```
+
+**WSL (from Windows):**
+```cmd
+scripts\start-windows-wsl.bat     # Start via WSL
+scripts\stop-windows-wsl.bat      # Stop via WSL
+```
+
+### **📊 System Management:**
+
+**View logs:**
+```bash
+docker compose logs -f            # All services
+docker compose logs -f backend    # Backend only
+docker compose logs -f frontend   # Frontend only
+docker compose logs -f db         # Database only
+```
+
+**Service control:**
+```bash
+docker compose restart backend    # Restart backend
+docker compose restart frontend   # Restart frontend
+docker compose restart db         # Restart database
+```
+
+**Data management:**
+```bash
+docker compose down -v            # Remove with data
+docker compose down               # Keep data
 ```
 
 ---
 
 ## 🗄️ **Database Schema**
 
-### **Core Entities:**
-- **Students** - Thông tin học sinh (name, dob, gender, grade, parent)
-- **Parents** - Thông tin phụ huynh (name, phone, email)
-- **Classes** - Lớp học (name, subject, schedule, teacher)
-- **Subscriptions** - Gói học (package, sessions, student)
-- **ClassRegistrations** - Đăng ký lớp học
-
-### **Relationships:**
-- Student ↔ Parent (Many-to-One)
-- Student ↔ Classes (Many-to-Many via ClassRegistration)
-- Student ↔ Subscriptions (One-to-Many)
-
-### **Key Fields:**
-- **Students:** `currentGrade` (Grade 6, Grade 7, Grade 8)
-- **Classes:** `dayOfWeek` (1-7), `timeSlot` (HH:mm-HH:mm)
-- **Subscriptions:** `totalSessions`, `usedSessions`
-
-> 📖 **Xem chi tiết:** [Backend Documentation](backend/contest/docs/INDEX.md)
-
----
-
-## 🔌 **API Endpoints**
-
-### **Core APIs:**
-- **Students:** `GET/POST/PUT/DELETE /api/students/*`
-- **Parents:** `GET/POST/PUT/DELETE /api/parents/*`
-- **Classes:** `GET/POST/PUT/DELETE /api/classes/*`
-- **Subscriptions:** `GET/POST/PUT/DELETE /api/subscriptions/*`
-- **Dashboard:** `GET /api/dashboard/*`
-
-### **Example Queries:**
-```bash
-# Get all students
-curl http://localhost:8081/api/students/list
-
-# Get student by ID
-curl http://localhost:8081/api/students/1
-
-# Create new student
-curl -X POST http://localhost:8081/api/students \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Minh","currentGrade":"Grade 7"}'
-
-# Get class schedule
-curl http://localhost:8081/api/classes
+### **🔗 Core Entities & Relationships:**
+```
+Parents (1) ←→ (N) Students
+Students (N) ←→ (M) Classes (via ClassRegistrations)
+Students (1) ←→ (N) Subscriptions
 ```
 
-> 📖 **Xem chi tiết:** [Backend API Endpoints](backend/contest/docs/api-endpoints.md)
+### **📋 Key Fields:**
+- **Students:** `currentGrade` (Grade 6-12), `gender` (MALE/FEMALE)
+- **Classes:** `dayOfWeek` (1-7), `timeSlot` (HH:mm-HH:mm), `maxStudents`
+- **Subscriptions:** `totalSessions`, `usedSessions`, `packageName`
+- **ClassRegistrations:** Unique constraint (class_id, student_id)
+
+### **🛡️ Business Rules:**
+- Students must belong to a Parent
+- Class capacity cannot exceed maxStudents
+- Subscription sessions cannot exceed totalSessions
+- No schedule conflicts for same student
+- Age validation based on grade levels
 
 ---
 
-## 🔧 **Cấu Hình Môi Trường**
+## 🔌 **API Reference**
 
-### **File .env:**
+### **📡 Core Endpoints:**
+```
+📋 Students:       GET/POST/PATCH/DELETE /api/students/{id}
+👨‍👩‍👧‍👦 Parents:        GET/POST/PATCH/DELETE /api/parents/{id}
+📚 Classes:        GET/POST/PATCH/DELETE /api/classes/{id}
+🎁 Subscriptions:  GET/POST/PATCH/DELETE /api/subscriptions/{id}
+📊 Dashboard:      GET /api/dashboard/overview
+📝 Registrations:  POST/DELETE /api/registrations
+```
+
+### **🔍 Query Examples:**
 ```bash
-# Copy từ env.example
-cp env.example .env
+# Get all students with parent info
+curl "http://localhost:8081/api/students/list"
 
-# Chỉnh sửa nếu cần
+# Get class schedule for specific day
+curl "http://localhost:8081/api/classes?dayOfWeek=3"
+
+# Create new parent
+curl -X POST "http://localhost:8081/api/parents" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"New Parent","phone":"0903333333","email":"new@example.com"}'
+
+# Register student to class
+curl -X POST "http://localhost:8081/api/registrations" \
+  -H "Content-Type: application/json" \
+  -d '{"classId":1,"studentId":1}'
+```
+
+---
+
+## 🔧 **Environment Configuration**
+
+### **📝 Environment Variables (.env):**
+```bash
+# Database Configuration
 MYSQL_ROOT_PASSWORD=rootpass
 MYSQL_DATABASE=teenup
 MYSQL_USER=teenup
 MYSQL_PASSWORD=teenup123
+
+# Application Ports
+FRONTEND_PORT=3000
+BACKEND_PORT=8081
+DATABASE_PORT=3306
+
+# Spring Boot Config
+SPRING_PROFILES_ACTIVE=dev
+SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+# Timezone
+TZ=Asia/Bangkok
 ```
 
-### **Ports:**
-
-#### **🐳 Docker Environment:**
-- **Frontend:** 3000 (Nginx serve static files)
-- **Backend:** 8081 (Spring Boot)
-- **Database:** 3306 (MySQL)
-
-#### **💻 Local Development:**
-- **Frontend:** 5173 (Vite dev server)
-- **Backend:** 8081 (Spring Boot)
-- **Database:** 3306 (MySQL hoặc Docker)
+### **🌍 Environment Profiles:**
+- **`dev`**: Local development with SQL logging
+- **`docker`**: Containerized environment
+- **`prod`**: Production optimized settings
 
 ---
 
-## 📁 **Cấu Trúc Project**
+## 🏗️ **Development Setup**
 
-```
-Contest/
-├── docker-compose.yml          # Docker orchestration
-├── start.sh                    # Startup script (Linux/macOS)
-├── start.bat                   # Startup script (Windows)
-├── stop.sh                     # Stop script (Linux/macOS)
-├── stop.bat                    # Stop script (Windows)
-├── env.example                 # Environment template
-├── backend/contest/            # Spring Boot backend
-│   ├── Dockerfile             # Backend container
-│   └── .dockerignore          # Backend ignore
-├── frontend/                   # React frontend
-│   ├── Dockerfile             # Frontend container
-│   ├── nginx.conf             # Nginx configuration
-│   └── .dockerignore          # Frontend ignore
-└── logs/                       # Application logs
-    ├── backend/               # Backend logs
-    └── frontend/              # Frontend logs
-```
+### **💻 Local Development:**
 
----
-
-## 🚀 **Development & Deployment**
-
-### **Local Development:**
-
-#### **🐧 Ubuntu/Linux/macOS:**
+**Frontend (React + Vite):**
 ```bash
-# Frontend (React)
 cd frontend
 npm install
-npm run dev          # http://localhost:5173
+npm run dev              # http://localhost:5173
+```
 
-# Backend (Spring Boot)
+**Backend (Spring Boot + Maven):**
+```bash
 cd backend/contest
-./mvnw spring-boot:run  # http://localhost:8081
-
-# Database (MySQL)
-# Sử dụng Docker hoặc local MySQL
+./mvnw spring-boot:run   # http://localhost:8081
 ```
 
-#### **🪟 Windows:**
-```cmd
-# Frontend (React)
-cd frontend
-npm install
-npm run dev          # http://localhost:5173
-
-# Backend (Spring Boot)
-cd backend\contest
-mvnw.cmd spring-boot:run  # http://localhost:8081
-
-# Database (MySQL)
-# Sử dụng Docker hoặc local MySQL
-```
-
-> 📖 **Xem chi tiết:** [Frontend Setup Guide](frontend/docs/SETUP.md)
-
-### **Docker Development:**
+**Database (MySQL via Docker):**
 ```bash
-# Chạy toàn bộ hệ thống
-./start.sh                    # Linux/macOS
-start.bat                     # Windows
-
-# Hoặc từng service
-docker-compose up -d db
-docker-compose up -d backend
-docker-compose up -d frontend
+docker compose up -d db  # http://localhost:3306
 ```
 
-> 📖 **Xem chi tiết:** [Frontend Docker Guide](frontend/docs/DOCKER.md)
-
-### **Production Deployment:**
+### **🐳 Full Docker Development:**
 ```bash
-# Build và deploy
-docker-compose build --no-cache
-docker-compose up -d
+# Complete system
+./teenup.sh start
 
-# Environment variables
-cp env.example .env
-# Chỉnh sửa .env cho production
+# Individual services
+docker compose up -d db
+docker compose up -d backend  
+docker compose up -d frontend
 ```
 
 ---
 
 ## 🐛 **Troubleshooting**
 
-### **Port đã được sử dụng:**
+### **🔧 Common Issues:**
 
-#### **🐧 Ubuntu/Linux/macOS:**
+**Port conflicts:**
 ```bash
-# Kiểm tra port nào đang sử dụng
-lsof -i :3000    # Docker frontend
-lsof -i :5173    # Local frontend (Vite)
-lsof -i :8081    # Backend API
-lsof -i :3306    # Database
+# Linux/macOS
+sudo lsof -i :3000    # Check port usage
+sudo kill -9 <PID>    # Kill process
 
-# Kill process nếu cần
-kill -9 <PID>
+# Windows  
+netstat -an | findstr ":3000"    # Check port usage
+taskkill /PID <PID> /F           # Kill process
 ```
 
-#### **🪟 Windows:**
-```cmd
-# Kiểm tra port nào đang sử dụng
-netstat -an | findstr ":3000"    # Docker frontend
-netstat -an | findstr ":5173"    # Local frontend (Vite)
-netstat -an | findstr ":8081"    # Backend API
-netstat -an | findstr ":3306"    # Database
+**Database connection:**
+```bash
+# Check database health
+docker compose exec db mysqladmin ping -h localhost -u root -prootpass
 
-# Kill process nếu cần
-taskkill /PID <PID> /F
+# Reset database
+docker compose down -v && ./teenup.sh start
 ```
 
-### **Database connection error:**
+**Service startup failures:**
 ```bash
-# Kiểm tra database container
-docker-compose logs db
+# Check logs
+docker compose logs backend
+docker compose logs frontend
+docker compose logs db
 
-# Restart database
-docker-compose restart db
+# Restart specific service
+docker compose restart backend
 ```
 
-### **Backend không start:**
+### **🚨 Emergency Recovery:**
 ```bash
-# Kiểm tra backend logs
-docker-compose logs backend
-
-# Kiểm tra database health
-docker-compose exec db mysqladmin ping -h localhost -u root -prootpass
-```
-
-### **Frontend không load:**
-```bash
-# Kiểm tra frontend logs
-docker-compose logs frontend
-
-# Kiểm tra backend API
-curl http://localhost:8081/actuator/health
+# Complete system reset
+docker compose down -v
+docker system prune -a
+./teenup.sh start
 ```
 
 ---
 
-## 📞 **Hỗ Trợ**
+## 📁 **Project Structure**
 
-Nếu gặp vấn đề:
-1. **Kiểm tra logs:** `docker-compose logs -f`
-2. **Restart services:** `docker-compose restart`
-3. **Rebuild images:** `docker-compose build --no-cache`
-4. **Xóa và tạo lại:** `docker-compose down -v && ./start.sh`
-
-### **Documentation chi tiết:**
-- 🌐 **[Frontend Docs](frontend/docs/)** - Setup, development, API integration
-- 🔧 **[Backend Docs](backend/contest/docs/)** - API, database, Spring Boot
-- 🐳 **[Docker Setup](DOCKER-SETUP.md)** - Cài đặt Docker cho từng OS
+```
+teenup/
+├── 🚀 teenup.sh/bat               # Universal control script
+├── 📋 README.md                   # This file
+├── 🔧 env.example                 # Environment template
+├── 🐳 docker-compose.yml          # Container orchestration
+├── 📁 scripts/                    # All control scripts
+│   ├── docker-healthcheck.*
+│   ├── start-native.*
+│   ├── start-*-wsl.*
+│   └── stop-*.*
+├── 📁 docs/                       # Documentation hub
+│   ├── 🏗️ ARCHITECTURE.md
+│   ├── 🐳 DOCKER.md
+│   ├── 📋 backend/                # Backend docs
+│   └── 🌐 frontend/               # Frontend docs
+├── 📁 backend/contest/            # Spring Boot application
+│   ├── 🐳 Dockerfile
+│   ├── 📋 pom.xml
+│   └── 📁 src/main/java/
+├── 📁 frontend/                   # React application
+│   ├── 🐳 Dockerfile
+│   ├── ⚙️ nginx.conf
+│   ├── 📋 package.json
+│   └── 📁 src/
+└── 📁 logs/                       # Application logs
+    ├── 📁 backend/
+    └── 📁 frontend/
+```
 
 ---
 
-**🎉 Chúc bạn sử dụng hệ thống thành công!**
+## 🎯 **Next Steps**
+
+1. **🚀 Start the system:** `./teenup.sh start` or `teenup.bat start`
+2. **🌐 Access frontend:** http://localhost:3000
+3. **🔧 Explore APIs:** http://localhost:8081/api
+4. **📚 Read docs:** Browse `docs/` folder for detailed information
+5. **🛠️ Customize:** Modify `.env` file for your requirements
+
+---
+
+## 📞 **Support**
+
+**Quick Help:**
+```bash
+./teenup.sh info      # System information
+./teenup.sh health    # Health check
+./teenup.sh status    # Service status
+```
+
+**Documentation:**
+- 📖 **[Complete Documentation Index](docs/INDEX.md)**
+- 🔧 **[Backend Guide](docs/backend/INDEX.md)**
+- 🌐 **[Frontend Guide](docs/frontend/INDEX.md)**
+
+---
+
+**🎉 Happy coding with TeenUp Contest Management System!**

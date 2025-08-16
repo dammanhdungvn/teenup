@@ -49,17 +49,21 @@ Complete documentation for the Contest Management System including Frontend, Bac
 ## 🚀 Quick Navigation
 
 ### **For Developers**
-1. **Start Here**: `docs/DOCKER.md` - Quick setup guide
-2. **API Reference**: `backend/contest/docs/api-endpoints.md`
-3. **Frontend Guide**: `frontend/docs/README.md`
+1. **Start Here**: `../README.md` - Main project guide with universal script
+2. **Quick Setup**: `../teenup.sh start` or `../teenup.bat start`
+3. **API Reference**: `backend/api-endpoints.md` - Complete API documentation
+4. **Frontend Guide**: `frontend/INDEX.md` - React development guide
 
 ### **For DevOps**
-1. **Deployment**: `docs/DOCKER.md` - Production setup
-2. **Monitoring**: `docs/DOCKER.md` - Health checks & troubleshooting
+1. **Universal Control**: `../teenup.sh` or `../teenup.bat` - One-command system management
+2. **Docker Setup**: `DOCKER.md` - Complete deployment guide
+3. **Health Monitoring**: `../teenup.sh health` - System health checks
+4. **Scripts**: `../scripts/` - All control scripts for different environments
 
 ### **For Business Users**
-1. **Features**: `frontend/docs/README.md` - System capabilities
-2. **API Examples**: `backend/contest/docs/api-endpoints.md` - Integration guide
+1. **Getting Started**: `../README.md` - Complete system overview
+2. **Features**: `frontend/INDEX.md` - System capabilities overview
+3. **API Integration**: `backend/api-endpoints.md` - Integration examples
 
 ## 🔄 Recent Updates
 
@@ -216,6 +220,53 @@ docker-compose logs -f
 - Resource limits
 - Health monitoring
 - Regular updates
+
+## 📁 Updated Project Structure
+
+After recent reorganization, the project now features a cleaner structure:
+
+```
+teenup/
+├── 🚀 teenup.sh/bat                # Universal control script (NEW!)
+├── 📋 README.md                    # Complete project guide
+├── 🐳 docker-compose.yml           # Container orchestration
+├── 🔧 env.example                  # Environment template
+├── 📁 scripts/                     # Organized control scripts (NEW!)
+│   ├── docker-healthcheck.*        # Health check utilities
+│   ├── start-native.*              # Native OS scripts
+│   ├── start-*-wsl.*               # WSL environment scripts
+│   └── stop-*.*                    # Shutdown scripts
+├── 📁 docs/                        # Centralized documentation (UPDATED!)
+│   ├── INDEX.md                    # This navigation file
+│   ├── ARCHITECTURE.md             # System architecture
+│   ├── DOCKER.md                   # Docker setup guide
+│   ├── project-spec.md             # Project specifications
+│   ├── backend/                    # Backend documentation
+│   └── frontend/                   # Frontend documentation
+├── 📁 backend/contest/             # Spring Boot application
+├── 📁 frontend/                    # React application
+└── 📁 logs/                        # Runtime logs
+```
+
+## 🚀 New Universal Control Commands
+
+The new universal control script automatically detects your environment:
+
+```bash
+# Linux/macOS/WSL
+./teenup.sh start      # Start system
+./teenup.sh stop       # Stop system  
+./teenup.sh health     # Health check
+./teenup.sh status     # Show status
+./teenup.sh info       # System information
+
+# Windows
+teenup.bat start       # Start system
+teenup.bat stop        # Stop system
+teenup.bat health      # Health check
+teenup.bat status      # Show status
+teenup.bat info        # System information
+```
 
 ## 📝 Contributing
 

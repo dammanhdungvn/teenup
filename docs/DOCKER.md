@@ -3,6 +3,7 @@
 ## 📋 Table of Contents
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
+- [Environment Setup](#environment-setup)
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
 - [Configuration](#configuration)
@@ -12,6 +13,7 @@
 - [Troubleshooting](#troubleshooting)
 - [Platform Specific](#platform-specific)
 - [CORS Configuration](#cors-configuration)
+- [New Features](#new-features)
 
 ---
 
@@ -51,12 +53,85 @@ docker info
 
 ---
 
+## 🌍 Environment Setup
+
+### **1. Tạo file .env từ template**
+
+**Bước 1: Copy .env.example**
+```bash
+# Linux/Mac
+cp .env.example .env
+
+# Windows
+copy .env.example .env
+```
+
+**Bước 2: Tạo file .env thủ công nếu không có .env.example**
+
+Tạo file `.env` trong thư mục gốc với nội dung:
+
+```bash
+# ========================================
+# TeenUp Contest Management System
+# Environment Variables
+# ========================================
+
+# Database Configuration
+MYSQL_ROOT_PASSWORD=rootpass
+MYSQL_DATABASE=teenup_contest
+MYSQL_USER=contest_user
+MYSQL_PASSWORD=contest_pass
+
+# Backend Configuration
+SPRING_PROFILES_ACTIVE=docker
+SERVER_PORT=8081
+
+# Frontend Configuration
+VITE_DOCKER=true
+VITE_API_BASE_URL=http://localhost:8081
+VITE_USE_PROXY=false
+
+# Optional: Custom Ports (if default ports are busy)
+# FRONTEND_PORT=3000
+# BACKEND_PORT=8081
+# MYSQL_PORT=3306
+```
+
+### **2. Kiểm tra file .env**
+```bash
+# Linux/Mac
+ls -la .env
+cat .env
+
+# Windows
+dir .env
+type .env
+```
+
+### **3. Customize values (nếu cần)**
+```bash
+# Thay đổi passwords
+MYSQL_ROOT_PASSWORD=your_secure_password
+MYSQL_PASSWORD=your_secure_password
+
+# Thay đổi ports nếu bị conflict
+FRONTEND_PORT=3001
+BACKEND_PORT=8082
+MYSQL_PORT=3307
+```
+
+---
+
 ## 🚀 Quick Start
 
 ### **1. Clone & Setup**
 ```bash
 git clone <repository-url>
 cd Contest
+
+# Tạo file .env (QUAN TRỌNG!)
+cp .env.example .env
+# hoặc tạo thủ công theo hướng dẫn ở trên
 
 # Kiểm tra Docker status
 ./check-docker.sh  # Linux/Mac
@@ -90,11 +165,38 @@ start-wsl2.bat
 
 ---
 
+## 🆕 New Features
+
+### **🚀 Auto .env Creation**
+- **Zero Configuration**: Scripts tự động tạo file `.env` nếu không tồn tại
+- **Smart Detection**: Tự động phát hiện và tạo file cần thiết
+- **Cross-Platform**: Hoạt động trên mọi operating system
+
+### **🌐 Enhanced CORS Support**
+- **Backend CORS**: Spring Boot configuration với `CorsConfig.java`
+- **Frontend Proxy**: Nginx với API proxy và comprehensive CORS headers
+- **Double Protection**: Cả backend và frontend đều có CORS configuration
+
+### **🖥️ Windows WSL2 Support**
+- **Native Windows**: `start.bat`, `stop.bat`, `check-docker.bat`
+- **WSL2 Environment**: `start-wsl2.bat`, `stop-wsl2.bat`
+- **Platform Detection**: Tự động chọn script phù hợp với environment
+
+### **🔧 Enhanced Health Checks**
+- **Database Health**: MySQL connection testing
+- **Backend Health**: API endpoint availability
+- **Frontend Health**: Nginx service status
+- **Smart Waiting**: Intelligent service startup sequencing
+
+---
+
 ## 🏗️ Project Structure
 
 ```
 Contest/
 ├── docker-compose.yml          # Main orchestration
+├── .env.example               # Environment template (nếu có)
+├── .env                       # Environment variables (TỰ TẠO)
 ├── start.sh                    # Linux/Mac startup script
 ├── start.bat                   # Windows Native startup script
 ├── start-wsl2.bat             # Windows + WSL2 startup script
@@ -103,7 +205,6 @@ Contest/
 ├── stop-wsl2.bat              # Windows + WSL2 stop script
 ├── check-docker.sh             # Linux/Mac pre-flight checks
 ├── check-docker.bat            # Windows pre-flight checks
-├── .env                        # Environment variables
 ├── frontend/
 │   ├── Dockerfile             # Frontend container
 │   ├── nginx.conf             # Nginx configuration với API proxy
@@ -143,7 +244,7 @@ services:
   db:
     image: mysql:8.0
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
@@ -158,7 +259,7 @@ services:
   backend:
     build: ./backend/contest
     ports:
-      - "8081:8081"
+      - "${BACKEND_PORT:-8081}:8081"
     depends_on:
       db:
         condition: service_healthy
@@ -171,7 +272,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:80"
+      - "${FRONTEND_PORT:-3000}:80"
     depends_on:
       backend:
         condition: service_healthy
@@ -426,6 +527,49 @@ curl -H "Origin: http://localhost:3000" http://localhost:3000/api/parents/list -
 docker compose build frontend --no-cache
 ```
 
+#### **6. Missing .env File (QUAN TRỌNG!)**
+```bash
+# Lỗi: "File .env không tồn tại!"
+
+# ✅ GIẢI PHÁP 1: Script tự động tạo .env
+# Các startup scripts sẽ tự động tạo file .env nếu không tồn tại
+# Không cần làm gì thêm!
+
+# Giải pháp 2: Tạo thủ công
+# Tạo file .env trong thư mục gốc với nội dung:
+
+# Database Configuration
+MYSQL_ROOT_PASSWORD=rootpass
+MYSQL_DATABASE=teenup_contest
+MYSQL_USER=contest_user
+MYSQL_PASSWORD=contest_pass
+
+# Backend Configuration
+SPRING_PROFILES_ACTIVE=docker
+SERVER_PORT=8081
+
+# Frontend Configuration
+VITE_DOCKER=true
+VITE_API_BASE_URL=http://localhost:8081
+VITE_USE_PROXY=false
+
+# Giải pháp 3: Copy từ template (nếu có)
+cp .env.example .env
+
+# Giải pháp 4: Sử dụng lệnh tạo nhanh
+cat > .env << 'EOF'
+MYSQL_ROOT_PASSWORD=rootpass
+MYSQL_DATABASE=teenup_contest
+MYSQL_USER=contest_user
+MYSQL_PASSWORD=contest_pass
+SPRING_PROFILES_ACTIVE=docker
+SERVER_PORT=8081
+VITE_DOCKER=true
+VITE_API_BASE_URL=http://localhost:8081
+VITE_USE_PROXY=false
+EOF
+```
+
 ### **Debug Commands**
 ```bash
 # Inspect container
@@ -590,4 +734,4 @@ Nếu gặp vấn đề:
 
 *Last updated: August 16, 2025*
 *Version: 3.0*
-*Features: CORS Support, Windows WSL2, Enhanced Troubleshooting*
+*Features: Auto .env Creation, Enhanced CORS, Windows WSL2, Cross-platform Support*

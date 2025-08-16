@@ -83,7 +83,42 @@ echo ✅ Ports đã sẵn sàng
 echo 🔍 Kiểm tra file .env...
 if not exist ".env" (
     echo ❌ File .env không tồn tại!
-    echo    Vui lòng tạo file .env với cấu hình phù hợp.
+    echo.
+    echo 📝 Tạo file .env từ template...
+    
+    if exist ".env.example" (
+        copy ".env.example" ".env" >nul
+        echo ✅ Đã tạo .env từ .env.example
+    ) else (
+        echo 📝 Tạo file .env thủ công...
+        (
+            echo # ========================================
+            echo # TeenUp Contest Management System
+            echo # Environment Variables
+            echo # ========================================
+            echo.
+            echo # Database Configuration
+            echo MYSQL_ROOT_PASSWORD=rootpass
+            echo MYSQL_DATABASE=teenup_contest
+            echo MYSQL_USER=contest_user
+            echo MYSQL_PASSWORD=contest_pass
+            echo.
+            echo # Backend Configuration
+            echo SPRING_PROFILES_ACTIVE=docker
+            echo SERVER_PORT=8081
+            echo.
+            echo # Frontend Configuration
+            echo VITE_DOCKER=true
+            echo VITE_API_BASE_URL=http://localhost:8081
+            echo VITE_USE_PROXY=false
+        ) > .env
+        echo ✅ Đã tạo file .env với giá trị mặc định
+    )
+    
+    echo.
+    echo ⚠️  Vui lòng kiểm tra và chỉnh sửa file .env nếu cần thiết
+    echo    Sau đó chạy lại script này
+    echo.
     pause
     exit /b 1
 )

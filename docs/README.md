@@ -1,112 +1,259 @@
-# 📚 TeenUp Contest - Technical Documentation
+# 📚 TeenUp Contest Management System - Documentation Index
 
-## **🎯 Tổng quan**
+## 🎯 Overview
 
-Thư mục này chứa **tài liệu kỹ thuật chính** cho hệ thống TeenUp Contest Management, được tổ chức theo chuẩn chuyên nghiệp với cấu trúc rõ ràng và không trùng lặp.
-
-## **📁 Cấu trúc tài liệu**
-
-### **🎯 [Project Specification](project-spec.md)**
-**Mô tả:** Đặc tả kỹ thuật chi tiết cho toàn bộ hệ thống
-**Nội dung:**
-- Domain model và business rules
-- API specifications và error codes  
-- Functional requirements cho tất cả modules
-- Technical design và implementation details
-- Data contracts (JSON schemas)
-- Testing strategy và acceptance criteria
-
-**Phù hợp cho:** Project Managers, Architects, Development Team, QA Engineers
+TeenUp Contest Management System là một hệ thống quản lý cuộc thi hoàn chỉnh với:
+- **Frontend**: React + Vite + Ant Design + Nginx
+- **Backend**: Spring Boot + JPA + MySQL
+- **Deployment**: Docker + Docker Compose
+- **Features**: CRUD operations, Admin functions, Responsive UI/UX
 
 ---
 
-### **🏗️ [System Architecture](ARCHITECTURE.md)**
-**Mô tả:** Tổng quan kiến trúc hệ thống
-**Nội dung:**
-- System architecture overview
-- Technology stack cho từng layer
-- Database design và relationships
-- Deployment architecture
-- Performance considerations
-- Monitoring và logging
+## 🚀 Quick Start
 
-**Phù hợp cho:** Architects, DevOps Engineers, Development Team
+### **Prerequisites**
+- Docker Engine 20.10+
+- Docker Compose v2.0+
+- 4GB RAM minimum
 
----
+### **One-Command Setup**
+```bash
+# Linux/macOS
+./start.sh
 
-### **🌐 Frontend Documentation**
-**Vị trí:** `frontend/docs/`
-**Entry Point:** [Frontend Index](frontend/docs/INDEX.md)
+# Windows Native
+start.bat
 
-**Tài liệu chính:**
-- [Setup & Installation](frontend/docs/SETUP.md) - Cài đặt và chạy
-- [Project Structure](frontend/docs/STRUCTURE.md) - Cấu trúc code
-- [API Integration](frontend/docs/API-INTEGRATION.md) - Kết nối backend
-- [Development Guide](frontend/docs/DEVELOPMENT.md) - Hướng dẫn phát triển
-- [Docker Guide](frontend/docs/DOCKER.md) - Containerization
+# Windows + WSL2
+start-wsl2.bat
+```
 
----
-
-### **🔧 Backend Documentation**
-**Vị trí:** `backend/contest/docs/`
-**Entry Point:** [Backend Index](backend/contest/docs/INDEX.md)
-
-**Tài liệu chính:**
-- [Architecture](backend/contest/docs/ARCHITECTURE.md) - Kiến trúc hệ thống
-- [Business Logic](backend/contest/docs/BUSINESS-LOGIC.md) - Business rules
-- [API Endpoints](backend/contest/docs/api-endpoints.md) - API documentation
-- [Development Guide](backend/contest/docs/DEVELOPMENT.md) - Hướng dẫn phát triển
+### **Access Application**
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8081/api
+- **API Docs**: http://localhost:8081/api-docs
 
 ---
 
-### **🐳 System Documentation**
-**Vị trí:** Root directory
-**Tài liệu chính:**
-- [Main README](../../README.md) - Tổng quan toàn bộ hệ thống
-- [Docker Setup](../../docker-compose.yml) - Cấu hình Docker
-- [Docker Installation Guide](../../DOCKER-SETUP.md) - Hướng dẫn cài đặt Docker
+## 📋 Documentation Sections
 
-## **🔍 Hướng dẫn sử dụng**
+### **🐳 Docker & Deployment**
+- **[Docker Setup Guide](DOCKER.md)** - Complete Docker deployment guide
+- **Features**: Auto .env creation, CORS support, Windows WSL2, Cross-platform
 
-### **Cho Project Managers:**
-1. Bắt đầu với **[Project Specification](project-spec.md)** để hiểu yêu cầu
-2. Xem **[Main README](../../README.md)** để hiểu tổng quan
-3. Sử dụng **[Frontend Index](frontend/docs/INDEX.md)** và **[Backend Index](backend/contest/docs/INDEX.md)** để navigate
+### **🔧 Backend & API**
+- **[API Endpoints](backend/contest/docs/api-endpoints.md)** - Complete API documentation
+- **Features**: RESTful APIs, JPA repositories, Data validation, Error handling
 
-### **Cho Development Team:**
-1. **Frontend Developers**: Sử dụng [Frontend Index](frontend/docs/INDEX.md)
-2. **Backend Developers**: Sử dụng [Backend Index](backend/contest/docs/INDEX.md)
-3. **Full-stack Developers**: Sử dụng cả hai và [Project Specification](project-spec.md)
+### **🌐 Frontend & UI**
+- **[Frontend Features](frontend/docs/README.md)** - React app documentation
+- **Features**: Responsive design, Ant Design components, API integration
 
-### **Cho DevOps Engineers:**
-1. Xem **[Docker Setup](../../docker-compose.yml)** và **[Docker Guide](../../DOCKER-SETUP.md)**
-2. Tham khảo **[Backend Index](backend/contest/docs/INDEX.md)** cho deployment
-3. Sử dụng **[Frontend Index](frontend/docs/INDEX.md)** cho frontend deployment
+---
 
-## **📊 Trạng thái tài liệu**
+## 🆕 Latest Features
 
-| Tài liệu | Trạng thái | Cập nhật cuối | Người phụ trách |
-|----------|------------|----------------|-----------------|
-| [Project Specification](project-spec.md) | ✅ Hoàn thành | Dec 2024 | Development Team |
-| [Frontend Docs](frontend/docs/INDEX.md) | ✅ Hoàn thành | Dec 2024 | Frontend Team |
-| [Backend Docs](backend/contest/docs/INDEX.md) | ✅ Hoàn thành | Dec 2024 | Backend Team |
-| [System Docs](../../README.md) | ✅ Hoàn thành | Dec 2024 | DevOps Team |
+### **🚀 Auto .env Creation**
+- Scripts tự động tạo file `.env` nếu không tồn tại
+- Zero configuration setup
+- Cross-platform compatibility
 
-## **🔗 Liên kết ngoài**
+### **🌐 Enhanced CORS Support**
+- Backend CORS configuration
+- Frontend Nginx proxy với CORS headers
+- Double protection cho cross-origin requests
 
-### **Development Resources:**
-- [React Documentation](https://react.dev/)
-- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
+### **🖥️ Windows WSL2 Support**
+- Native Windows scripts
+- WSL2 environment scripts
+- Platform detection và auto-selection
+
+### **🔧 Enhanced Health Checks**
+- Database connection testing
+- API endpoint availability
+- Smart service startup sequencing
+
+---
+
+## 🏗️ System Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │    Backend      │    │    Database     │
+│   (React)       │◄──►│  (Spring Boot)  │◄──►│    (MySQL)      │
+│   Port: 3000    │    │   Port: 8081    │    │   Port: 3306    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Nginx Proxy   │    │   JPA/Hibernate │    │   Data Volume   │
+│  (API Proxy)    │    │  (ORM Layer)    │    │  (Persistence)  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+---
+
+## 🔌 Core APIs
+
+### **Students Management**
+- `GET/POST/PUT/DELETE /api/students/*`
+- Student CRUD operations
+- Parent association
+- Grade management
+
+### **Parents Management**
+- `GET/POST/PUT/DELETE /api/parents/*`
+- Parent CRUD operations
+- Student reassignment
+- Contact information
+
+### **Classes Management**
+- `GET/POST/PUT/DELETE /api/classes/*`
+- Class scheduling
+- Student registration
+- Schedule conflict detection
+
+### **Subscriptions Management**
+- `GET/POST/PUT/DELETE /api/subscriptions/*`
+- Package management
+- Session tracking
+- Admin functions (Reset, Extend)
+
+---
+
+## 🎨 UI/UX Features
+
+### **Responsive Design**
+- Mobile-first approach
+- Ant Design components
+- CSS media queries
+- Touch-friendly interfaces
+
+### **Modern Components**
+- Data tables với sorting/filtering
+- Modal forms với validation
+- Interactive charts và statistics
+- Professional color schemes
+
+### **User Experience**
+- Intuitive navigation
+- Quick actions
+- Bulk operations
+- Real-time feedback
+
+---
+
+## 🛠️ Development Workflow
+
+### **Local Development**
+```bash
+# Frontend
+cd frontend
+npm install
+npm run dev
+
+# Backend
+cd backend/contest
+./mvnw spring-boot:run
+```
+
+### **Docker Development**
+```bash
+# Start all services
+./start.sh          # Linux/Mac
+start.bat           # Windows
+start-wsl2.bat      # WSL2
+
+# View logs
+docker compose logs -f
+
+# Rebuild services
+docker compose build --no-cache
+```
+
+### **Testing & Debugging**
+```bash
+# Health checks
+./check-docker.sh   # Linux/Mac
+check-docker.bat    # Windows
+
+# Service status
+docker compose ps
+
+# Container access
+docker compose exec service_name sh
+```
+
+---
+
+## 🚨 Troubleshooting
+
+### **Common Issues**
+1. **Missing .env**: Scripts tự động tạo
+2. **Port conflicts**: Thay đổi trong .env
+3. **CORS issues**: Backend + Frontend CORS
+4. **Docker issues**: Health checks và logs
+
+### **Debug Commands**
+```bash
+# View logs
+docker compose logs -f
+
+# Check status
+docker compose ps
+
+# Restart services
+docker compose restart
+
+# Clean rebuild
+docker compose build --no-cache
+```
+
+---
+
+## 📚 Additional Resources
+
+### **Official Documentation**
 - [Docker Documentation](https://docs.docker.com/)
-- [MySQL Documentation](https://dev.mysql.com/doc/)
+- [Spring Boot Guide](https://spring.io/guides)
+- [React Documentation](https://reactjs.org/docs/)
+- [Ant Design](https://ant.design/docs/react/introduce)
 
-### **Project Resources:**
-- [GitHub Repository](https://github.com/your-org/teenup-contest)
-- [Issue Tracker](https://github.com/your-org/teenup-contest/issues)
-- [Project Wiki](https://github.com/your-org/teenup-contest/wiki)
+### **Project Documentation**
+- [Docker Setup](DOCKER.md) - Complete deployment guide
+- [API Reference](backend/contest/docs/api-endpoints.md) - Backend APIs
+- [Frontend Guide](frontend/docs/README.md) - React app features
 
 ---
 
-**📅 Last Updated:** December 2024  
-**🔄 Version:** 1.0.0  
-**👥 Maintainer:** Development Team
+## 🆘 Support
+
+### **Getting Help**
+1. **Check logs**: `docker compose logs -f`
+2. **Verify configuration**: Health check scripts
+3. **Rebuild services**: `docker compose build --no-cache`
+4. **Check documentation**: This index và related guides
+
+### **Platform Support**
+- **Linux/Mac**: `start.sh`, `stop.sh`, `check-docker.sh`
+- **Windows Native**: `start.bat`, `stop.bat`, `check-docker.bat`
+- **Windows + WSL2**: `start-wsl2.bat`, `stop-wsl2.bat`, `check-docker.bat`
+
+---
+
+## 🎯 Key Benefits
+
+- **🚀 Zero Configuration**: Auto .env creation và setup
+- **🌍 Cross-Platform**: Hoạt động trên mọi OS
+- **🔒 Secure**: CORS protection và environment isolation
+- **📱 Responsive**: Modern UI/UX với Ant Design
+- **🔧 Robust**: Health checks và error handling
+- **📚 Well-Documented**: Complete guides cho mọi platform
+
+---
+
+*Last updated: August 16, 2025*
+*Version: 3.0*
+*Features: Auto .env creation, Enhanced CORS, Windows WSL2, Cross-platform support*

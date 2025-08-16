@@ -54,9 +54,9 @@ until docker compose exec -T db mysqladmin ping -h localhost -u root -prootpass 
 done
 echo "✅ Database is ready!"
 
-# Wait for backend to be ready
+# Wait for backend to be ready (use API endpoint instead of health endpoint)
 echo "🔧 Waiting for backend..."
-until curl -f http://localhost:8081/actuator/health > /dev/null 2>&1; do
+until curl -f http://localhost:8081/api/parents/list > /dev/null 2>&1; do
     echo "   Backend not ready yet..."
     sleep 10
 done

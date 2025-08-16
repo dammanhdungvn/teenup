@@ -16,13 +16,13 @@ const API_CONFIG = {
   
   // Production
   production: {
-    baseURL: 'https://your-domain.com', // Thay đổi khi deploy
+    baseURL: 'http://localhost:8081', // Sử dụng localhost cho production test
     useProxy: false, // Không dùng proxy trong production
   },
   
   // Staging/Testing
   staging: {
-    baseURL: 'https://staging.your-domain.com', // Thay đổi khi deploy
+    baseURL: 'http://localhost:8081', // Sử dụng localhost cho staging test
     useProxy: false,
   }
 };

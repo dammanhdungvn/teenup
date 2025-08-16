@@ -1,13 +1,13 @@
 # ========= STAGE 1: BUILD (Node.js 18) =========
-FROM node:18-alpine AS build
+FROM node:18 AS build
 
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including devDependencies for build)
+RUN npm ci
 
 # Copy source code
 COPY . .

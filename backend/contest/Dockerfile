@@ -32,9 +32,9 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava
 # Copy fat-jar from build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Health check
+# Health check using API endpoint instead of actuator
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8081/actuator/health || exit 1
+    CMD curl -f http://localhost:8081/api/parents/list || exit 1
 
 EXPOSE 8081
 

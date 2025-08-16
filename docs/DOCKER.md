@@ -3,6 +3,23 @@
 ## 🐳 Overview
 Complete Docker setup for the Contest Management System with Frontend, Backend, and MySQL database.
 
+## ⚠️ Important Notes
+
+### **Docker Compose Version**
+- **Required**: Docker Compose v2 (`docker compose`)
+- **Not Supported**: Docker Compose v1 (`docker-compose`)
+- **Check Version**: `docker compose version`
+
+### **Quick Fix for Common Issues**
+```bash
+# If you get "docker-compose: command not found"
+# Use this instead:
+docker compose up -d
+
+# If you get "version attribute is obsolete"
+# The docker-compose.yml has been updated to remove this
+```
+
 ## 📁 Project Structure
 ```
 Contest/
@@ -10,6 +27,10 @@ Contest/
 ├── backend/           # Spring Boot backend
 ├── docker-compose.yml # Main orchestration
 ├── .env              # Environment variables
+├── start.sh          # Linux startup script
+├── start.bat         # Windows startup script
+├── check-docker.sh   # Linux health check
+├── check-docker.bat  # Windows health check
 └── docs/             # Documentation
 ```
 
@@ -24,7 +45,7 @@ chmod +x start.sh
 ./start.sh
 
 # Or manual start
-docker-compose up -d
+docker compose up -d
 ```
 
 ### **Windows:**
@@ -35,7 +56,17 @@ cd Contest
 start.bat
 
 # Or manual start
-docker-compose up -d
+docker compose up -d
+```
+
+### **Pre-flight Check:**
+```bash
+# Linux
+chmod +x check-docker.sh
+./check-docker.sh
+
+# Windows
+check-docker.bat
 ```
 
 ## 🔧 Docker Configuration
@@ -178,26 +209,46 @@ INSERT INTO students (name, dob, gender, parent_id) VALUES
 ### **Development Mode**
 ```bash
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop all services
-docker-compose down
+docker compose down
 ```
 
 ### **Production Mode**
 ```bash
 # Build and start
-docker-compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d
 
 # Scale backend
-docker-compose up -d --scale backend=3
+docker compose up -d --scale backend=3
 
 # Update services
-docker-compose pull
-docker-compose up -d
+docker compose pull
+docker compose up -d
+```
+
+### **Service Management**
+```bash
+# Check status
+docker compose ps
+
+# View logs
+docker compose logs -f db
+docker compose logs -f backend
+docker compose logs -f frontend
+
+# Restart service
+docker compose restart db
+docker compose restart backend
+docker compose restart frontend
+
+# Stop and remove
+docker compose down
+docker compose down -v  # Remove volumes
 ```
 
 ## 🔍 Monitoring & Health Checks
@@ -205,58 +256,105 @@ docker-compose up -d
 ### **Service Status**
 ```bash
 # Check all services
-docker-compose ps
+docker compose ps
 
 # Health check
 curl http://localhost:8081/actuator/health
-curl http://localhost:80
+curl http://localhost:3000
 
 # Database connection
-docker exec -it contest_mysql_1 mysql -u contest_user -p contest_db
+docker compose exec db mysql -u teenup -p teenup
 ```
 
 ### **Logs & Debugging**
 ```bash
 # View specific service logs
-docker-compose logs backend
-docker-compose logs frontend
-docker-compose logs mysql
+docker compose logs db
+docker compose logs backend
+docker compose logs frontend
 
 # Follow logs in real-time
-docker-compose logs -f backend
+docker compose logs -f backend
+```
+
+### **Health Check Scripts**
+```bash
+# Linux
+./check-docker.sh
+
+# Windows
+check-docker.bat
 ```
 
 ## 🛠️ Troubleshooting
 
 ### **Common Issues**
 
-#### **1. Port Conflicts**
+#### **1. Docker Compose Version Issues**
+```bash
+# Error: "docker-compose: command not found"
+# Solution: Use docker compose v2
+docker compose up -d
+
+# Error: "version attribute is obsolete"
+# Solution: Already fixed in docker-compose.yml
+```
+
+#### **2. Port Conflicts**
 ```bash
 # Check port usage
-netstat -tulpn | grep :8081
-netstat -tulpn | grep :80
+netstat -tulpn | grep :8081  # Linux
+netstat -an | findstr :8081  # Windows
 
 # Kill process using port
-sudo kill -9 <PID>
+sudo kill -9 <PID>  # Linux
+taskkill /PID <PID> /F  # Windows
 ```
 
-#### **2. Database Connection Issues**
+#### **3. Database Connection Issues**
 ```bash
 # Check MySQL status
-docker-compose exec mysql mysqladmin ping
+docker compose exec db mysqladmin ping
 
 # Reset database
-docker-compose down -v
-docker-compose up -d
+docker compose down -v
+docker compose up -d
 ```
 
-#### **3. Build Failures**
+#### **4. Build Failures**
 ```bash
 # Clean build
-docker-compose down
+docker compose down
 docker system prune -f
-docker-compose build --no-cache
-docker-compose up -d
+docker compose build --no-cache
+docker compose up -d
+```
+
+#### **5. Service Health Issues**
+```bash
+# Check service status
+docker compose ps
+
+# Check logs
+docker compose logs db
+docker compose logs backend
+docker compose logs frontend
+
+# Restart specific service
+docker compose restart db
+```
+
+### **Pre-flight Checklist**
+```bash
+# 1. Check Docker status
+./check-docker.sh  # Linux
+check-docker.bat   # Windows
+
+# 2. Verify ports available
+# 3. Ensure .env file exists
+# 4. Start services
+./start.sh         # Linux
+start.bat          # Windows
 ```
 
 ### **Performance Optimization**
@@ -300,7 +398,7 @@ MYSQL_PASSWORD=secure_user_pass_456
 ```bash
 # Install Docker
 sudo apt update
-sudo apt install docker.io docker-compose
+sudo apt install docker.io
 
 # Start Docker service
 sudo systemctl start docker
@@ -310,9 +408,16 @@ sudo systemctl enable docker
 sudo usermod -aG docker $USER
 newgrp docker
 
+# Install Docker Compose v2 (if not included)
+# Docker Compose v2 is included with Docker Desktop and recent Docker versions
+
 # Run application
 cd Contest
-docker-compose up -d
+chmod +x start.sh
+./start.sh
+
+# Or manual start
+docker compose up -d
 ```
 
 ### **Windows**
@@ -325,7 +430,10 @@ docker-compose up -d
 
 # Open PowerShell/CMD
 cd Contest
-docker-compose up -d
+start.bat
+
+# Or manual start
+docker compose up -d
 ```
 
 ### **macOS**
@@ -338,7 +446,20 @@ open /Applications/Docker.app
 
 # Run application
 cd Contest
-docker-compose up -d
+chmod +x start.sh
+./start.sh
+
+# Or manual start
+docker compose up -d
+```
+
+### **Pre-flight Check (All Platforms)**
+```bash
+# Linux/macOS
+./check-docker.sh
+
+# Windows
+check-docker.bat
 ```
 
 ## 🔄 CI/CD Integration
@@ -357,7 +478,26 @@ jobs:
       - uses: actions/checkout@v3
       - name: Deploy to server
         run: |
-          ssh user@server "cd /opt/contest && git pull && docker-compose up -d --build"
+          ssh user@server "cd /opt/contest && git pull && docker compose up -d --build"
+```
+
+### **Local Development Workflow**
+```bash
+# 1. Check system status
+./check-docker.sh  # Linux/macOS
+check-docker.bat   # Windows
+
+# 2. Start development environment
+./start.sh         # Linux/macOS
+start.bat          # Windows
+
+# 3. Make changes and rebuild
+docker compose build backend
+docker compose up -d backend
+
+# 4. Stop environment
+./stop.sh          # Linux/macOS
+stop.bat           # Windows
 ```
 
 ## 📊 Performance Metrics
@@ -368,7 +508,7 @@ jobs:
 docker stats
 
 # Resource limits
-docker-compose exec backend java -XX:+PrintFlagsFinal -version | grep MaxHeapSize
+docker compose exec backend java -XX:+PrintFlagsFinal -version | grep MaxHeapSize
 ```
 
 ### **Database Performance**
@@ -381,12 +521,27 @@ SHOW VARIABLES LIKE 'long_query_time';
 OPTIMIZE TABLE parents, students, classes;
 ```
 
+### **Service Monitoring**
+```bash
+# Check service health
+docker compose ps
+
+# Monitor logs
+docker compose logs -f db
+docker compose logs -f backend
+docker compose logs -f frontend
+
+# Resource usage
+docker stats --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
+```
+
 ## 🎯 Best Practices
 
 ### **Development**
 - Use `.env.local` for local development
 - Enable hot reload with volume mounts
 - Use health checks for service dependencies
+- **Always use `docker compose` (v2) instead of `docker-compose` (v1)**
 
 ### **Production**
 - Use specific image tags (not `latest`)
@@ -399,3 +554,9 @@ OPTIMIZE TABLE parents, students, classes;
 - Database backups
 - Log rotation
 - Performance monitoring
+
+### **Troubleshooting**
+- Use `./check-docker.sh` or `check-docker.bat` before starting
+- Check service logs with `docker compose logs`
+- Verify health checks with `docker compose ps`
+- Use `docker compose down -v` to reset completely

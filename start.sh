@@ -38,9 +38,9 @@ if [ ! -f .env ]; then
     cp env.example .env
 fi
 
-# Start services
+# Start services using docker compose v2
 echo "🐳 Starting Docker services..."
-docker-compose up -d
+docker compose up -d
 
 echo ""
 echo "⏳ Waiting for services to start..."
@@ -48,7 +48,7 @@ echo "This may take 2-3 minutes on first run..."
 
 # Wait for database to be ready
 echo "🗄️  Waiting for database..."
-until docker-compose exec -T db mysqladmin ping -h localhost -u root -prootpass --silent; do
+until docker compose exec -T db mysqladmin ping -h localhost -u root -prootpass --silent; do
     echo "   Database not ready yet..."
     sleep 5
 done
@@ -83,6 +83,6 @@ echo "   - 3 Students (Minh, Lan, Hoang)"
 echo "   - 3 Classes (Toán, Tiếng Anh, Khoa học)"
 echo "   - Subscriptions and Registrations"
 echo ""
-echo "🔍 Check logs: docker-compose logs -f"
-echo "🛑 Stop system: docker-compose down"
-echo "🔄 Restart: docker-compose restart"
+echo "🔍 Check logs: docker compose logs -f"
+echo "🛑 Stop system: docker compose down"
+echo "🔄 Restart: docker compose restart"

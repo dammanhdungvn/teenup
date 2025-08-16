@@ -116,5 +116,5 @@ public class ClassService {
         mapper.updateEntityFromDto(req, entity);
 
         return mapper.toResponse(entity);
-    }
+    }  
 }

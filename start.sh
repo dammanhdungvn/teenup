@@ -12,23 +12,24 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
 NC='\033[0m' # No Color
 
 # Function to print colored output
 print_status() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    echo -e "${BLUE}🔍 [INFO]${NC} $1"
 }
 
 print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    echo -e "${GREEN}✅ [SUCCESS]${NC} $1"
 }
 
 print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo -e "${YELLOW}⚠️  [WARNING]${NC} $1"
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${RED}❌ [ERROR]${NC} $1"
 }
 
 # Function to check if .env file exists
@@ -201,6 +202,10 @@ start_services() {
     docker compose up -d frontend
     
     print_success "Tất cả services đã khởi động thành công!"
+    
+    # Wait a bit for services to fully initialize
+    print_status "Chờ services hoàn tất khởi tạo..."
+    sleep 3
 }
 
 # Function to show status
@@ -219,25 +224,26 @@ show_access_info() {
     echo
     print_success "🎉 TeenUp Contest Management System đã khởi động thành công!"
     echo
-    echo -e "${GREEN}📱 Frontend:${NC} http://localhost:3000"
+    echo -e "${GREEN}🌐 Frontend:${NC} http://localhost:3000"
     echo -e "${GREEN}🔧 Backend API:${NC} http://localhost:8081/api"
     echo -e "${GREEN}📚 API Docs:${NC} http://localhost:8081/api-docs"
     echo -e "${GREEN}🗄️  Database:${NC} localhost:3306"
     echo
-    echo -e "${BLUE}📋 Các lệnh hữu ích:${NC}"
+    echo -e "${BLUE}� Các lệnh hữu ích:${NC}"
     echo "  Xem logs: docker compose logs -f"
     echo "  Dừng services: ./stop.sh"
     echo "  Restart: docker compose restart"
     echo "  Xem status: docker compose ps"
+    echo "  Dọn dẹp: docker compose down -v"
     echo
 }
 
 # Main execution
 main() {
-    echo -e "${BLUE}========================================${NC}"
-    echo -e "${BLUE}  TeenUp Contest Management System${NC}"
-    echo -e "${BLUE}  Docker Startup Script${NC}"
-    echo -e "${BLUE}========================================${NC}"
+    echo -e "${PURPLE}========================================${NC}"
+    echo -e "${PURPLE}  🚀 TeenUp Contest Management System${NC}"
+    echo -e "${PURPLE}  🐧 Linux/macOS Edition${NC}"
+    echo -e "${PURPLE}========================================${NC}"
     echo
     
     # Check prerequisites

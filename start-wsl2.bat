@@ -27,18 +27,81 @@ echo ✅ WSL2 đã được cài đặt
 
 :: Kiểm tra WSL2 distribution
 echo 🔍 Kiểm tra WSL2 distribution...
-wsl --list --verbose | findstr "Ubuntu" >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ❌ Không tìm thấy Ubuntu distribution trong WSL2!
-    echo    Vui lòng cài đặt Ubuntu:
-    echo    1. Mở Microsoft Store
-    echo    2. Tìm "Ubuntu" và cài đặt
-    echo    3. Chạy Ubuntu lần đầu để setup
-    pause
-    exit /b 1
-)
 
-echo ✅ Ubuntu distribution đã được cài đặt
+:: Hiển thị tất cả distributions có sẵn
+echo 📋 Danh sách WSL distributions hiện có:
+wsl --list --verbose
+
+:: Kiểm tra các phiên bản Ubuntu phổ biến
+set UBUNTU_FOUND=0
+
+:: Kiểm tra Ubuntu-24.04 (có thể có dấu * và khoảng trắng)
+wsl --list --verbose | findstr "Ubuntu-24.04" >nul 2>&1
+if %errorlevel% equ 0 set UBUNTU_FOUND=1
+
+:: Kiểm tra Ubuntu-22.04 (có thể có dấu * và khoảng trắng)
+wsl --list --verbose | findstr "Ubuntu-22.04" >nul 2>&1
+if %errorlevel% equ 0 set UBUNTU_FOUND=1
+
+:: Kiểm tra Ubuntu-20.04 (có thể có dấu * và khoảng trắng)
+wsl --list --verbose | findstr "Ubuntu-20.04" >nul 2>&1
+if %errorlevel% equ 0 set UBUNTU_FOUND=1
+
+:: Kiểm tra Ubuntu-18.04 (có thể có dấu * và khoảng trắng)
+wsl --list --verbose | findstr "Ubuntu-18.04" >nul 2>&1
+if %errorlevel% equ 0 set UBUNTU_FOUND=1
+
+:: Kiểm tra Ubuntu không có version suffix (có thể có dấu * và khoảng trắng)
+wsl --list --verbose | findstr /R "Ubuntu[^-]" >nul 2>&1
+if %errorlevel% equ 0 set UBUNTU_FOUND=1
+
+:: Kiểm tra các distributions khác có thể chạy Docker
+set LINUX_FOUND=0
+wsl --list --verbose | findstr "Debian" >nul 2>&1
+if %errorlevel% equ 0 set LINUX_FOUND=1
+
+wsl --list --verbose | findstr "kali" >nul 2>&1
+if %errorlevel% equ 0 set LINUX_FOUND=1
+
+wsl --list --verbose | findstr "openSUSE" >nul 2>&1
+if %errorlevel% equ 0 set LINUX_FOUND=1
+
+wsl --list --verbose | findstr "Alpine" >nul 2>&1
+if %errorlevel% equ 0 set LINUX_FOUND=1
+
+if %UBUNTU_FOUND% equ 0 (
+    if %LINUX_FOUND% equ 1 (
+        echo ⚠️  Không tìm thấy Ubuntu, nhưng có Linux distribution khác!
+        echo    Docker có thể hoạt động với distribution này.
+        echo    Tiếp tục thử khởi động services...
+        echo.
+    ) else (
+        echo ❌ Không tìm thấy Ubuntu hoặc Linux distribution khác trong WSL2!
+        echo.
+        echo 📋 Các phiên bản Ubuntu khả dụng:
+        echo    - Ubuntu (phiên bản mới nhất)
+        echo    - Ubuntu 24.04 LTS
+        echo    - Ubuntu 22.04 LTS
+        echo    - Ubuntu 20.04 LTS
+        echo.
+        echo 🔧 Hướng dẫn cài đặt:
+        echo    1. Mở Microsoft Store
+        echo    2. Tìm một trong các phiên bản Ubuntu trên
+        echo    3. Cài đặt phiên bản bạn muốn
+        echo    4. Chạy Ubuntu lần đầu để setup user/password
+        echo.
+        echo 💡 Khuyến nghị: Ubuntu 22.04 LTS hoặc Ubuntu 24.04 LTS
+        echo.
+        echo 🤔 Bạn có muốn tiếp tục với distribution hiện có không? (y/N)
+        set /p CONTINUE=
+        if /I not "%CONTINUE%"=="y" (
+            pause
+            exit /b 1
+        )
+    )
+) else (
+    echo ✅ Ubuntu distribution đã được cài đặt
+)
 
 :: Kiểm tra Docker trong WSL2
 echo 🔍 Kiểm tra Docker trong WSL2...
@@ -216,16 +279,19 @@ echo ========================================
 echo.
 echo 🌐 Frontend: http://localhost:3000
 echo 🔧 Backend API: http://localhost:8081/api
-echo 🗄️  Database: localhost:3306
+echo � API Docs: http://localhost:8081/api-docs
+echo �🗄️  Database: localhost:3306
 echo.
 echo 💡 Lệnh hữu ích (trong WSL2):
 echo    - Xem logs: docker compose logs -f
-echo    - Dừng: docker compose down
+echo    - Dừng: stop-wsl2.bat
 echo    - Restart: docker compose restart
+echo    - Xem status: docker compose ps
 echo.
 echo 💡 Truy cập WSL2:
 echo    - Mở terminal: wsl
-echo    - Chuyển thư mục: cd /mnt/c/Users/%USERNAME%/Downloads/Contest
+echo    - Chuyển thư mục: cd /mnt/c/path/to/your/teenup/project
+echo    - Hoặc: cd "$(wslpath 'C:\path\to\your\project')"
 echo.
 echo Nhấn phím bất kỳ để mở trình duyệt...
 pause >nul

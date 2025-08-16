@@ -20,7 +20,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo ✅ Docker đã được cài đặt
+echo ✅ Docker Desktop đã được cài đặt
 
 :: Kiểm tra Docker Compose
 echo 🔍 Kiểm tra Docker Compose...
@@ -79,17 +79,6 @@ if %errorlevel% equ 0 (
 )
 
 echo ✅ Ports đã sẵn sàng
-
-:: Kiểm tra curl command
-echo 🔍 Kiểm tra curl command...
-curl --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ⚠️  curl không khả dụng, sử dụng powershell thay thế
-    set USE_POWERSHELL=1
-) else (
-    echo ✅ curl đã sẵn sàng
-    set USE_POWERSHELL=0
-)
 
 :: Kiểm tra .env file
 echo 🔍 Kiểm tra file .env...
@@ -180,11 +169,7 @@ if %errorlevel% neq 0 (
 :: Đợi Backend khởi động
 echo ⏳ Đợi Backend khởi động...
 :wait_backend
-if %USE_POWERSHELL% equ 1 (
-    powershell -Command "try { Invoke-WebRequest -Uri 'http://localhost:8081/api/parents/list' -Method GET -UseBasicParsing | Out-Null; exit 0 } catch { exit 1 }" >nul 2>&1
-) else (
-    curl -f http://localhost:8081/api/parents/list >nul 2>&1
-)
+curl -f http://localhost:8081/api/parents/list >nul 2>&1
 if %errorlevel% neq 0 (
     echo    Backend chưa sẵn sàng, đợi thêm...
     timeout /t 10 >nul
@@ -204,11 +189,7 @@ if %errorlevel% neq 0 (
 :: Đợi Frontend khởi động
 echo ⏳ Đợi Frontend khởi động...
 :wait_frontend
-if %USE_POWERSHELL% equ 1 (
-    powershell -Command "try { Invoke-WebRequest -Uri 'http://localhost:3000' -Method GET -UseBasicParsing | Out-Null; exit 0 } catch { exit 1 }" >nul 2>&1
-) else (
-    curl -f http://localhost:3000 >nul 2>&1
-)
+curl -f http://localhost:3000 >nul 2>&1
 if %errorlevel% neq 0 (
     echo    Frontend chưa sẵn sàng, đợi thêm...
     timeout /t 5 >nul
@@ -228,14 +209,18 @@ echo ========================================
 echo.
 echo 🌐 Frontend: http://localhost:3000
 echo 🔧 Backend API: http://localhost:8081/api
-echo � API Docs: http://localhost:8081/api-docs
-echo �🗄️  Database: localhost:3306
+echo 🗄️  Database: localhost:3306
 echo.
 echo 💡 Lệnh hữu ích:
 echo    - Xem logs: docker compose logs -f
-echo    - Dừng: stop.bat
+echo    - Dừng: docker compose down (hoặc stop.bat)
 echo    - Restart: docker compose restart
 echo    - Xem status: docker compose ps
+echo.
+echo 💡 Troubleshooting:
+echo    - Logs backend: docker compose logs backend
+echo    - Logs frontend: docker compose logs frontend
+echo    - Logs database: docker compose logs db
 echo.
 echo Nhấn phím bất kỳ để mở trình duyệt...
 pause >nul

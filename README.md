@@ -1,181 +1,399 @@
-# 🚀 TeenUp Contest Management System
+# 🎓 TeenUp Contest Management System
 
-## 📋 Quick Start
+Hệ thống quản lý cuộc thi với **Spring Boot Backend** + **React Frontend** + **MySQL Database**.
 
-### **1. Prerequisites**
-- Docker Engine 20.10+
-- Docker Compose v2.0+
-- 4GB RAM minimum
+## 📚 **Documentation**
 
-### **2. Setup & Run**
+📚 **[📋 Technical Documentation](docs/README.md)** - Tài liệu kỹ thuật chính
 
-#### **Linux/macOS:**
+- 🌐 **[Frontend Documentation](frontend/docs/INDEX.md)** - React app documentation index
+- 🔧 **[Backend Documentation](backend/contest/docs/INDEX.md)** - Spring Boot API documentation index
+- 🐳 **[Docker Setup](docker-compose.yml)** - Complete system deployment
+- 🚀 **[Docker Installation Guide](DOCKER-SETUP.md)** - Cài đặt Docker cho từng hệ điều hành
+
+## 🚀 **QUICK START - ONE COMMAND**
+
+### **Yêu cầu:**
+- Docker & Docker Compose
+- Ports: 3000, 8081, 3306 (available)
+
+> 📖 **Chưa có Docker?** Xem [Docker Installation Guide](DOCKER-SETUP.md)
+
+### **Khởi động toàn bộ hệ thống:**
+
+#### **🐧 Ubuntu/Linux/macOS:**
 ```bash
-git clone <repository-url>
-cd Contest
+# Chạy startup script
+chmod +x start.sh
 ./start.sh
 ```
 
-#### **Windows Native:**
-```bash
-git clone <repository-url>
-cd Contest
+#### **🪟 Windows:**
+```cmd
+# Chạy startup script
 start.bat
 ```
 
-#### **Windows + WSL2:**
+**Hoặc chạy trực tiếp (cả hai OS):**
 ```bash
-git clone <repository-url>
-cd Contest
-start-wsl2.bat
+docker-compose up -d
 ```
 
-### **3. Access Application**
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8081/api
-- **API Docs**: http://localhost:8081/api-docs
+### **Truy cập hệ thống:**
+- 🌐 **Frontend:** http://localhost:3000 (Docker) / http://localhost:5173 (Local Dev)
+- 🔧 **Backend API:** http://localhost:8081
+- 🗄️ **Database:** localhost:3306
 
 ---
 
-## ⚠️ Common Issues & Solutions
+## 📊 **Data Seeding Tự Động**
 
-### **Missing .env File**
+Khi khởi động, hệ thống sẽ tự động tạo:
+
+### **👨‍👩‍👧‍👦 Parents (2):**
+- Nguyen Van A (0901111111, a@example.com)
+- Tran Thi B (0902222222, b@example.com)
+
+### **👨‍🎓 Students (3):**
+- **Minh** - Grade 7, Parent: Nguyen Van A
+- **Lan** - Grade 8, Parent: Nguyen Van A  
+- **Hoang** - Grade 6, Parent: Tran Thi B
+
+### **📚 Classes (3):**
+- **Toán Nâng Cao** - Thứ 3, 14:00-15:30
+- **Tiếng Anh A2** - Thứ 5, 08:00-09:30
+- **Khoa học Vui** - Thứ 7, 09:00-10:30
+
+### **🎁 Subscriptions:**
+- Basic-12 (Minh): 12 buổi, 0 đã dùng
+- Basic-08 (Lan): 8 buổi, 1 đã dùng
+
+---
+
+## 🛠️ **Quản Lý Hệ Thống**
+
+### **Khởi động:**
+
+#### **🐧 Ubuntu/Linux/macOS:**
 ```bash
-# Lỗi: "File .env không tồn tại!"
+./start.sh                    # Startup script với health checks
+docker-compose up -d         # Docker Compose trực tiếp
+```
 
-# ✅ GIẢI PHÁP: Scripts sẽ tự động tạo .env
-# Không cần làm gì thêm - chỉ chạy startup script
+#### **🪟 Windows:**
+```cmd
+start.bat                     # Startup script với health checks
+docker-compose up -d         # Docker Compose trực tiếp
+```
 
-# Hoặc tạo thủ công nếu muốn:
-cat > .env << 'EOF'
+### **Dừng:**
+
+#### **🐧 Ubuntu/Linux/macOS:**
+```bash
+./stop.sh                     # Stop script
+docker-compose down          # Docker Compose trực tiếp
+```
+
+#### **🪟 Windows:**
+```cmd
+stop.bat                      # Stop script
+docker-compose down          # Docker Compose trực tiếp
+```
+
+### **Xem logs:**
+```bash
+docker-compose logs -f       # Tất cả services
+docker-compose logs -f backend    # Chỉ backend
+docker-compose logs -f frontend   # Chỉ frontend
+docker-compose logs -f db         # Chỉ database
+```
+
+### **Restart service:**
+```bash
+docker-compose restart backend    # Restart backend
+docker-compose restart frontend   # Restart frontend
+docker-compose restart db         # Restart database
+```
+
+### **Xóa dữ liệu:**
+```bash
+docker-compose down -v       # Xóa volumes (database data)
+```
+
+---
+
+## 🏗️ **Kiến Trúc Hệ Thống**
+
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        FE[Frontend<br/>React App<br/>Port: 3000/5173]
+    end
+    
+    subgraph "Backend Layer"
+        BE[Backend<br/>Spring Boot<br/>Port: 8081]
+    end
+    
+    subgraph "Database Layer"
+        DB[(MySQL Database<br/>Port: 3306)]
+    end
+    
+    subgraph "Docker Network"
+        DN[teenup_network]
+    end
+    
+    FE <-->|HTTP API| BE
+    BE <-->|JDBC| DB
+    FE -.->|Docker Network| DN
+    BE -.->|Docker Network| DN
+    DB -.->|Docker Network| DN
+    
+    style FE fill:#61dafb,stroke:#333,stroke-width:2px
+    style BE fill:#6db33f,stroke:#333,stroke-width:2px
+    style DB fill:#00758f,stroke:#333,stroke-width:2px,color:#fff
+    style DN fill:#f0f0f0,stroke:#333,stroke-width:1px
+```
+
+---
+
+## 🗄️ **Database Schema**
+
+### **Core Entities:**
+- **Students** - Thông tin học sinh (name, dob, gender, grade, parent)
+- **Parents** - Thông tin phụ huynh (name, phone, email)
+- **Classes** - Lớp học (name, subject, schedule, teacher)
+- **Subscriptions** - Gói học (package, sessions, student)
+- **ClassRegistrations** - Đăng ký lớp học
+
+### **Relationships:**
+- Student ↔ Parent (Many-to-One)
+- Student ↔ Classes (Many-to-Many via ClassRegistration)
+- Student ↔ Subscriptions (One-to-Many)
+
+### **Key Fields:**
+- **Students:** `currentGrade` (Grade 6, Grade 7, Grade 8)
+- **Classes:** `dayOfWeek` (1-7), `timeSlot` (HH:mm-HH:mm)
+- **Subscriptions:** `totalSessions`, `usedSessions`
+
+> 📖 **Xem chi tiết:** [Backend Documentation](backend/contest/docs/INDEX.md)
+
+---
+
+## 🔌 **API Endpoints**
+
+### **Core APIs:**
+- **Students:** `GET/POST/PUT/DELETE /api/students/*`
+- **Parents:** `GET/POST/PUT/DELETE /api/parents/*`
+- **Classes:** `GET/POST/PUT/DELETE /api/classes/*`
+- **Subscriptions:** `GET/POST/PUT/DELETE /api/subscriptions/*`
+- **Dashboard:** `GET /api/dashboard/*`
+
+### **Example Queries:**
+```bash
+# Get all students
+curl http://localhost:8081/api/students/list
+
+# Get student by ID
+curl http://localhost:8081/api/students/1
+
+# Create new student
+curl -X POST http://localhost:8081/api/students \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Minh","currentGrade":"Grade 7"}'
+
+# Get class schedule
+curl http://localhost:8081/api/classes
+```
+
+> 📖 **Xem chi tiết:** [Backend API Endpoints](backend/contest/docs/api-endpoints.md)
+
+---
+
+## 🔧 **Cấu Hình Môi Trường**
+
+### **File .env:**
+```bash
+# Copy từ env.example
+cp env.example .env
+
+# Chỉnh sửa nếu cần
 MYSQL_ROOT_PASSWORD=rootpass
-MYSQL_DATABASE=teenup_contest
-MYSQL_USER=contest_user
-MYSQL_PASSWORD=contest_pass
-SPRING_PROFILES_ACTIVE=docker
-SERVER_PORT=8081
-VITE_DOCKER=true
-VITE_API_BASE_URL=http://localhost:8081
-VITE_USE_PROXY=false
-EOF
+MYSQL_DATABASE=teenup
+MYSQL_USER=teenup
+MYSQL_PASSWORD=teenup123
 ```
 
-### **Port Conflicts**
-```bash
-# Thay đổi ports trong .env:
-FRONTEND_PORT=3001
-BACKEND_PORT=8082
-MYSQL_PORT=3307
+### **Ports:**
+
+#### **🐳 Docker Environment:**
+- **Frontend:** 3000 (Nginx serve static files)
+- **Backend:** 8081 (Spring Boot)
+- **Database:** 3306 (MySQL)
+
+#### **💻 Local Development:**
+- **Frontend:** 5173 (Vite dev server)
+- **Backend:** 8081 (Spring Boot)
+- **Database:** 3306 (MySQL hoặc Docker)
+
+---
+
+## 📁 **Cấu Trúc Project**
+
 ```
-
-### **Docker Issues**
-```bash
-# Kiểm tra Docker
-docker --version
-docker compose version
-docker info
-
-# Restart services
-docker compose restart
-docker compose down && docker compose up -d
+Contest/
+├── docker-compose.yml          # Docker orchestration
+├── start.sh                    # Startup script (Linux/macOS)
+├── start.bat                   # Startup script (Windows)
+├── stop.sh                     # Stop script (Linux/macOS)
+├── stop.bat                    # Stop script (Windows)
+├── env.example                 # Environment template
+├── backend/contest/            # Spring Boot backend
+│   ├── Dockerfile             # Backend container
+│   └── .dockerignore          # Backend ignore
+├── frontend/                   # React frontend
+│   ├── Dockerfile             # Frontend container
+│   ├── nginx.conf             # Nginx configuration
+│   └── .dockerignore          # Frontend ignore
+└── logs/                       # Application logs
+    ├── backend/               # Backend logs
+    └── frontend/              # Frontend logs
 ```
 
 ---
 
-## 🆕 New Features
+## 🚀 **Development & Deployment**
 
-### **🚀 Auto .env Creation**
-- **Không cần file .env**: Scripts tự động tạo với giá trị mặc định
-- **Cross-platform**: Hoạt động trên Linux, macOS, Windows, WSL2
-- **Smart detection**: Tự động phát hiện và tạo file cần thiết
+### **Local Development:**
 
-### **🌐 Enhanced CORS Support**
-- **Backend CORS**: Spring Boot configuration
-- **Frontend Proxy**: Nginx với API proxy và CORS headers
-- **Double protection**: Cả backend và frontend đều có CORS
+#### **🐧 Ubuntu/Linux/macOS:**
+```bash
+# Frontend (React)
+cd frontend
+npm install
+npm run dev          # http://localhost:5173
 
-### **🖥️ Windows WSL2 Support**
-- **Native Windows**: `start.bat`, `stop.bat`
-- **WSL2 Environment**: `start-wsl2.bat`, `stop-wsl2.bat`
-- **Platform detection**: Tự động chọn script phù hợp
+# Backend (Spring Boot)
+cd backend/contest
+./mvnw spring-boot:run  # http://localhost:8081
+
+# Database (MySQL)
+# Sử dụng Docker hoặc local MySQL
+```
+
+#### **🪟 Windows:**
+```cmd
+# Frontend (React)
+cd frontend
+npm install
+npm run dev          # http://localhost:5173
+
+# Backend (Spring Boot)
+cd backend\contest
+mvnw.cmd spring-boot:run  # http://localhost:8081
+
+# Database (MySQL)
+# Sử dụng Docker hoặc local MySQL
+```
+
+> 📖 **Xem chi tiết:** [Frontend Setup Guide](frontend/docs/SETUP.md)
+
+### **Docker Development:**
+```bash
+# Chạy toàn bộ hệ thống
+./start.sh                    # Linux/macOS
+start.bat                     # Windows
+
+# Hoặc từng service
+docker-compose up -d db
+docker-compose up -d backend
+docker-compose up -d frontend
+```
+
+> 📖 **Xem chi tiết:** [Frontend Docker Guide](frontend/docs/DOCKER.md)
+
+### **Production Deployment:**
+```bash
+# Build và deploy
+docker-compose build --no-cache
+docker-compose up -d
+
+# Environment variables
+cp env.example .env
+# Chỉnh sửa .env cho production
+```
 
 ---
 
-## 📚 Documentation
+## 🐛 **Troubleshooting**
 
-- **🐳 Docker Setup**: [docs/DOCKER.md](docs/DOCKER.md) - Complete Docker guide
-- **🔧 API Endpoints**: [backend/contest/docs/api-endpoints.md](backend/contest/docs/api-endpoints.md)
-- **🌐 Frontend Features**: [frontend/docs/README.md](frontend/docs/README.md)
+### **Port đã được sử dụng:**
+
+#### **🐧 Ubuntu/Linux/macOS:**
+```bash
+# Kiểm tra port nào đang sử dụng
+lsof -i :3000    # Docker frontend
+lsof -i :5173    # Local frontend (Vite)
+lsof -i :8081    # Backend API
+lsof -i :3306    # Database
+
+# Kill process nếu cần
+kill -9 <PID>
+```
+
+#### **🪟 Windows:**
+```cmd
+# Kiểm tra port nào đang sử dụng
+netstat -an | findstr ":3000"    # Docker frontend
+netstat -an | findstr ":5173"    # Local frontend (Vite)
+netstat -an | findstr ":8081"    # Backend API
+netstat -an | findstr ":3306"    # Database
+
+# Kill process nếu cần
+taskkill /PID <PID> /F
+```
+
+### **Database connection error:**
+```bash
+# Kiểm tra database container
+docker-compose logs db
+
+# Restart database
+docker-compose restart db
+```
+
+### **Backend không start:**
+```bash
+# Kiểm tra backend logs
+docker-compose logs backend
+
+# Kiểm tra database health
+docker-compose exec db mysqladmin ping -h localhost -u root -prootpass
+```
+
+### **Frontend không load:**
+```bash
+# Kiểm tra frontend logs
+docker-compose logs frontend
+
+# Kiểm tra backend API
+curl http://localhost:8081/actuator/health
+```
 
 ---
 
-## 🛠️ Development
-
-### **Stop Services**
-```bash
-# Linux/Mac
-./stop.sh
-
-# Windows
-stop.bat
-# hoặc
-stop-wsl2.bat
-```
-
-### **View Logs**
-```bash
-docker compose logs -f
-docker compose logs -f backend
-docker compose logs -f frontend
-```
-
-### **Rebuild Services**
-```bash
-docker compose build --no-cache
-docker compose up -d
-```
-
-### **Health Checks**
-```bash
-# Linux/Mac
-./check-docker.sh
-
-# Windows
-check-docker.bat
-```
-
----
-
-## 🆘 Support
+## 📞 **Hỗ Trợ**
 
 Nếu gặp vấn đề:
+1. **Kiểm tra logs:** `docker-compose logs -f`
+2. **Restart services:** `docker-compose restart`
+3. **Rebuild images:** `docker-compose build --no-cache`
+4. **Xóa và tạo lại:** `docker-compose down -v && ./start.sh`
 
-1. **Kiểm tra logs**: `docker compose logs -f`
-2. **Restart services**: `docker compose restart`
-3. **Rebuild containers**: `docker compose build --no-cache`
-4. **Check health status**: `docker compose ps`
-5. **Verify configuration**: 
-   - Linux/Mac: `./check-docker.sh`
-   - Windows: `check-docker.bat`
-
-### **Platform-Specific Support**
-- **Linux/Mac**: Sử dụng `start.sh`, `stop.sh`, `check-docker.sh`
-- **Windows Native**: Sử dụng `start.bat`, `stop.bat`, `check-docker.bat`
-- **Windows + WSL2**: Sử dụng `start-wsl2.bat`, `stop-wsl2.bat`, `check-docker.bat`
+### **Documentation chi tiết:**
+- 🌐 **[Frontend Docs](frontend/docs/)** - Setup, development, API integration
+- 🔧 **[Backend Docs](backend/contest/docs/)** - API, database, Spring Boot
+- 🐳 **[Docker Setup](DOCKER-SETUP.md)** - Cài đặt Docker cho từng OS
 
 ---
 
-## 🎯 Key Benefits
-
-- **🚀 Zero Configuration**: Tự động tạo .env và setup
-- **🌍 Cross-Platform**: Hoạt động trên mọi OS
-- **🔒 Secure**: CORS protection và environment isolation
-- **📱 Responsive**: Modern UI/UX với Ant Design
-- **🔧 Robust**: Health checks và error handling
-- **📚 Well-Documented**: Complete guides cho mọi platform
-
----
-
-*Last updated: August 16, 2025*
-*Version: 3.0*
-*Features: Auto .env creation, Enhanced CORS, Windows WSL2, Cross-platform support*
+**🎉 Chúc bạn sử dụng hệ thống thành công!**

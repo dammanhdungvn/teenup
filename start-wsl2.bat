@@ -279,14 +279,19 @@ echo ========================================
 echo.
 echo 🌐 Frontend: http://localhost:3000
 echo 🔧 Backend API: http://localhost:8081/api
-echo � API Docs: http://localhost:8081/api-docs
-echo �🗄️  Database: localhost:3306
+echo 🗄️  Database: localhost:3306
 echo.
 echo 💡 Lệnh hữu ích (trong WSL2):
-echo    - Xem logs: docker compose logs -f
-echo    - Dừng: stop-wsl2.bat
-echo    - Restart: docker compose restart
-echo    - Xem status: docker compose ps
+echo    - Xem logs: wsl docker compose logs -f
+echo    - Dừng: wsl docker compose down (hoặc stop-wsl2.bat)
+echo    - Restart: wsl docker compose restart
+echo    - Xem status: wsl docker compose ps
+echo.
+echo 💡 Troubleshooting (trong WSL2):
+echo    - Logs backend: wsl docker compose logs backend
+echo    - Logs frontend: wsl docker compose logs frontend  
+echo    - Logs database: wsl docker compose logs db
+echo    - Reset data: wsl docker compose down -v && start-wsl2.bat
 echo.
 echo 💡 Truy cập WSL2:
 echo    - Mở terminal: wsl

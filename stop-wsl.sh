@@ -2,7 +2,7 @@
 
 # ========================================
 # TeenUp Contest Management System  
-# Docker Stop Script for Linux/macOS
+# WSL Docker Stop Script for Windows
 # ========================================
 
 set -e  # Exit on any error
@@ -31,12 +31,26 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Function to check if running in WSL
+check_wsl() {
+    if ! grep -q Microsoft /proc/version; then
+        print_error "Đây không phải là WSL environment!"
+        print_error "Vui lòng sử dụng script phù hợp:"
+        echo "  - Linux/macOS native: ./stop.sh"
+        echo "  - Windows native: stop.bat"
+        echo "  - Windows WSL2: stop-wsl2.bat"
+        exit 1
+    fi
+    
+    print_success "Đang chạy trong WSL environment"
+}
+
 # Function to check Docker
 check_docker() {
-    print_status "Kiểm tra Docker..."
+    print_status "Kiểm tra Docker trong WSL..."
     
     if ! command -v docker &> /dev/null; then
-        print_error "Docker không được cài đặt hoặc không có trong PATH"
+        print_error "Docker không được cài đặt trong WSL"
         exit 1
     fi
     
@@ -44,13 +58,13 @@ check_docker() {
         print_warning "Docker daemon không chạy. Services có thể đã được dừng."
         echo
     else
-        print_success "Docker daemon đang chạy"
+        print_success "Docker daemon đang chạy trong WSL"
     fi
 }
 
 # Function to stop services
 stop_services() {
-    print_status "Dừng tất cả services..."
+    print_status "Dừng tất cả services trong WSL..."
     
     if docker compose ps --quiet | grep -q .; then
         if ! docker compose down; then
@@ -93,17 +107,24 @@ show_status() {
 # Function to show useful info
 show_info() {
     echo
-    print_success "✅ Đã dừng tất cả services!"
+    print_success "✅ Đã dừng tất cả services trong WSL!"
     echo
     echo -e "${BLUE}💡 Để khởi động lại:${NC}"
+    echo "  - WSL script: ./start-wsl.sh"
+    echo "  - Windows WSL2 batch: start-wsl2.bat"
+    echo "  - Windows native: start.bat"
     echo "  - Linux/macOS: ./start.sh"
-    echo "  - Windows: start.bat hoặc start-wsl2.bat"
     echo
-    echo -e "${BLUE}� Lệnh hữu ích:${NC}"
+    echo -e "${BLUE}💡 Lệnh hữu ích (trong WSL):${NC}"
     echo "  - Kiểm tra containers: docker compose ps"
     echo "  - Xem logs cũ: docker compose logs"
     echo "  - Dọn dẹp thêm: docker system prune"
-    echo "  - Khởi động Docker: sudo systemctl start docker"
+    echo "  - Khởi động Docker: sudo service docker start"
+    echo
+    echo -e "${BLUE}💡 WSL Notes:${NC}"
+    echo "  - Services đã dừng trong WSL environment"
+    echo "  - Windows ports đã được giải phóng"
+    echo "  - Data được giữ lại (trừ khi bạn chọn xóa)"
     echo
 }
 
@@ -111,12 +132,13 @@ show_info() {
 main() {
     echo -e "${BLUE}========================================${NC}"
     echo -e "${BLUE}  🛑 TeenUp Contest Management System${NC}"
-    echo -e "${BLUE}  🐧 Linux/macOS Edition${NC}"
+    echo -e "${BLUE}  🪟 Windows WSL Edition${NC}"
     echo -e "${BLUE}  ⏹️  Dừng tất cả services${NC}"
     echo -e "${BLUE}========================================${NC}"
     echo
     
-    # Check Docker
+    # Check WSL and Docker
+    check_wsl
     check_docker
     
     # Stop services

@@ -64,6 +64,15 @@ REM Environment detection
 :detect_environment
 echo 🔍 Detecting Windows environment...
 
+REM Check if Docker is installed first
+docker --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo ❌ Docker không được cài đặt!
+    echo    Vui lòng cài đặt Docker Desktop từ: https://www.docker.com/products/docker-desktop
+    pause
+    exit /b 1
+)
+
 REM Check if Docker is using WSL backend
 echo    Kiểm tra Docker backend...
 docker info 2>nul | findstr /i "wsl" >nul 2>&1
@@ -80,6 +89,15 @@ if %errorlevel% equ 0 (
         echo ⚠️  Docker dùng WSL nhưng WSL không sẵn sàng
         echo    Chuyển sang Native Windows mode
     )
+)
+
+REM Check if Docker is running
+docker info >nul 2>&1
+if %errorlevel% neq 0 (
+    echo ❌ Docker không chạy!
+    echo    Vui lòng khởi động Docker Desktop
+    pause
+    exit /b 1
 )
 
 REM Check if WSL is available (fallback)
@@ -103,22 +121,31 @@ REM Execution functions
 echo.
 echo 🚀 Starting TeenUp Contest Management System...
 echo 📋 Environment: %ENV_DESC%
+echo 📁 Current directory: %CD%
 echo.
 
 if "%ENV_TYPE%"=="WSL" (
     echo 🐧 Using WSL scripts...
+    echo 🔍 Looking for: scripts\start-windows-wsl.bat
     if exist "scripts\start-windows-wsl.bat" (
+        echo ✅ Found WSL script, executing...
         call "scripts\start-windows-wsl.bat"
     ) else (
         echo ❌ WSL start script not found: scripts\start-windows-wsl.bat
+        echo 📋 Available scripts:
+        dir /b scripts\*.bat scripts\*.sh 2>nul || echo    No scripts found
         pause
     )
 ) else (
     echo 🪟 Using native Windows scripts...
+    echo 🔍 Looking for: scripts\start-native.bat
     if exist "scripts\start-native.bat" (
+        echo ✅ Found native script, executing...
         call "scripts\start-native.bat"
     ) else (
         echo ❌ Native start script not found: scripts\start-native.bat
+        echo 📋 Available scripts:
+        dir /b scripts\*.bat scripts\*.sh 2>nul || echo    No scripts found
         pause
     )
 )
@@ -136,6 +163,8 @@ if "%ENV_TYPE%"=="WSL" (
         call "scripts\stop-windows-wsl.bat"
     ) else (
         echo ❌ WSL stop script not found: scripts\stop-windows-wsl.bat
+        echo 📋 Available scripts:
+        dir /b scripts\*.bat scripts\*.sh 2>nul || echo    No scripts found
         pause
     )
 ) else (
@@ -144,6 +173,8 @@ if "%ENV_TYPE%"=="WSL" (
         call "scripts\stop-native.bat"
     ) else (
         echo ❌ Native stop script not found: scripts\stop-native.bat
+        echo 📋 Available scripts:
+        dir /b scripts\*.bat scripts\*.sh 2>nul || echo    No scripts found
         pause
     )
 )

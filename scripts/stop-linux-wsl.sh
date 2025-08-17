@@ -33,16 +33,31 @@ print_error() {
 
 # Function to check if running in WSL
 check_wsl() {
-    if ! grep -q Microsoft /proc/version; then
-        print_error "Đây không phải là WSL environment!"
-        print_error "Vui lòng sử dụng script phù hợp:"
-        echo "  - Linux/macOS native: ./stop.sh"
-        echo "  - Windows native: stop.bat"
-        echo "  - Windows WSL2: stop-wsl2.bat"
-        exit 1
+    # Kiểm tra WSL bằng nhiều phương pháp (giống teenup.sh)
+    if [[ -n "$WSL_DISTRO_NAME" ]] || [[ -n "$WSL_INTEROP" ]] || 
+       grep -qi microsoft /proc/version 2>/dev/null ||
+       grep -qi wsl /proc/version 2>/dev/null ||
+       [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+        print_success "Đang chạy trong WSL environment"
+        if [[ -n "$WSL_DISTRO_NAME" ]]; then
+            print_status "WSL Distribution: $WSL_DISTRO_NAME"
+        fi
+        return 0
     fi
     
-    print_success "Đang chạy trong WSL environment"
+    print_error "Đây không phải là WSL environment!"
+    print_error "Vui lòng sử dụng script phù hợp:"
+    echo "  - Linux/macOS native: ./scripts/stop-native.sh"
+    echo "  - Windows native: scripts/stop-native.bat"
+    echo "  - WSL: Đã chạy đúng script này, có thể là lỗi detection"
+    
+    # Debug info
+    echo "Debug info:"
+    echo "  WSL_DISTRO_NAME: ${WSL_DISTRO_NAME:-'Not set'}"
+    echo "  WSL_INTEROP: ${WSL_INTEROP:-'Not set'}"
+    echo "  /proc/version: $(head -1 /proc/version 2>/dev/null || echo 'Not readable')"
+    
+    exit 1
 }
 
 # Function to check Docker

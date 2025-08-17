@@ -56,4 +56,4 @@ else
 fi
 
 echo ""
-echo "🚀 Ready to start: ./start.sh"
+echo "🚀 Ready to start: ./teenup.sh start"

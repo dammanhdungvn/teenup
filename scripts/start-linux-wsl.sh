@@ -264,7 +264,7 @@ show_access_info() {
     echo
     echo -e "${BLUE}📋 Các lệnh hữu ích (trong WSL):${NC}"
     echo "  Xem logs: docker compose logs -f"
-    echo "  Dừng services: ./stop-wsl.sh"
+    echo "  Dừng services: ./teenup.sh stop"
     echo "  Restart: docker compose restart"
     echo "  Xem status: docker compose ps"
     echo
@@ -272,7 +272,7 @@ show_access_info() {
     echo "  Logs backend: docker compose logs backend"
     echo "  Logs frontend: docker compose logs frontend"
     echo "  Logs database: docker compose logs db"
-    echo "  Reset data: docker compose down -v && ./start-wsl.sh"
+    echo "  Reset data: docker compose down -v && ./teenup.sh start"
     echo
     echo -e "${BLUE}💡 WSL Notes:${NC}"
     echo "  Ports được Windows forward tự động từ WSL"

@@ -5,7 +5,7 @@
 ## 🚀 **KHỞI ĐỘNG NHANH**
 
 ### **1️⃣ Cài đặt Docker** 
-[Xem hướng dẫn chi tiết](docs/DOCKER-SETUP.md)
+[Xem hướng dẫn chi tiết](docs/INDEX.md)
 
 ### **2️⃣ Chạy hệ thống**
 
@@ -78,7 +78,7 @@ Hệ thống tự động tạo:
 
 ## 📚 **TÀI LIỆU CHI TIẾT**
 
-- 📚 **[Hướng dẫn đầy đủ](docs/README.md)** - Tài liệu chi tiết bằng tiếng Việt
+- 📚 **[Hướng dẫn đầy đủ](docs/INDEX.md)** - Tài liệu chi tiết bằng tiếng Việt
 - 📡 **[API Documentation](docs/API.md)** - REST API reference chi tiết
 
 ## 🛠️ **DEVELOPMENT**

@@ -42,18 +42,38 @@ print_error() {
 
 # Function to detect environment
 detect_environment() {
+    # Kiểm tra WSL trước (cả WSL1 và WSL2)
+    if [[ -n "$WSL_DISTRO_NAME" ]] || [[ -n "$WSL_INTEROP" ]] || 
+       grep -qi microsoft /proc/version 2>/dev/null ||
+       grep -qi wsl /proc/version 2>/dev/null ||
+       [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+        echo "WSL"
+        return
+    fi
+    
+    # Kiểm tra theo OSTYPE
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        if grep -q Microsoft /proc/version 2>/dev/null; then
-            echo "WSL"
-        else
-            echo "LINUX"
-        fi
+        echo "LINUX"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         echo "MACOS"
     elif [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
         echo "WINDOWS_BASH"
     else
-        echo "UNKNOWN"
+        # Fallback: kiểm tra kernel release
+        if command -v uname &> /dev/null; then
+            local kernel=$(uname -r 2>/dev/null || echo "")
+            if [[ "$kernel" == *"Microsoft"* ]] || [[ "$kernel" == *"microsoft"* ]] || [[ "$kernel" == *"WSL"* ]]; then
+                echo "WSL"
+                return
+            fi
+        fi
+        
+        # Final fallback
+        if [[ -f /etc/os-release ]]; then
+            echo "LINUX"
+        else
+            echo "UNKNOWN"
+        fi
     fi
 }
 
@@ -63,10 +83,27 @@ show_environment_info() {
     
     print_status "Detected environment: $env_type"
     
+    # Debug info for troubleshooting
+    if [[ "$env_type" == "WSL" ]]; then
+        if [[ -n "$WSL_DISTRO_NAME" ]]; then
+            print_status "WSL Distribution: $WSL_DISTRO_NAME"
+        fi
+    fi
+    
     case $env_type in
         "WSL")
             print_status "Running in Windows Subsystem for Linux"
             print_status "Will use WSL-optimized scripts"
+            # Kiểm tra Docker có sẵn trong WSL không
+            if ! command -v docker &> /dev/null; then
+                print_warning "Docker chưa được cài đặt trong WSL"
+                print_status "Hướng dẫn cài đặt:"
+                echo "  1. curl -fsSL https://get.docker.com -o get-docker.sh"
+                echo "  2. sudo sh get-docker.sh"
+                echo "  3. sudo usermod -aG docker \$USER"
+                echo "  4. Logout/login lại"
+                echo "  5. sudo service docker start"
+            fi
             ;;
         "LINUX")
             print_status "Running on native Linux system"
@@ -82,6 +119,11 @@ show_environment_info() {
             ;;
         *)
             print_error "Unknown environment: $OSTYPE"
+            print_status "Debug info:"
+            echo "  OSTYPE: $OSTYPE"
+            echo "  Kernel: $(uname -r 2>/dev/null || echo 'N/A')"
+            echo "  WSL_DISTRO_NAME: ${WSL_DISTRO_NAME:-'Not set'}"
+            echo "  WSL_INTEROP: ${WSL_INTEROP:-'Not set'}"
             print_error "Please run the appropriate script manually"
             exit 1
             ;;
@@ -184,11 +226,15 @@ show_info() {
     echo
     echo -e "${BLUE}📋 Environment:${NC} $env_type"
     echo
-    echo -e "${BLUE}📁 Directory Structure:${NC}"
-    echo "  scripts/     - All control scripts"
-    echo "  docs/        - Documentation"
-    echo "  frontend/    - React application"
-    echo "  backend/     - Spring Boot application"
+    echo -e "${BLUE}📚 Documentation:${NC}"
+    echo "  README.md       - Hướng dẫn nhanh"
+    echo "  docs/README.md  - Tài liệu đầy đủ"
+    echo "  docs/API.md     - API documentation"
+    echo
+    echo -e "${BLUE}📁 Structure:${NC}"
+    echo "  scripts/     - Control scripts"
+    echo "  frontend/    - React app"
+    echo "  backend/     - Spring Boot API"
     echo
     echo -e "${BLUE}💡 Manual Commands:${NC}"
     case $env_type in

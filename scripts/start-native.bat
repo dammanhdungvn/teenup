@@ -166,14 +166,42 @@ if %errorlevel% neq 0 (
 
 :: Đợi Backend khởi động
 echo ⏳ Đợi Backend khởi động...
+set MAX_ATTEMPTS=30
+set ATTEMPT=1
+
 :wait_backend
-curl -f http://localhost:8081/api/parents/list >nul 2>&1
-if %errorlevel% neq 0 (
-    echo    Backend chưa sẵn sàng, đợi thêm...
-    timeout /t 10 >nul
-    goto wait_backend
+echo    Kiểm tra backend... (lần %ATTEMPT%/%MAX_ATTEMPTS%)
+
+:: Kiểm tra curl có sẵn không
+curl --version >nul 2>&1
+if %errorlevel% equ 0 (
+    :: Dùng curl nếu có sẵn
+    curl -f -s http://localhost:8081/api/parents/list >nul 2>&1
+    if %errorlevel% equ 0 (
+        echo ✅ Backend đã sẵn sàng
+        goto backend_ready
+    )
+) else (
+    :: Dùng PowerShell nếu không có curl
+    powershell -Command "try { Invoke-WebRequest -Uri 'http://localhost:8081/api/parents/list' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }" >nul 2>&1
+    if %errorlevel% equ 0 (
+        echo ✅ Backend đã sẵn sàng
+        goto backend_ready
+    )
 )
-echo ✅ Backend đã sẵn sàng
+
+set /a ATTEMPT+=1
+if %ATTEMPT% gtr %MAX_ATTEMPTS% (
+    echo ❌ Backend không khởi động được sau %MAX_ATTEMPTS% lần thử
+    echo 💡 Kiểm tra logs: docker compose logs backend
+    pause
+    exit /b 1
+)
+
+timeout /t 5 >nul
+goto wait_backend
+
+:backend_ready
 
 echo.
 echo 🌐 Khởi động Frontend...
@@ -186,14 +214,42 @@ if %errorlevel% neq 0 (
 
 :: Đợi Frontend khởi động
 echo ⏳ Đợi Frontend khởi động...
+set MAX_ATTEMPTS_FE=20
+set ATTEMPT_FE=1
+
 :wait_frontend
-curl -f http://localhost:3000 >nul 2>&1
-if %errorlevel% neq 0 (
-    echo    Frontend chưa sẵn sàng, đợi thêm...
-    timeout /t 5 >nul
-    goto wait_frontend
+echo    Kiểm tra frontend... (lần %ATTEMPT_FE%/%MAX_ATTEMPTS_FE%)
+
+:: Kiểm tra curl có sẵn không
+curl --version >nul 2>&1
+if %errorlevel% equ 0 (
+    :: Dùng curl nếu có sẵn
+    curl -f -s http://localhost:3000 >nul 2>&1
+    if %errorlevel% equ 0 (
+        echo ✅ Frontend đã sẵn sàng
+        goto frontend_ready
+    )
+) else (
+    :: Dùng PowerShell nếu không có curl
+    powershell -Command "try { Invoke-WebRequest -Uri 'http://localhost:3000' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }" >nul 2>&1
+    if %errorlevel% equ 0 (
+        echo ✅ Frontend đã sẵn sàng
+        goto frontend_ready
+    )
 )
-echo ✅ Frontend đã sẵn sàng
+
+set /a ATTEMPT_FE+=1
+if %ATTEMPT_FE% gtr %MAX_ATTEMPTS_FE% (
+    echo ❌ Frontend không khởi động được sau %MAX_ATTEMPTS_FE% lần thử
+    echo 💡 Kiểm tra logs: docker compose logs frontend
+    pause
+    exit /b 1
+)
+
+timeout /t 3 >nul
+goto wait_frontend
+
+:frontend_ready
 
 :: Kiểm tra trạng thái cuối cùng
 echo.

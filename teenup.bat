@@ -64,16 +64,35 @@ REM Environment detection
 :detect_environment
 echo 🔍 Detecting Windows environment...
 
-REM Check if WSL is available
+REM Check if Docker is using WSL backend
+echo    Kiểm tra Docker backend...
+docker info 2>nul | findstr /i "wsl" >nul 2>&1
+if %errorlevel% equ 0 (
+    echo ✅ Docker đang dùng WSL backend
+    REM Kiểm tra WSL có sẵn không
+    wsl --status >nul 2>&1
+    if %errorlevel% equ 0 (
+        echo ✅ WSL detected và sẵn sàng
+        set "ENV_TYPE=WSL"
+        set "ENV_DESC=Windows với Docker WSL backend"
+        goto :eof
+    ) else (
+        echo ⚠️  Docker dùng WSL nhưng WSL không sẵn sàng
+        echo    Chuyển sang Native Windows mode
+    )
+)
+
+REM Check if WSL is available (fallback)
 wsl --status >nul 2>&1
 if %errorlevel% equ 0 (
-    echo ✅ WSL detected
-    set "ENV_TYPE=WSL"
-    set "ENV_DESC=Windows Subsystem for Linux"
+    echo ✅ WSL có sẵn nhưng Docker dùng native
+    echo    Ưu tiên Docker native mode
+    set "ENV_TYPE=WINDOWS"
+    set "ENV_DESC=Native Windows environment"
     goto :eof
 )
 
-REM Check if running in native Windows
+REM Default to native Windows
 echo ✅ Native Windows detected
 set "ENV_TYPE=WINDOWS"
 set "ENV_DESC=Native Windows environment"
@@ -188,11 +207,15 @@ echo   Database:    localhost:3306
 echo.
 echo 📋 Environment: %ENV_DESC%
 echo.
-echo 📁 Directory Structure:
-echo   scripts\     - All control scripts
-echo   docs\        - Documentation
-echo   frontend\    - React application
-echo   backend\     - Spring Boot application
+echo 📚 Documentation:
+echo   README.md       - Hướng dẫn nhanh
+echo   docs\README.md  - Tài liệu đầy đủ
+echo   docs\API.md     - API documentation
+echo.
+echo 📁 Structure:
+echo   scripts\     - Control scripts
+echo   frontend\    - React app
+echo   backend\     - Spring Boot API
 echo.
 echo 💡 Manual Commands:
 

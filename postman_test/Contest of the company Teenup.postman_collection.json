@@ -1,0 +1,676 @@
+{
+	"info": {
+		"_postman_id": "be643a1f-12b3-45d9-888e-2ae56c370384",
+		"name": "Contest of the company Teenup",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37426194"
+	},
+	"item": [
+		{
+			"name": "api-parents",
+			"item": [
+				{
+					"name": "add_parent_success",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Đàm Mạnh Đạt\",\n    \"phone\": \"0978461855\",\n    \"email\": \"dammanhdatvn.work@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/parents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"parents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getById_success",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Đàm Mạnh Dũng\",\n    \"phone\": \"0978461865\",\n    \"email\": \"dammanhdungvn.work@gmail.com\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/parents/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"parents",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add_parent_fail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Đàm Mạnh Dũng\",\n    \"phone\": \"\",\n    \"email\": \"dammanhdungvn.work@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/parents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"parents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getById_fail",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Đàm Mạnh Dũng\",\n    \"phone\": \"0978461865\",\n    \"email\": \"dammanhdungvn.work@gmail.com\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/parents/999",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"parents",
+								"999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAll_success",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Đàm Mạnh Dũng\",\n    \"phone\": \"0978461865\",\n    \"email\": \"dammanhdungvn.work@gmail.com\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/parents/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"parents",
+								"list"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "api-students",
+			"item": [
+				{
+					"name": "add_student_success",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Đàm Mạnh Thương\",\n    \"dob\": \"2015-02-07\",\n    \"gender\": \"M\",\n    \"currentGrade\": \"Grade 4\",\n    \"parentId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/students",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"students"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getById_success",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Đàm Mạnh Thương\",\n    \"dob\": \"2015-02-07\",\n    \"gender\": \"M\",\n    \"currentGrade\": \"Grade 4\",\n    \"parentId\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/students/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"students",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAll_success",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Đàm Mạnh Thương\",\n    \"dob\": \"2015-02-07\",\n    \"gender\": \"M\",\n    \"currentGrade\": \"Grade 4\",\n    \"parentId\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/students/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"students",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getById_fail",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Đàm Mạnh Thương\",\n    \"dob\": \"2015-02-07\",\n    \"gender\": \"M\",\n    \"currentGrade\": \"Grade 4\",\n    \"parentId\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/students/999",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"students",
+								"999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add_student_fail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Đàm Mạnh Thương\",\n    \"dob\": \"2030-02-07\",\n    \"gender\": \"M\",\n    \"currentGrade\": \"Grade 4\",\n    \"parentId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/students",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"students"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "api-classes",
+			"item": [
+				{
+					"name": "add_classes_success",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Tiếng anh giao tiếp\",\n    \"subject\":\"English\",\n    \"dayOfWeek\":3,\n    \"timeSlot\":\"09:00-10:30\",\n    \"teacherName\":\"Cô Mai Phương\",\n    \"maxStudents\":30\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/classes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"classes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAll_classes_success",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Tiếng anh giao tiếp\",\n    \"subject\":\"English\",\n    \"dayOfWeek\":3,\n    \"timeSlot\":\"09:00-10:30\",\n    \"teacherName\":\"Cô Mai Phương\",\n    \"maxStudents\":30\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/classes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"classes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getById_success",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Tiếng anh giao tiếp\",\n    \"subject\":\"English\",\n    \"dayOfWeek\":3,\n    \"timeSlot\":\"09:00-10:30\",\n    \"teacherName\":\"Cô Mai Phương\",\n    \"maxStudents\":30\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/classes?day=3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"classes"
+							],
+							"query": [
+								{
+									"key": "day",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "listStudentsOfClass_success",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/api/classes/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"classes",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "listClassHasStudents_success",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/api/classes?expand=registrations&day=2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"classes"
+							],
+							"query": [
+								{
+									"key": "expand",
+									"value": "registrations"
+								},
+								{
+									"key": "day",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "listClassHasStudentAnhDay",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/api/classes?expand=registrations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"classes"
+							],
+							"query": [
+								{
+									"key": "expand",
+									"value": "registrations"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "api-registerClass",
+			"item": [
+				{
+					"name": "register_success",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"studentId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/classes/2/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"classes",
+								"2",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register_fail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"studentId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/classes/2/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"classes",
+								"2",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "api-listStudentsOnClass",
+			"item": [
+				{
+					"name": "listStudentsOnClass_success",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/api/classes/2/registrations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"classes",
+								"2",
+								"registrations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "listClassOfStudent_success",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/api/students/1/classes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"students",
+								"1",
+								"classes"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "api-subscriptions",
+			"item": [
+				{
+					"name": "createPackage_success",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"studentId\": 1,\n    \"packageName\": \"Basic-12\",\n    \"startDate\": \"2025-08-01\",\n    \"endDate\":   \"2025-12-31\",\n    \"totalSessions\": 12\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/subscriptions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"subscriptions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "learned_success",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/api/subscriptions/1/use",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"subscriptions",
+								"1",
+								"use"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "status_success",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/api/subscriptions/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"subscriptions",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}

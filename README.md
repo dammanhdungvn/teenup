@@ -340,14 +340,8 @@ docker compose exec db mysql -u teenup -p teenup
 - ✅ **Data Persistence** - MySQL volumes được bảo toàn
 - ✅ **Cross Platform** - Linux/Windows/macOS
 
-### **Scaling Considerations:**
-- **Load Balancer:** Nginx reverse proxy cho frontend
-- **Database:** MySQL Master-Slave replication
-- **Cache:** Redis cho session management
-- **Monitoring:** Prometheus + Grafana
-- **Logging:** ELK Stack
-
 ---
+
 
 **📅 Cập nhật:** Tháng 8 2025  
 **✨ Trạng thái:** Production Ready  
